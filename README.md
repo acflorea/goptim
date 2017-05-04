@@ -1,4 +1,4 @@
 # goptim
-A Monte Carlo based function optimisation library
+A Monte Carlo based function optimisation library.
 
 AWIP - Awesome Work in Progress :blush:
