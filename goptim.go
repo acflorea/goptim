@@ -2,43 +2,22 @@ package main
 
 import (
 	"fmt"
-	"errors"
 	"github.com/acflorea/goptim/rand"
 	"math"
+	"github.com/acflorea/goptim/functions"
 )
 
 func main() {
 
 	emptyMap := make(map[string]float64)
-	constant(emptyMap)
+	functions.F_constant(emptyMap)
 
-	i, p, v := Minimize(x_square, 25, 1000)
+	i, p, v := Minimize(functions.F_x_square, 25, 10000)
 	fmt.Println("xSquare MIN --> ", i, p, v)
 
-	i, p, v = Minimize(identity, 25, 1000)
+	i, p, v = Minimize(functions.F_identity, 25, 10000)
 	fmt.Println("identity MIN --> ", i, p, v)
 
-}
-
-// Constant function
-func constant(_ map[string]float64) (float64, error) {
-	return 10, nil
-}
-
-// Identity function
-func identity(x map[string]float64) (float64, error) {
-	for _, value := range x {
-		return value, nil
-	}
-	return 0.0, errors.New("Not a single parameter map.")
-}
-
-// x^2 function
-func x_square(x map[string]float64) (float64, error) {
-	for _, value := range x {
-		return value * value, nil
-	}
-	return 0.0, errors.New("Not a single parameter map.")
 }
 
 // Evaluate the function f in the point p
@@ -53,7 +32,7 @@ func Eval(f func(map[string]float64) (float64, error), p map[string]float64) (fl
 // of if n attempts have been made (in which case the 1st step minimum is reported)
 func Minimize(f func(map[string]float64) (float64, error), k, n int) (index int, p, min float64) {
 
-	left, right := -10.0, 10.0
+	left, right := -100.0, 100.0
 	index = -1
 	min = math.MaxFloat64
 
