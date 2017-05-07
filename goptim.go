@@ -1,37 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"github.com/acflorea/goptim/generators"
 	"math"
 	"github.com/acflorea/goptim/functions"
+	"fmt"
 )
 
 func main() {
 
 	generator := generators.RandomUniformGenerator{
-		DimensionsNo: 1,
-		PointsNo:     10000,
+		DimensionsNo: 2,
+		PointsNo:     300,
 		Restrictions: []generators.Range{
-			{-10, 10},
+			{0, 120},
+			{0, 120},
 		},
 	}
 
-	i, p, v := Minimize(functions.F_x_square, generator, 250, 10000)
-	fmt.Println("xSquare MIN --> ", i, p, v)
-
-	i, p, v = Minimize(functions.F_identity, generator, 250, 10000)
-	fmt.Println("identity MIN --> ", i, p, v)
-
-	i, p, v = Maximize(functions.F_x_square, generator, 250, 10000)
-	fmt.Println("xSquare MAX --> ", i, p, v)
-
-	i, p, v = Maximize(functions.F_identity, generator, 250, 10000)
-	fmt.Println("identity MAX --> ", i, p, v)
-
-	values := []float64{1.0, 2.0, 1.5}
-	point := functions.MultidimensionalPoint{Values: values}
-	fmt.Println(point.PrettyPrint())
+	i, p, v := Maximize(functions.SparkIt, generator, 25, 300)
+	fmt.Println("SparkIt MAX --> ", i, p, v)
 
 }
 
