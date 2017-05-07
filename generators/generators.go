@@ -26,6 +26,8 @@ type MultiPointGenerator struct {
 	Restrictions []Range
 	// How many points to generate
 	PointsNo int
+	// The index of the last generated point
+	index int
 }
 
 // Generates g.PointsNo.
@@ -38,7 +40,7 @@ func (g *MultiPointGenerator) RandomUniform() (points []functions.Multidimension
 		values := make([]float64, g.DimensionsNo)
 		for dimIdx := 0; dimIdx < g.DimensionsNo; dimIdx++ {
 			lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
-			if (len(g.Restrictions) > dimIdx) {
+			if len(g.Restrictions) > dimIdx {
 				lowerBound = g.Restrictions[dimIdx].LowerBound
 				upperBound = g.Restrictions[dimIdx].UpperBound
 			}
@@ -47,5 +49,32 @@ func (g *MultiPointGenerator) RandomUniform() (points []functions.Multidimension
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
 
+	g.index = g.PointsNo
+
 	return points
+}
+
+// Generates a new point
+// Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
+func (g *MultiPointGenerator) Next() (point functions.MultidimensionalPoint) {
+
+	values := make([]float64, g.DimensionsNo)
+	for dimIdx := 0; dimIdx < g.DimensionsNo; dimIdx++ {
+		lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
+		if len(g.Restrictions) > dimIdx {
+			lowerBound = g.Restrictions[dimIdx].LowerBound
+			upperBound = g.Restrictions[dimIdx].UpperBound
+		}
+		_, values[dimIdx] = Float64(lowerBound, upperBound)
+	}
+
+	point = functions.MultidimensionalPoint{Values: values}
+
+	g.index++
+
+	return
+}
+
+func (g *MultiPointGenerator) HasNext() bool {
+	return g.index < g.PointsNo
 }
