@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/acflorea/goptim/rand"
+	"github.com/acflorea/goptim/generators"
 	"math"
 	"github.com/acflorea/goptim/functions"
 )
@@ -47,7 +47,7 @@ func Minimize(f functions.NumericalFunction, k, n int) (index int, p, min float6
 	min = math.MaxFloat64
 
 	for i := 0; i < n; i++ {
-		_, rnd := rand.Float64(left, right)
+		_, rnd := generators.Float64(left, right)
 		f_rnd, _ := Eval(f, map[string]float64{
 			"x": rnd,
 		})

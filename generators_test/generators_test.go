@@ -1,8 +1,8 @@
-package rand_test
+package generators_test
 
 import (
 	"testing"
-	"github.com/acflorea/goptim/rand"
+	"github.com/acflorea/goptim/generators"
 	"fmt"
 )
 
@@ -11,7 +11,7 @@ func Test_Float64(t *testing.T) {
 	a := 10.0
 	b := 20.0
 	for i := 0; i < 10; i++ {
-		_, r := rand.Float64(a, b)
+		_, r := generators.Float64(a, b)
 		if (r < a || r >= b) {
 			t.Error("Invalid number generated")
 		}
@@ -20,10 +20,10 @@ func Test_Float64(t *testing.T) {
 
 func Test_RandomUniformPointsGenerator(t *testing.T) {
 
-	generator := rand.MultiPointGenerator{
+	generator := generators.MultiPointGenerator{
 		DimensionsNo: 2,
 		PointsNo:     10,
-		Restrictions: []rand.Range{
+		Restrictions: []generators.Range{
 			{-10, 0},
 			{0, 10},
 		},
