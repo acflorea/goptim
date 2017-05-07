@@ -24,6 +24,10 @@ func main() {
 	i, p, v = Maximize(functions.F_identity, 25, 10000)
 	fmt.Println("identity MAX --> ", i, p, v)
 
+	values := []float64{1.0, 2.0, 1.5}
+	point := functions.MultidimensionalPoint{Values: values}
+	fmt.Println(point.PrettyPrint())
+
 }
 
 // Evaluate the function f in the point p

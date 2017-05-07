@@ -1,6 +1,58 @@
 package functions
 
-import "errors"
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
+
+func FloatToString(input_num float64) string {
+	// to convert a float number to a string
+	return strconv.FormatFloat(input_num, 'f', 6, 64)
+}
+
+// A type alias for a multidimensional point
+// (basically a map which entries have the form dimensionName -> value)
+// Eg: The origin in a 3d space {"x":0, "y":0, "z":0}
+type MultidimensionalPoint struct {
+	// Values on each dimension
+	Values []float64
+	// Optional dimension labels
+	Labels []string
+}
+
+// Prints a point in a friendly way
+// Eg: "x0=1.000000,x1=2.000000,x2=1.500000"
+func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
+
+	var dimensionsLabels = make([]string, len(p.Values))
+	if i := 0; p.Labels != nil {
+		// if some dimension labels are specified
+		min := len(p.Labels)
+		if min > len(dimensionsLabels) {
+			min = len(dimensionsLabels)
+		}
+		// In sync labels and values
+		for ; i < min; i++ {
+			dimensionsLabels[i] = p.Labels[i] + "=" + FloatToString(p.Values[i])
+		}
+		// Extra values
+		for ; i < len(dimensionsLabels); i++ {
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + FloatToString(p.Values[i])
+		}
+		// Extra labels
+		for ; i < len(p.Labels); i++ {
+			dimensionsLabels = append(dimensionsLabels, p.Labels[i]+"=nil")
+		}
+	} else {
+		for ; i < len(dimensionsLabels); i++ {
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + FloatToString(p.Values[i])
+		}
+	}
+
+	desc = strings.Join(dimensionsLabels[:], ",")
+	return
+}
 
 // A type alias for a function taking a variable number of parameters and returning a float
 type NumericalFunction func(map[string]float64) (float64, error)
