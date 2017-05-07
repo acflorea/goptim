@@ -24,7 +24,7 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	generator := generators.MultiPointGenerator{
+	generator := generators.RandomUniformGenerator{
 		DimensionsNo: dimensionsNo,
 		PointsNo:     howManyPoints,
 		Restrictions: []generators.Range{
@@ -60,7 +60,7 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	generator := generators.MultiPointGenerator{
+	generator := generators.RandomUniformGenerator{
 		DimensionsNo: dimensionsNo,
 		PointsNo:     howManyPoints,
 		Restrictions: []generators.Range{
@@ -69,7 +69,7 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 		},
 	}
 
-	generatedPoints := generator.RandomUniform()
+	generatedPoints := generator.AllAvailable()
 
 	if len(generatedPoints) != howManyPoints {
 		msg := fmt.Sprintf("Error generating points. "+

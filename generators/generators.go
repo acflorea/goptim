@@ -17,8 +17,14 @@ type Range struct {
 	LowerBound, UpperBound float64
 }
 
+type Generator interface {
+	AllAvailable() (points []functions.MultidimensionalPoint)
+	Next() (point functions.MultidimensionalPoint)
+	HasNext() bool
+}
+
 // A multipoint generator structure
-type MultiPointGenerator struct {
+type RandomUniformGenerator struct {
 	// Number of dimensions
 	DimensionsNo int
 	// Optional restrictions on each dimension
@@ -32,7 +38,7 @@ type MultiPointGenerator struct {
 
 // Generates g.PointsNo.
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g *MultiPointGenerator) RandomUniform() (points []functions.MultidimensionalPoint) {
+func (g RandomUniformGenerator) AllAvailable() (points []functions.MultidimensionalPoint) {
 
 	points = make([]functions.MultidimensionalPoint, g.PointsNo)
 
@@ -56,7 +62,7 @@ func (g *MultiPointGenerator) RandomUniform() (points []functions.Multidimension
 
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g *MultiPointGenerator) Next() (point functions.MultidimensionalPoint) {
+func (g RandomUniformGenerator) Next() (point functions.MultidimensionalPoint) {
 
 	values := make([]float64, g.DimensionsNo)
 	for dimIdx := 0; dimIdx < g.DimensionsNo; dimIdx++ {
@@ -75,6 +81,6 @@ func (g *MultiPointGenerator) Next() (point functions.MultidimensionalPoint) {
 	return
 }
 
-func (g *MultiPointGenerator) HasNext() bool {
+func (g RandomUniformGenerator) HasNext() bool {
 	return g.index < g.PointsNo
 }

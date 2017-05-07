@@ -66,9 +66,9 @@ func TestF_constant(t *testing.T) {
 	x := 12.34
 	expected_y := 10.0
 
-	y, err := functions.F_constant(map[string]float64{
-		"x": x,
-	})
+	point := functions.MultidimensionalPoint{Values: []float64{x}}
+
+	y, err := functions.F_constant(point)
 	if err != nil {
 		msg := fmt.Sprintf("F_constant(%f) raised an error ", x)
 		t.Error(msg, err)
@@ -85,9 +85,9 @@ func TestF_identity(t *testing.T) {
 	x := 12.34
 	expected_y := x
 
-	y, err := functions.F_identity(map[string]float64{
-		"x": x,
-	})
+	point := functions.MultidimensionalPoint{Values: []float64{x}}
+
+	y, err := functions.F_identity(point)
 	if err != nil {
 		msg := fmt.Sprintf("F_identity(%f) raised an error ", x)
 		t.Error(msg, err)
@@ -104,9 +104,9 @@ func TestF_x_square(t *testing.T) {
 	x := 12.34
 	expected_y := 152.2756
 
-	y, err := functions.F_x_square(map[string]float64{
-		"x": x,
-	})
+	point := functions.MultidimensionalPoint{Values: []float64{x}}
+
+	y, err := functions.F_x_square(point)
 	if err != nil {
 		msg := fmt.Sprintf("F_x_square(%f) raised an error ", x)
 		t.Error(msg, err)
