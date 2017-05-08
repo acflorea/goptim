@@ -4,6 +4,8 @@ import (
 	"os/exec"
 	"fmt"
 	"io/ioutil"
+	"strings"
+	"strconv"
 )
 
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
@@ -51,7 +53,11 @@ func SparkIt(p MultidimensionalPoint) (float64, error) {
 	}
 
 	dat, _ := ioutil.ReadFile(fsRoot + "/" + resultsFileName)
+	resultsStr := string(dat)
 	fmt.Println(FloatToString(p.Values[0]), FloatToString(p.Values[1]), string(dat))
 
-	return 0.0, nil
+	f1str := strings.TrimPrefix(strings.Split(resultsStr, " ")[2], "F:")
+	f1Measure, _ := strconv.ParseFloat(f1str, 64)
+
+	return f1Measure, nil
 }
