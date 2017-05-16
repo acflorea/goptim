@@ -4,11 +4,14 @@ import (
 	"math/rand"
 	"github.com/acflorea/goptim/functions"
 	"math"
+	"time"
 )
 
 // Generates a uniform random value between a and b
 func Float64(a, b float64) (float64, float64) {
-	original := rand.Float64()
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+	original := r.Float64()
 	return original, a + (b-a)*original
 }
 

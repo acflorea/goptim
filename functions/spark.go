@@ -11,12 +11,16 @@ import (
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
 func SparkIt(p MultidimensionalPoint) (float64, error) {
 
+	dataset:="netbeans"
+
 	sparkSubmit := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
-	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf"
-	fsRoot := "/Users/acflorea/phd/columbugus_data/netbeans_final_test"
-	targetJar := "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.1.jar"
+	targetJar := "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
+
+	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/"+dataset+".conf"
+	fsRoot := "/Users/acflorea/phd/columbugus_data/"+dataset+"_final_test"
+
 	resultsFileName := "gorand_results.out"
-	mode := "true"
+	tuningMode := "true"
 
 	sparkParams := "-Dconfig.file=" +
 		configFile +
@@ -24,7 +28,7 @@ func SparkIt(p MultidimensionalPoint) (float64, error) {
 		"-Dreccsys.phases.preprocess=true " +
 		"-Dreccsys.preprocess.includeCategory=true " +
 		"-Dreccsys.preprocess.includeProduct=true " +
-		"-Dreccsys.global.tuningMode=" + mode +
+		"-Dreccsys.global.tuningMode=" + tuningMode +
 		" -Dreccsys.filesystem.resultsFileName=" +
 		resultsFileName +
 		" -Dreccsys.filesystem.root=" +
@@ -45,7 +49,12 @@ func SparkIt(p MultidimensionalPoint) (float64, error) {
 	//"--driver-java-options" + sparkParams
 
 	//cmd := exec.Command(sparkSubmit, sparkParams, "&2 > ./xxx.log")
-	cmd := exec.Command(sparkSubmit, "--class", "dr.acf.recc.ReccomenderBackbone", "--driver-java-options", sparkParams, targetJar)
+	cmd := exec.Command(sparkSubmit,
+		"--class", "dr.acf.recc.ReccomenderBackbone",
+		"--master=local[3]",
+		"--driver-java-options",
+		sparkParams,
+		targetJar)
 
 	if err := cmd.Run(); err != nil {
 		fmt.Println("Error: ", err)
