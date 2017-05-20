@@ -5,29 +5,33 @@ import (
 	"math"
 	"github.com/acflorea/goptim/functions"
 	"fmt"
+	"time"
 )
 
 func main() {
 
+	start := time.Now()
+
 	// Maximum number of attempts
-	maxAttepts := 3000
+	maxAttepts := 1000000
 
 	// The function we attempt to optimize
-	targetFunction := functions.F_identity
+	targetFunction := functions.F_sombrero
+
+	// number of workers
+	W := 25
 
 	generator := generators.RandomUniformGenerator{
 		DimensionsNo: 2,
 		PointsNo:     maxAttepts,
 		Restrictions: []generators.Range{
-			{0, 120},
-			{0, 120},
+			{-10, 10},
+			{-10, 10},
 		},
 	}
 
-	// number of workers
-	W := 100
 	// channel used by workers to communicate their results
-	messages := make(chan functions.Sample)
+	messages := make(chan functions.Sample, W)
 
 	for w := 0; w < W; w++ {
 		go func(w int) {
@@ -42,15 +46,20 @@ func main() {
 	results := make([]functions.Sample, W)
 	totalTries := 0
 	optim := -math.MaxFloat64
+	var point functions.MultidimensionalPoint
 	for i := 0; i < W; i++ {
 		results[i] = <-messages
 		totalTries += results[i].Index
 		if optim < results[i].Value {
 			optim = results[i].Value
+			point = results[i].Point
 		}
 	}
 
-	fmt.Println(totalTries, optim)
+	fmt.Println(totalTries, point, optim)
+
+	elapsed := time.Since(start)
+	fmt.Println("Optimization took %s", elapsed)
 
 }
 
@@ -88,7 +97,7 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 
 		//fmt.Println(i, " :: ", rnd, " -> ", f_rnd)
 
-		if (f_rnd < min) {
+		if f_rnd < min {
 			index = i
 			p = rndPoint
 			min = f_rnd

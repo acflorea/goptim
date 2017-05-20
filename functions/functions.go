@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+	"math"
 )
 
 func FloatToString(input_num float64) string {
@@ -84,6 +85,20 @@ func F_x_square(x MultidimensionalPoint) (float64, error) {
 		return value * value, nil
 	}
 	return 0.0, errors.New("Not a single parameter map.")
+}
+
+// sin(sqrt(sq(x)+sq(y)))/sqrt(sq(x)+sq(y))
+func F_sombrero(p MultidimensionalPoint) (float64, error) {
+	x := p.Values[0]
+	y := p.Values[1]
+
+	w := math.Sqrt(x*x + y*y)
+
+	if w != 0 {
+		return math.Sin(w) / w, nil
+	} else {
+		return 0.0, errors.New("Not a single parameter map.")
+	}
 }
 
 func Negate(f NumericalFunction) NumericalFunction {
