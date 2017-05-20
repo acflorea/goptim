@@ -10,7 +10,7 @@ import (
 func main() {
 
 	// Maximum number of attempts
-	maxAttepts := 300
+	maxAttepts := 3000
 
 	// The function we attempt to optimize
 	targetFunction := functions.F_identity
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// number of workers
-	W := 15
+	W := 100
 	// channel used by workers to communicate their results
 	messages := make(chan functions.Sample)
 
@@ -38,9 +38,19 @@ func main() {
 		}(w)
 	}
 
+	// Collect results
+	results := make([]functions.Sample, W)
+	totalTries := 0
+	optim := -math.MaxFloat64
 	for i := 0; i < W; i++ {
-		fmt.Println(<-messages)
+		results[i] = <-messages
+		totalTries += results[i].Index
+		if optim < results[i].Value {
+			optim = results[i].Value
+		}
 	}
+
+	fmt.Println(totalTries, optim)
 
 }
 
