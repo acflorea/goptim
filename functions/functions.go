@@ -21,6 +21,14 @@ type MultidimensionalPoint struct {
 	Labels []string
 }
 
+// A sample
+// Contains the sample index, the point itself and the value corresponding to that point
+type Sample struct {
+	Index int
+	Point MultidimensionalPoint
+	Value float64
+}
+
 // Prints a point in a friendly way
 // Eg: "x0=1.000000,x1=2.000000,x2=1.500000"
 func (p *MultidimensionalPoint) PrettyPrint() (desc string) {

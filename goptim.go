@@ -9,18 +9,54 @@ import (
 
 func main() {
 
+	// Maximum number of attempts
+	maxAttepts := 300
+
+	// The function we attempt to optimize
+	targetFunction := functions.F_identity
+
 	generator := generators.RandomUniformGenerator{
 		DimensionsNo: 2,
-		PointsNo:     300,
+		PointsNo:     maxAttepts,
 		Restrictions: []generators.Range{
 			{0, 120},
 			{0, 120},
 		},
 	}
 
-	i, p, v := Maximize(functions.SparkIt, generator, 25, 300)
-	fmt.Println("SparkIt MAX --> ", i, p, v)
+	// number of workers
+	W := 15
+	// channel used by workers to communicate their results
+	messages := make(chan functions.Sample)
 
+	for w := 0; w < W; w++ {
+		go func(w int) {
+			i, p, v := DMaximize(targetFunction, generator, maxAttepts/W)
+			// fmt.Println("Worker ", w, " SparkIt MAX --> ", i, p, v)
+
+			messages <- functions.Sample{i, p, v}
+		}(w)
+	}
+
+	for i := 0; i < W; i++ {
+		fmt.Println(<-messages)
+	}
+
+}
+
+// Attempts to dynamically minimize the function f
+// k := n / (2 * math.E)
+// 1st it evaluated the function in k random points and computes the minimum
+// it then continues to evaluate the function (up to a total maximum of n attempts)
+// The algorithm stops either if a value found at the second step is lower than the minimum
+// of if n attempts have been made (in which case the 1st step minimum is reported)
+func DMinimize(f functions.NumericalFunction, generator generators.Generator, n int) (
+	index int,
+	p functions.MultidimensionalPoint,
+	min float64) {
+
+	k := int(float64(n) / (2 * math.E))
+	return Minimize(f, generator, k, n)
 }
 
 // Attempts to minimize the function f
@@ -53,6 +89,16 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 	}
 
 	return
+}
+
+// Dynamically Minimizes the negation of the target function
+func DMaximize(f functions.NumericalFunction, generator generators.Generator, n int) (
+	index int,
+	p functions.MultidimensionalPoint,
+	max float64) {
+
+	index, p, max = DMinimize(functions.Negate(f), generator, n)
+	return index, p, -max
 }
 
 // Minimizes the negation of the target function
