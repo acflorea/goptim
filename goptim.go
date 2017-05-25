@@ -8,7 +8,12 @@ import (
 	"time"
 )
 
-func main() {
+func main(){
+	functions.Train()
+	functions.Test()
+}
+
+func Optimize() {
 
 	start := time.Now()
 
@@ -19,7 +24,7 @@ func main() {
 	targetFunction := functions.F_sombrero
 
 	// number of workers
-	W := 25
+	W := 1
 
 	generator := generators.RandomUniformGenerator{
 		DimensionsNo: 2,
