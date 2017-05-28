@@ -6,11 +6,14 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"fmt"
 	"time"
+	"math/rand"
 )
 
-func main(){
-	functions.Train()
-	functions.Test()
+func main() {
+	//functions.Train()
+	//functions.Test()
+
+	Optimize()
 }
 
 func Optimize() {
@@ -24,7 +27,7 @@ func Optimize() {
 	targetFunction := functions.F_sombrero
 
 	// number of workers
-	W := 1
+	W := 10
 
 	generator := generators.RandomUniformGenerator{
 		DimensionsNo: 2,
@@ -40,8 +43,8 @@ func Optimize() {
 
 	for w := 0; w < W; w++ {
 		go func(w int) {
-			i, p, v := DMaximize(targetFunction, generator, maxAttepts/W)
-			// fmt.Println("Worker ", w, " SparkIt MAX --> ", i, p, v)
+			i, p, v, o := DMaximize(targetFunction, generator, maxAttepts/W)
+			fmt.Println("Worker ", w, " MAX --> ", i, p, v, o)
 
 			messages <- functions.Sample{i, p, v}
 		}(w)
@@ -77,7 +80,8 @@ func Optimize() {
 func DMinimize(f functions.NumericalFunction, generator generators.Generator, n int) (
 	index int,
 	p functions.MultidimensionalPoint,
-	min float64) {
+	min float64,
+	optimNo int) {
 
 	k := int(float64(n) / (2 * math.E))
 	return Minimize(f, generator, k, n)
@@ -91,10 +95,12 @@ func DMinimize(f functions.NumericalFunction, generator generators.Generator, n 
 func Minimize(f functions.NumericalFunction, generator generators.Generator, k, n int) (
 	index int,
 	p functions.MultidimensionalPoint,
-	min float64) {
+	min float64,
+	optimNo int) {
 
 	index = -1
 	min = math.MaxFloat64
+	optimNo = 1
 
 	for i := 0; i < n; i++ {
 		rndPoint := generator.Next()
@@ -107,7 +113,11 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 			p = rndPoint
 			min = f_rnd
 			if i > k {
-				break
+				// Increase the number of optimum points found
+				optimNo += 1
+				if rand.Float64() < 0.5+float64(optimNo)*0.1 {
+					break
+				}
 			}
 		}
 	}
@@ -119,18 +129,20 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 func DMaximize(f functions.NumericalFunction, generator generators.Generator, n int) (
 	index int,
 	p functions.MultidimensionalPoint,
-	max float64) {
+	max float64,
+	optimNo int) {
 
-	index, p, max = DMinimize(functions.Negate(f), generator, n)
-	return index, p, -max
+	index, p, max, optimNo = DMinimize(functions.Negate(f), generator, n)
+	return index, p, -max, optimNo
 }
 
 // Minimizes the negation of the target function
 func Maximize(f functions.NumericalFunction, generator generators.Generator, k, n int) (
 	index int,
 	p functions.MultidimensionalPoint,
-	max float64) {
+	max float64,
+	optimNo int) {
 
-	index, p, max = Minimize(functions.Negate(f), generator, k, n)
-	return index, p, -max
+	index, p, max, optimNo = Minimize(functions.Negate(f), generator, k, n)
+	return index, p, -max, optimNo
 }
