@@ -26,6 +26,29 @@ type Generator interface {
 	HasNext() bool
 }
 
+// The random generation algorithm
+type Algorithm int
+
+// Types of parallel random generators
+const (
+	// A single generator, the master generates the values and pushes them to workers
+	ManagerWorker Algorithm = iota
+	// For each sequence of random numbers x[r]...x[r+p]...x[r+2p]... the process p takes every p-th value
+	Leapfrog
+	// Block allocation of data to tasks
+	SeqSplit
+	// Each woker has it's own parametrized generator
+	Parametrization
+)
+
+// Algorithm labels
+var algorithms = [...]string{
+	"ManagerWorker",
+	"FebrLeapfroguary",
+	"SeqSplit",
+	"Parametrization",
+}
+
 // A multipoint generator structure
 type RandomUniformGenerator struct {
 	// Number of dimensions
@@ -37,6 +60,10 @@ type RandomUniformGenerator struct {
 	PointsNo int
 	// The index of the last generated point
 	index int
+	// The level of parallelism
+	cores int
+	// The ramdom generation algorithm
+	algorithm Algorithm
 }
 
 // Generates g.PointsNo.
