@@ -12,7 +12,7 @@ func Test_Float64(t *testing.T) {
 	a := 10.0
 	b := 20.0
 	for i := 0; i < 10; i++ {
-		_, r := generators.Float64(a, b)
+		_, r := generators.Float64(a, b, nil)
 		if (r < a || r >= b) {
 			t.Error("Invalid number generated")
 		}
@@ -24,14 +24,13 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	generator := generators.RandomUniformGenerator{
-		DimensionsNo: dimensionsNo,
-		PointsNo:     howManyPoints,
-		Restrictions: []generators.Range{
-			{-10, 0},
-			{0, 10},
-		},
+	restrictions := []generators.Range{
+		{-10, 10},
+		{-10, 10},
 	}
+
+	generator :=
+		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(); pIdx++ {
@@ -60,14 +59,13 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	generator := generators.RandomUniformGenerator{
-		DimensionsNo: dimensionsNo,
-		PointsNo:     howManyPoints,
-		Restrictions: []generators.Range{
-			{-10, 0},
-			{0, 10},
-		},
+	restrictions := []generators.Range{
+		{-10, 10},
+		{-10, 10},
 	}
+
+	generator :=
+		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := generator.AllAvailable()
 

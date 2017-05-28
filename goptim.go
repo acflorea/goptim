@@ -29,14 +29,13 @@ func Optimize() {
 	// number of workers
 	W := 10
 
-	generator := generators.RandomUniformGenerator{
-		DimensionsNo: 2,
-		PointsNo:     maxAttepts,
-		Restrictions: []generators.Range{
-			{-10, 10},
-			{-10, 10},
-		},
+	restrictions := []generators.Range{
+		{-10, 10},
+		{-10, 10},
 	}
+
+	generator :=
+		generators.NewRandomUniformGenerator(2, restrictions, maxAttepts, W, generators.ManagerWorker)
 
 	// channel used by workers to communicate their results
 	messages := make(chan functions.Sample, W)
