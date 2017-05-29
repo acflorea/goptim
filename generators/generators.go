@@ -90,13 +90,34 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 	}
 
 	// Init generator
-	source := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(source)
+	now := time.Now().UnixNano()
 
 	rs := make([]*rand.Rand, cores, cores)
 
-	for i := 0; i < cores; i++ {
-		rs[i] = r
+	switch algorithm {
+	case ManagerWorker:
+		// Same generator for all workers
+		source := rand.NewSource(now)
+		r := rand.New(source)
+		for i := 0; i < cores; i++ {
+			rs[i] = r
+		}
+	case Leapfrog:
+		for i := 0; i < cores; i++ {
+			source := rand.NewSource(now)
+			rs[i] = rand.New(source)
+		}
+	case SeqSplit:
+		for i := 0; i < cores; i++ {
+			source := rand.NewSource(now)
+			rs[i] = rand.New(source)
+		}
+	case Parametrization:
+		for i := 0; i < cores; i++ {
+			// Different seed meaning different sequences
+			source := rand.NewSource(now - int64(i))
+			rs[i] = rand.New(source)
+		}
 	}
 
 	generator.rs = rs
@@ -108,6 +129,8 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomUniformGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
 
+	// TODO - implement LeapFrog and SeqSplit
+
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
@@ -118,7 +141,7 @@ func (g randomUniformGenerator) AllAvailable(w int) (points []functions.Multidim
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
 			}
-			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[0])
+			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
@@ -132,6 +155,8 @@ func (g randomUniformGenerator) AllAvailable(w int) (points []functions.Multidim
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
+	// TODO - implement LeapFrog and SeqSplit
+
 	values := make([]float64, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 		lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
@@ -139,7 +164,7 @@ func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoi
 			lowerBound = g.restrictions[dimIdx].LowerBound
 			upperBound = g.restrictions[dimIdx].UpperBound
 		}
-		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[0])
+		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}
@@ -150,5 +175,8 @@ func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoi
 }
 
 func (g randomUniformGenerator) HasNext(w int) bool {
+
+	// TODO - implement LeapFrog and SeqSplit
+
 	return g.index[w] < g.pointsNo
 }

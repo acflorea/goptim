@@ -26,6 +26,9 @@ func Optimize() {
 	// The function we attempt to optimize
 	targetFunction := functions.F_sombrero
 
+	// Algorithm
+	algorithm := generators.Parametrization
+
 	// number of workers
 	W := 100
 
@@ -35,7 +38,7 @@ func Optimize() {
 	}
 
 	generator :=
-		generators.NewRandomUniformGenerator(2, restrictions, maxAttepts, W, generators.ManagerWorker)
+		generators.NewRandomUniformGenerator(2, restrictions, maxAttepts, W, algorithm)
 
 	// channel used by workers to communicate their results
 	messages := make(chan functions.Sample, W)
