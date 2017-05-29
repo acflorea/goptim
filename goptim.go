@@ -27,11 +27,11 @@ func Optimize() {
 	targetFunction := functions.F_sombrero
 
 	// number of workers
-	W := 10
+	W := 100
 
 	restrictions := []generators.Range{
-		{-10, 10},
-		{-10, 10},
+		{-100, 100},
+		{-100, 100},
 	}
 
 	generator :=

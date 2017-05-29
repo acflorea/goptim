@@ -5,7 +5,10 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"math"
 	"time"
+	"sync"
 )
+
+var mutex sync.Mutex
 
 // Generates a uniform random value between a and b
 func Float64(a, b float64, r *rand.Rand) (float64, float64) {
@@ -14,6 +17,11 @@ func Float64(a, b float64, r *rand.Rand) (float64, float64) {
 		source := rand.NewSource(time.Now().UnixNano())
 		r = rand.New(source)
 	}
+
+	// Lock - avoid data races TODO - find a way to implement this using channels
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	original := r.Float64()
 	return original, a + (b-a)*original
 }
@@ -67,10 +75,12 @@ type randomUniformGenerator struct {
 	algorithm Algorithm
 	// The index of the last generated point
 	index int
+	// internal random generator(s)
+	rs []*rand.Rand
 }
 
 func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo int, cores int, algorithm Algorithm) Generator {
-	return randomUniformGenerator{
+	generator := randomUniformGenerator{
 		dimensionsNo: dimensionsNo,
 		restrictions: restrictions,
 		pointsNo:     pointsNo,
@@ -78,6 +88,14 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 		algorithm:    algorithm,
 		index:        0,
 	}
+
+	// Init generator
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+
+	generator.rs = []*rand.Rand{r}
+
+	return generator
 }
 
 // Generates g.PointsNo.
@@ -94,7 +112,7 @@ func (g randomUniformGenerator) AllAvailable() (points []functions.Multidimensio
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
 			}
-			_, values[dimIdx] = Float64(lowerBound, upperBound, nil)
+			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[0])
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
@@ -115,7 +133,7 @@ func (g randomUniformGenerator) Next() (point functions.MultidimensionalPoint) {
 			lowerBound = g.restrictions[dimIdx].LowerBound
 			upperBound = g.restrictions[dimIdx].UpperBound
 		}
-		_, values[dimIdx] = Float64(lowerBound, upperBound, nil)
+		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[0])
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}
