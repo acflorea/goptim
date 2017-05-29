@@ -27,14 +27,14 @@ func Optimize() {
 	targetFunction := functions.F_sombrero
 
 	// Algorithm
-	algorithm := generators.Parametrization
+	algorithm := generators.ManagerWorker
 
 	// number of workers
 	W := 100
 
 	restrictions := []generators.Range{
-		{-100, 100},
-		{-100, 100},
+		{-1000, 1000},
+		{-1000, 1000},
 	}
 
 	generator :=
@@ -104,7 +104,7 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 
 	index = -1
 	min = math.MaxFloat64
-	optimNo = 1
+	optimNo = 0
 
 	for i := 0; i < n; i++ {
 		rndPoint := generator.Next(w)
@@ -119,7 +119,10 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 			if i > k {
 				// Increase the number of optimum points found
 				optimNo += 1
-				if rand.Float64() < 0.5+float64(optimNo)*0.1 {
+				s := rand.NewSource(time.Now().UnixNano())
+				tmpr := rand.New(s)
+				threshold := tmpr.Float64()
+				if threshold < 0.5+0.1*float64(optimNo) {
 					break
 				}
 			}
