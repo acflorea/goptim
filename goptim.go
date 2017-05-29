@@ -42,7 +42,7 @@ func Optimize() {
 
 	for w := 0; w < W; w++ {
 		go func(w int) {
-			i, p, v, o := DMaximize(targetFunction, generator, maxAttepts/W)
+			i, p, v, o := DMaximize(targetFunction, generator, maxAttepts/W, w)
 			fmt.Println("Worker ", w, " MAX --> ", i, p, v, o)
 
 			messages <- functions.Sample{i, p, v}
@@ -76,14 +76,15 @@ func Optimize() {
 // it then continues to evaluate the function (up to a total maximum of n attempts)
 // The algorithm stops either if a value found at the second step is lower than the minimum
 // of if n attempts have been made (in which case the 1st step minimum is reported)
-func DMinimize(f functions.NumericalFunction, generator generators.Generator, n int) (
+// w is thw worker index
+func DMinimize(f functions.NumericalFunction, generator generators.Generator, n, w int) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
 	optimNo int) {
 
 	k := int(float64(n) / (2 * math.E))
-	return Minimize(f, generator, k, n)
+	return Minimize(f, generator, k, n, w)
 }
 
 // Attempts to minimize the function f
@@ -91,7 +92,8 @@ func DMinimize(f functions.NumericalFunction, generator generators.Generator, n 
 // it then continues to evaluate the function (up to a total maximum of n attempts)
 // The algorithm stops either if a value found at the second step is lower than the minimum
 // of if n attempts have been made (in which case the 1st step minimum is reported)
-func Minimize(f functions.NumericalFunction, generator generators.Generator, k, n int) (
+// w is the worker index
+func Minimize(f functions.NumericalFunction, generator generators.Generator, k, n, w int) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -102,7 +104,7 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 	optimNo = 1
 
 	for i := 0; i < n; i++ {
-		rndPoint := generator.Next()
+		rndPoint := generator.Next(w)
 		f_rnd, _ := f(rndPoint)
 
 		//fmt.Println(i, " :: ", rnd, " -> ", f_rnd)
@@ -125,23 +127,23 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 }
 
 // Dynamically Minimizes the negation of the target function
-func DMaximize(f functions.NumericalFunction, generator generators.Generator, n int) (
+func DMaximize(f functions.NumericalFunction, generator generators.Generator, n, w int) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
 	optimNo int) {
 
-	index, p, max, optimNo = DMinimize(functions.Negate(f), generator, n)
+	index, p, max, optimNo = DMinimize(functions.Negate(f), generator, n, w)
 	return index, p, -max, optimNo
 }
 
 // Minimizes the negation of the target function
-func Maximize(f functions.NumericalFunction, generator generators.Generator, k, n int) (
+func Maximize(f functions.NumericalFunction, generator generators.Generator, k, n, w int) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
 	optimNo int) {
 
-	index, p, max, optimNo = Minimize(functions.Negate(f), generator, k, n)
+	index, p, max, optimNo = Minimize(functions.Negate(f), generator, k, n, w)
 	return index, p, -max, optimNo
 }

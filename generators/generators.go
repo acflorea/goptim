@@ -32,9 +32,9 @@ type Range struct {
 }
 
 type Generator interface {
-	AllAvailable() (points []functions.MultidimensionalPoint)
-	Next() (point functions.MultidimensionalPoint)
-	HasNext() bool
+	AllAvailable(w int) (points []functions.MultidimensionalPoint)
+	Next(w int) (point functions.MultidimensionalPoint)
+	HasNext(w int) bool
 }
 
 // The random generation algorithm
@@ -74,7 +74,7 @@ type randomUniformGenerator struct {
 	// The random generation algorithm
 	algorithm Algorithm
 	// The index of the last generated point
-	index int
+	index []int
 	// internal random generator(s)
 	rs []*rand.Rand
 }
@@ -86,21 +86,27 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 		pointsNo:     pointsNo,
 		cores:        cores,
 		algorithm:    algorithm,
-		index:        0,
+		index:        make([]int, cores),
 	}
 
 	// Init generator
 	source := rand.NewSource(time.Now().UnixNano())
 	r := rand.New(source)
 
-	generator.rs = []*rand.Rand{r}
+	rs := make([]*rand.Rand, cores, cores)
+
+	for i := 0; i < cores; i++ {
+		rs[i] = r
+	}
+
+	generator.rs = rs
 
 	return generator
 }
 
 // Generates g.PointsNo.
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomUniformGenerator) AllAvailable() (points []functions.MultidimensionalPoint) {
+func (g randomUniformGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
 
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
@@ -117,14 +123,14 @@ func (g randomUniformGenerator) AllAvailable() (points []functions.Multidimensio
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
 
-	g.index = g.pointsNo
+	g.index[w] = g.pointsNo
 
 	return points
 }
 
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomUniformGenerator) Next() (point functions.MultidimensionalPoint) {
+func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	values := make([]float64, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
@@ -138,11 +144,11 @@ func (g randomUniformGenerator) Next() (point functions.MultidimensionalPoint) {
 
 	point = functions.MultidimensionalPoint{Values: values}
 
-	g.index++
+	g.index[w]++
 
 	return
 }
 
-func (g randomUniformGenerator) HasNext() bool {
-	return g.index < g.pointsNo
+func (g randomUniformGenerator) HasNext(w int) bool {
+	return g.index[w] < g.pointsNo
 }
