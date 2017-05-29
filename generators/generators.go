@@ -133,8 +133,6 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomUniformGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
 
-	// TODO - implement LeapFrog and SeqSplit
-
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
@@ -145,6 +143,21 @@ func (g randomUniformGenerator) AllAvailable(w int) (points []functions.Multidim
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
 			}
+
+			if g.algorithm == Leapfrog {
+				if g.index[w] == 0 {
+					// Set the counter in place
+					for i := 0; i < w; i++ {
+						g.rs[w].Float64()
+					}
+				} else {
+					// Jump "cores" positions
+					for i := 0; i < g.cores; i++ {
+						g.rs[w].Float64()
+					}
+				}
+			}
+
 			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}

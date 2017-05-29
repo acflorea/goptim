@@ -55,18 +55,18 @@ func Optimize() {
 	// Collect results
 	results := make([]functions.Sample, W)
 	totalTries := 0
-	optim := -math.MaxFloat64
+	optimum := -math.MaxFloat64
 	var point functions.MultidimensionalPoint
 	for i := 0; i < W; i++ {
 		results[i] = <-messages
 		totalTries += results[i].Index
-		if optim < results[i].Value {
-			optim = results[i].Value
+		if optimum < results[i].Value {
+			optimum = results[i].Value
 			point = results[i].Point
 		}
 	}
 
-	fmt.Println(totalTries, point, optim)
+	fmt.Println(totalTries, point, optimum)
 
 	elapsed := time.Since(start)
 	fmt.Println("Optimization took %s", elapsed)
