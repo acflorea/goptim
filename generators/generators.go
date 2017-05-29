@@ -111,6 +111,10 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo 
 		for i := 0; i < cores; i++ {
 			source := rand.NewSource(now)
 			rs[i] = rand.New(source)
+			// Advance the generator
+			for j := 0; j < i*pointsNo/cores; j++ {
+				rs[i].Float64()
+			}
 		}
 	case Parametrization:
 		for i := 0; i < cores; i++ {

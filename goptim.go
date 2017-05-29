@@ -21,13 +21,13 @@ func Optimize() {
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttepts := 1000000
+	maxAttempts := 1000000
 
 	// The function we attempt to optimize
 	targetFunction := functions.F_sombrero
 
 	// Algorithm
-	algorithm := generators.ManagerWorker
+	algorithm := generators.SeqSplit
 
 	// number of workers
 	W := 100
@@ -38,14 +38,14 @@ func Optimize() {
 	}
 
 	generator :=
-		generators.NewRandomUniformGenerator(2, restrictions, maxAttepts, W, algorithm)
+		generators.NewRandomUniformGenerator(2, restrictions, maxAttempts, W, algorithm)
 
 	// channel used by workers to communicate their results
 	messages := make(chan functions.Sample, W)
 
 	for w := 0; w < W; w++ {
 		go func(w int) {
-			i, p, v, o := DMaximize(targetFunction, generator, maxAttepts/W, w)
+			i, p, v, o := DMaximize(targetFunction, generator, maxAttempts/W, w)
 			fmt.Println("Worker ", w, " MAX --> ", i, p, v, o)
 
 			messages <- functions.Sample{i, p, v}
