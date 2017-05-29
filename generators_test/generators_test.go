@@ -33,8 +33,8 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
-	for pIdx := 0; generator.HasNext(); pIdx++ {
-		generatedPoints[pIdx] = generator.Next()
+	for pIdx := 0; generator.HasNext(0); pIdx++ {
+		generatedPoints[pIdx] = generator.Next(0)
 	}
 
 	if len(generatedPoints) != howManyPoints {
@@ -46,7 +46,7 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	for pIdx := 0; pIdx < len(generatedPoints); pIdx++ {
 		x := generatedPoints[pIdx].Values[0]
 		y := generatedPoints[pIdx].Values[1]
-		if x < -10 || x >= 0 || y < 0 || y >= 10 {
+		if x < -10 || x >= 10 || y < -10 || y >= 10 {
 			msg := fmt.Sprintf("Error generating points. Coordinate out of bounds "+
 				"(x, y) = (%f, %f)", x, y)
 			t.Error(msg)
@@ -67,7 +67,7 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	generator :=
 		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
-	generatedPoints := generator.AllAvailable()
+	generatedPoints := generator.AllAvailable(0)
 
 	if len(generatedPoints) != howManyPoints {
 		msg := fmt.Sprintf("Error generating points. "+
@@ -78,7 +78,7 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	for pIdx := 0; pIdx < len(generatedPoints); pIdx++ {
 		x := generatedPoints[pIdx].Values[0]
 		y := generatedPoints[pIdx].Values[1]
-		if x < -10 || x >= 0 || y < 0 || y >= 10 {
+		if x < -10 || x >= 10 || y < -10 || y >= 10 {
 			msg := fmt.Sprintf("Error generating points. Coordinate out of bounds "+
 				"(x, y) = (%f, %f)", x, y)
 			t.Error(msg)
