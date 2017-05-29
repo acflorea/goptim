@@ -27,7 +27,7 @@ func Optimize() {
 	targetFunction := functions.F_sombrero
 
 	// Algorithm
-	algorithm := generators.SeqSplit
+	algorithm := generators.Leapfrog
 
 	// number of workers
 	W := 100
