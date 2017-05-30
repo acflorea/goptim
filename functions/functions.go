@@ -25,9 +25,10 @@ type MultidimensionalPoint struct {
 // A sample
 // Contains the sample index, the point itself and the value corresponding to that point
 type Sample struct {
-	Index int
-	Point MultidimensionalPoint
-	Value float64
+	Index      int
+	Point      MultidimensionalPoint
+	Value      float64
+	FullSearch bool
 }
 
 // Prints a point in a friendly way
@@ -83,6 +84,14 @@ func F_identity(x MultidimensionalPoint) (float64, error) {
 func F_x_square(x MultidimensionalPoint) (float64, error) {
 	for _, value := range x.Values {
 		return value * value, nil
+	}
+	return 0.0, errors.New("Not a single parameter map.")
+}
+
+// sin(x) function
+func F_sin(x MultidimensionalPoint) (float64, error) {
+	for _, value := range x.Values {
+		return math.Sin(value), nil
 	}
 	return 0.0, errors.New("Not a single parameter map.")
 }
