@@ -21,20 +21,20 @@ func Optimize() {
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 1000000
+	maxAttempts := 10000
 
 	// The function we attempt to optimize
-	targetFunction := functions.F_sombrero
+	targetFunction := functions.F_sin
 
 	// Algorithm
-	algorithm := generators.Leapfrog
+	algorithm := generators.SeqSplit
 
 	// number of workers
-	W := 100
+	W := 10
 
 	restrictions := []generators.Range{
-		{-1000, 1000},
-		{-1000, 1000},
+		{-100, 100},
+		{-100, 100},
 	}
 
 	generator :=
@@ -48,25 +48,29 @@ func Optimize() {
 			i, p, v, o := DMaximize(targetFunction, generator, maxAttempts/W, w)
 			fmt.Println("Worker ", w, " MAX --> ", i, p, v, o)
 
-			messages <- functions.Sample{i, p, v}
+			messages <- functions.Sample{i, p, v, o == 0}
 		}(w)
 	}
 
 	// Collect results
 	results := make([]functions.Sample, W)
 	totalTries := 0
-	optimum := -math.MaxFloat64
+	optim := -math.MaxFloat64
 	var point functions.MultidimensionalPoint
 	for i := 0; i < W; i++ {
 		results[i] = <-messages
-		totalTries += results[i].Index
-		if optimum < results[i].Value {
-			optimum = results[i].Value
+		if results[i].FullSearch {
+			totalTries += maxAttempts / W
+		} else {
+			totalTries += results[i].Index
+		}
+		if optim < results[i].Value {
+			optim = results[i].Value
 			point = results[i].Point
 		}
 	}
 
-	fmt.Println(totalTries, point, optimum)
+	fmt.Println(totalTries, point, optim)
 
 	elapsed := time.Since(start)
 	fmt.Println("Optimization took %s", elapsed)
@@ -122,7 +126,7 @@ func Minimize(f functions.NumericalFunction, generator generators.Generator, k, 
 				s := rand.NewSource(time.Now().UnixNano())
 				tmpr := rand.New(s)
 				threshold := tmpr.Float64()
-				if threshold < 0.5+0.1*float64(optimNo) {
+				if threshold < 0.4+0.1*float64(optimNo) {
 					break
 				}
 			}
