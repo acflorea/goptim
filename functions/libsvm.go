@@ -1,16 +1,38 @@
 package functions
 
 import (
-	"github.com/ewalker544/libsvm-go"
+	"github.com/acflorea/libsvm-go"
 	"fmt"
 )
 
-func Train() {
+func CrossV(C, Gamma float64) {
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.KernelType = libSvm.RBF  // Use the polynomial kernel
 
-	param.C = 10
-	param.Gamma = 1 / 13
+	param.C = C
+	param.Gamma = Gamma
+
+	// Create a problem specification from the training data and parameter attributes
+	problem, err := libSvm.NewProblem("/Users/acflorea/phd/libsvm-datasets/wine/wine.scale", param)
+
+	_, acc := libSvm.CrossValidationWithAccuracies(problem, param, 10)
+
+	for i := 0; i < len(acc); i++ {
+		fmt.Println("Accuracy for fold ", i, " is ", acc[i])
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+func Train(C, Gamma float64) {
+	param := libSvm.NewParameter() // Create a parameter object with default values
+	param.KernelType = libSvm.RBF  // Use the polynomial kernel
+
+	param.C = C
+	param.Gamma = Gamma
 
 	model := libSvm.NewModel(param) // Create a model object from the parameter attributes
 
@@ -42,7 +64,7 @@ func Test() {
 	for i := 0; i < p.ProblemSize(); i++ {
 		y, x := p.GetLine()
 		yp := model.Predict(x)
-		fmt.Println(y, yp)
+		//fmt.Println(y, yp)
 		if y == yp {
 			TP += 1.0
 		}

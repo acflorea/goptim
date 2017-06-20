@@ -10,10 +10,12 @@ import (
 )
 
 func main() {
-	//functions.Train()
+
+	functions.CrossV(1, 0.1)
+	//functions.Train(1.0, 1.0/10.0)
 	//functions.Test()
 
-	Optimize()
+	//Optimize()
 }
 
 func Optimize() {
@@ -21,16 +23,16 @@ func Optimize() {
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 10000
+	maxAttempts := 3000
 
 	// The function we attempt to optimize
-	targetFunction := functions.F_sin
+	targetFunction := functions.F_sombrero
 
 	// Algorithm
 	algorithm := generators.SeqSplit
 
 	// number of workers
-	W := 10
+	W := 100
 
 	restrictions := []generators.Range{
 		{-100, 100},
