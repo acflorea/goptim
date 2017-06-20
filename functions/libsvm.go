@@ -5,7 +5,15 @@ import (
 	"fmt"
 )
 
-func CrossV(C, Gamma float64) {
+// LIBSVM optimization through crossvalidation
+func LIBSVM_optim(p MultidimensionalPoint) (float64, error) {
+	C := p.Values[0]
+	Gamma := p.Values[1]
+
+	return CrossV(C, Gamma), nil
+}
+
+func CrossV(C, Gamma float64) (accuracy float64) {
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.KernelType = libSvm.RBF  // Use the polynomial kernel
 
@@ -17,14 +25,17 @@ func CrossV(C, Gamma float64) {
 
 	_, acc := libSvm.CrossValidationWithAccuracies(problem, param, 10)
 
+	accuracy = 0
 	for i := 0; i < len(acc); i++ {
 		fmt.Println("Accuracy for fold ", i, " is ", acc[i])
+		accuracy += acc[i] / float64(len(acc))
 	}
 
 	if err != nil {
 		panic(err)
 	}
 
+	return
 }
 
 func Train(C, Gamma float64) {

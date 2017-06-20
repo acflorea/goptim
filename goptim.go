@@ -11,11 +11,11 @@ import (
 
 func main() {
 
-	functions.CrossV(1, 0.1)
+	//functions.CrossV(1, 0.1)
 	//functions.Train(1.0, 1.0/10.0)
 	//functions.Test()
 
-	//Optimize()
+	Optimize()
 }
 
 func Optimize() {
@@ -26,7 +26,7 @@ func Optimize() {
 	maxAttempts := 3000
 
 	// The function we attempt to optimize
-	targetFunction := functions.F_sombrero
+	targetFunction := functions.LIBSVM_optim
 
 	// Algorithm
 	algorithm := generators.SeqSplit
