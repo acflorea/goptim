@@ -23,16 +23,16 @@ func Optimize() {
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 3000
+	maxAttempts := 100
 
 	// The function we attempt to optimize
 	targetFunction := functions.LIBSVM_optim
 
 	// Algorithm
-	algorithm := generators.SeqSplit
+	algorithm := generators.ManagerWorker
 
 	// number of workers
-	W := 100
+	W := 10
 
 	restrictions := []generators.Range{
 		{-100, 100},

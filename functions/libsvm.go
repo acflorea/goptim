@@ -14,8 +14,12 @@ func LIBSVM_optim(p MultidimensionalPoint) (float64, error) {
 }
 
 func CrossV(C, Gamma float64) (accuracy float64) {
+
+	quietMode := true
+
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.KernelType = libSvm.RBF  // Use the polynomial kernel
+	param.QuietMode = quietMode
 
 	param.C = C
 	param.Gamma = Gamma
@@ -27,7 +31,9 @@ func CrossV(C, Gamma float64) (accuracy float64) {
 
 	accuracy = 0
 	for i := 0; i < len(acc); i++ {
-		fmt.Println("Accuracy for fold ", i, " is ", acc[i])
+		if !quietMode {
+			fmt.Println("Accuracy for fold ", i, " is ", acc[i])
+		}
 		accuracy += acc[i] / float64(len(acc))
 	}
 
