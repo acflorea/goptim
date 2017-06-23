@@ -28,6 +28,7 @@ type Sample struct {
 	Index      int
 	Point      MultidimensionalPoint
 	Value      float64
+	GValue     float64
 	FullSearch bool
 }
 
