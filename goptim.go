@@ -20,16 +20,20 @@ func main() {
 
 func Optimize() {
 
+	noOfExperiments := 100
+	silent := true
+
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 1
+	maxAttempts := 100
 
 	// The function we attempt to optimize
 	targetFunction := functions.LIBSVM_optim
 
 	// Algorithm
-	algorithm := generators.ManagerWorker
+	//(generators.SeqSplit seems to rule)
+	algorithm := generators.SeqSplit
 
 	// number of workers
 	W := 10
@@ -39,50 +43,59 @@ func Optimize() {
 		{-100, 100},
 	}
 
-	generator :=
-		generators.NewRandomUniformGenerator(2, restrictions, maxAttempts, W, algorithm)
+	match := 0
 
-	// channel used by workers to communicate their results
-	messages := make(chan functions.Sample, W)
+	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
-	for w := 0; w < W; w++ {
-		go func(w int) {
-			i, p, v, gv, o := DMaximize(targetFunction, generator, maxAttempts/W, w, true)
-			fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
+		generator :=
+			generators.NewRandomUniformGenerator(2, restrictions, maxAttempts, W, algorithm)
 
-			messages <- functions.Sample{i, p, v, gv, o == 0}
-		}(w)
-	}
+		// channel used by workers to communicate their results
+		messages := make(chan functions.Sample, W)
 
-	// Collect results
-	results := make([]functions.Sample, W)
-	totalTries := 0
-	optim, goptim := -math.MaxFloat64, -math.MaxFloat64
-	var point functions.MultidimensionalPoint
-	for i := 0; i < W; i++ {
-		results[i] = <-messages
-		if results[i].FullSearch {
-			totalTries += maxAttempts / W
+		for w := 0; w < W; w++ {
+			go func(w int) {
+				i, p, v, gv, o := DMaximize(targetFunction, generator, maxAttempts/W, w, true)
+				if !silent {
+					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
+				}
+
+				messages <- functions.Sample{i, p, v, gv, o == 0}
+			}(w)
+		}
+
+		// Collect results
+		results := make([]functions.Sample, W)
+		totalTries := 0
+		optim, goptim := -math.MaxFloat64, -math.MaxFloat64
+		var point functions.MultidimensionalPoint
+		for i := 0; i < W; i++ {
+			results[i] = <-messages
+			if results[i].FullSearch {
+				totalTries += maxAttempts / W
+			} else {
+				totalTries += results[i].Index
+			}
+			if optim < results[i].Value {
+				optim = results[i].Value
+				point = results[i].Point
+			}
+			if goptim < results[i].GValue {
+				goptim = results[i].GValue
+			}
+		}
+
+		if optim == goptim {
+			match++
+			fmt.Println("+", totalTries, point, optim, goptim)
 		} else {
-			totalTries += results[i].Index
+			fmt.Println("-", totalTries, point, optim, goptim)
 		}
-		if optim < results[i].Value {
-			optim = results[i].Value
-			point = results[i].Point
-		}
-		if goptim < results[i].GValue {
-			goptim = results[i].GValue
-		}
-	}
-
-	if optim == goptim {
-		fmt.Println("+", totalTries, point, optim, goptim)
-	} else {
-		fmt.Println("-", totalTries, point, optim, goptim)
 	}
 
 	elapsed := time.Since(start)
-	fmt.Println("Optimization took %s", elapsed)
+	fmt.Println(fmt.Sprintf("Results matched on %d cases", match))
+	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
 }
 
