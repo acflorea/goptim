@@ -9,7 +9,7 @@ import (
 )
 
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
-func SparkIt(p MultidimensionalPoint) (float64, error) {
+func SparkIt(p MultidimensionalPoint, vargs map[string]string) (float64, error) {
 
 	dataset:="netbeans"
 

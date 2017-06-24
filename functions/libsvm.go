@@ -6,7 +6,7 @@ import (
 )
 
 // LIBSVM optimization through crossvalidation
-func LIBSVM_optim(p MultidimensionalPoint) (float64, error) {
+func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]string) (float64, error) {
 	C := p.Values[0]
 	Gamma := p.Values[1]
 
