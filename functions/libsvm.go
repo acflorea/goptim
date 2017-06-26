@@ -49,7 +49,7 @@ func CrossV(C, Gamma float64, vargs map[string]string) (accuracy float64) {
 	return
 }
 
-func Train(C, Gamma float64, vargs map[string]string) (accuracy float64) {
+func Train(C, Gamma float64, vargs map[string]string) {
 
 	fileName, found := vargs["fileName"]
 	if !found {
