@@ -26,13 +26,15 @@ func Optimize() {
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 100
+	maxAttempts := 300
 
 	// The function we attempt to optimize
 	targetFunction := functions.LIBSVM_optim
 
 	//
 	vargs := make(map[string]string)
+	//vargs["fileName"] = "/Users/acflorea/phd/libsvm-datasets/breast-cancer/breast-cancer-wisconsin.libsvm"
+	vargs["fileName"] = "/Users/acflorea/phd/libsvm-datasets/iris/iris.data.libsvm"
 
 	// Algorithm
 	//(generators.SeqSplit seems to rule)
@@ -41,9 +43,10 @@ func Optimize() {
 	// number of workers
 	W := 10
 
+	// 2^-3 to 2^10
 	restrictions := []generators.Range{
-		{-100, 100},
-		{-100, 100},
+		{0, 100},
+		{0, 100},
 	}
 
 	match := 0

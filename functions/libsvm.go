@@ -10,10 +10,15 @@ func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]string) (float64, er
 	C := p.Values[0]
 	Gamma := p.Values[1]
 
-	return CrossV(C, Gamma), nil
+	return CrossV(C, Gamma, vargs), nil
 }
 
-func CrossV(C, Gamma float64) (accuracy float64) {
+func CrossV(C, Gamma float64, vargs map[string]string) (accuracy float64) {
+
+	fileName, found := vargs["fileName"]
+	if !found {
+		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+	}
 
 	quietMode := true
 
@@ -25,7 +30,7 @@ func CrossV(C, Gamma float64) (accuracy float64) {
 	param.Gamma = Gamma
 
 	// Create a problem specification from the training data and parameter attributes
-	problem, err := libSvm.NewProblem("/Users/acflorea/phd/libsvm-datasets/wine/wine.scale", param)
+	problem, err := libSvm.NewProblem(fileName, param)
 
 	_, acc := libSvm.CrossValidationWithAccuracies(problem, param, 10)
 
