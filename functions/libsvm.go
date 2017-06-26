@@ -49,7 +49,17 @@ func CrossV(C, Gamma float64, vargs map[string]string) (accuracy float64) {
 	return
 }
 
-func Train(C, Gamma float64) {
+func Train(C, Gamma float64, vargs map[string]string) (accuracy float64) {
+
+	fileName, found := vargs["fileName"]
+	if !found {
+		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+	}
+	modelName, found := vargs["modelName"]
+	if !found {
+		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
+	}
+
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.KernelType = libSvm.RBF  // Use the polynomial kernel
 
@@ -59,7 +69,7 @@ func Train(C, Gamma float64) {
 	model := libSvm.NewModel(param) // Create a model object from the parameter attributes
 
 	// Create a problem specification from the training data and parameter attributes
-	problem, err := libSvm.NewProblem("/Users/acflorea/phd/libsvm-datasets/wine/wine.scale", param)
+	problem, err := libSvm.NewProblem(fileName, param)
 
 	if err != nil {
 		panic(err)
@@ -67,18 +77,27 @@ func Train(C, Gamma float64) {
 
 	model.Train(problem) // Train the model from the problem specification
 
-	model.Dump("/Users/acflorea/phd/libsvm-datasets/wine/wine.model")
+	model.Dump(modelName)
 
 }
 
-func Test() {
+func Test(vargs map[string]string) {
+
+	fileName, found := vargs["fileName"]
+	if !found {
+		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+	}
+	modelName, found := vargs["modelName"]
+	if !found {
+		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
+	}
 
 	// Create a model object from the model file generated from training
-	model := libSvm.NewModelFromFile("/Users/acflorea/phd/libsvm-datasets/wine/wine.model")
+	model := libSvm.NewModelFromFile(modelName)
 
 	p := libSvm.Problem{}
 
-	p.Read("/Users/acflorea/phd/libsvm-datasets/wine/wine.scale", libSvm.NewParameter())
+	p.Read(fileName, libSvm.NewParameter())
 
 	p.Begin()
 
