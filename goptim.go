@@ -7,41 +7,52 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
+	"flag"
 )
 
 func main() {
+
+	fileNamePtr := flag.String("fileName", "MissingFile", "Name of the input file.")
+	noOfExperimentsPtr := flag.Int("noOfExperiments", 100, "Number of experiments.")
+	silentPtr := flag.Bool("silent", true, "Silent Mode.")
+
+	flag.Parse()
+
+	if *fileNamePtr == "MissingFile" {
+		panic("Missing File Name, specify it with -fileName flag!")
+	}
 
 	//functions.CrossV(1, 0.1)
 	//functions.Train(1.0, 1.0/10.0)
 	//functions.Test()
 
-	Optimize()
+	vargs := map[string]interface{}{}
+	vargs["fileName"] = *fileNamePtr
+	vargs["noOfExperiments"] = *noOfExperimentsPtr
+	vargs["silent"] = *silentPtr
+
+	Optimize(vargs)
 }
 
-func Optimize() {
+func Optimize(vargs map[string]interface{}) {
 
-	noOfExperiments := 100
-	silent := true
+	noOfExperiments := vargs["noOfExperiments"].(int)
+	silent := vargs["silent"].(bool)
 
 	start := time.Now()
 
 	// Maximum number of attempts
-	maxAttempts := 300
+	maxAttempts := 30
 
 	// The function we attempt to optimize
 	targetFunction := functions.LIBSVM_optim
-
-	//
-	vargs := make(map[string]string)
-	//vargs["fileName"] = "/Users/acflorea/phd/libsvm-datasets/breast-cancer/breast-cancer-wisconsin.libsvm"
-	vargs["fileName"] = "/Users/acflorea/phd/libsvm-datasets/iris/iris.data.libsvm"
 
 	// Algorithm
 	//(generators.SeqSplit seems to rule)
 	algorithm := generators.SeqSplit
 
 	// number of workers
-	W := 10
+	W := 1
 
 	// 2^-3 to 2^10
 	restrictions := []generators.Range{
@@ -112,7 +123,7 @@ func Optimize() {
 // The algorithm stops either if a value found at the second step is lower than the minimum
 // of if n attempts have been made (in which case the 1st step minimum is reported)
 // w is thw worker index
-func DMinimize(f functions.NumericalFunction, vargs map[string]string, generator generators.Generator, n, w int, goAllTheWay bool) (
+func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -132,7 +143,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]string, generator
 // gmin is the global minimum (if goAllTheWay then the algorithm continues and computes it
 // for comparison purposes)
 // w is the worker index
-func Minimize(f functions.NumericalFunction, vargs map[string]string, generator generators.Generator, k, n, w int, goAllTheWay bool) (
+func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -181,7 +192,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]string, generator 
 }
 
 // Dynamically Minimizes the negation of the target function
-func DMaximize(f functions.NumericalFunction, vargs map[string]string, generator generators.Generator, n, w int, goAllTheWay bool) (
+func DMaximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
@@ -193,7 +204,7 @@ func DMaximize(f functions.NumericalFunction, vargs map[string]string, generator
 }
 
 // Minimizes the negation of the target function
-func Maximize(f functions.NumericalFunction, vargs map[string]string, generator generators.Generator, k, n, w int, goAllTheWay bool) (
+func Maximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
