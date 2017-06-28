@@ -121,7 +121,7 @@ func Optimize(vargs map[string]interface{}) {
 	}
 
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Results matched on %d cases", match))
+	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
 	fmt.Println(fmt.Sprintf("Average number of attepts %f", float64(globalTries)/float64(noOfExperiments)))
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
@@ -172,7 +172,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		rndPoint := generator.Next(w)
 		f_rnd, _ := f(rndPoint, vargs)
 
-		if (minReached) {
+		if minReached {
 			if f_rnd < gmin {
 				gmin = f_rnd
 			}
@@ -184,21 +184,28 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					// Increase the number of optimum points found
-					optimNo += 1
 					s := rand.NewSource(time.Now().UnixNano())
 					tmpr := rand.New(s)
 					threshold := tmpr.Float64()
-					if threshold < 0.0+0.01*float64(optimNo) {
-						if goAllTheWay {
-							minReached = true
-						} else {
+					if threshold < 0.5+(0.05*float64(optimNo)) {
+						minReached = true
+						// Increase the number of optimum points found
+						optimNo += 1
+						if !goAllTheWay {
 							break
 						}
+					} else {
+						// Increase the number of optimum points found
+						optimNo += 1
 					}
 				}
 			}
 		}
+	}
+
+	if !minReached {
+		// The stop condition was not met
+		optimNo = 0
 	}
 
 	return
