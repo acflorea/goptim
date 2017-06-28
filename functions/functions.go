@@ -89,6 +89,14 @@ func F_x_square(x MultidimensionalPoint, vargs map[string]string) (float64, erro
 	return 0.0, errors.New("Not a single parameter map.")
 }
 
+// x^2*sin(x) function
+func F_x_square_sin(x MultidimensionalPoint) (float64, error) {
+	for _, value := range x.Values {
+		return value * value * math.Sin(value), nil
+	}
+	return 0.0, errors.New("Not a single parameter map.")
+}
+
 // sin(x) function
 func F_sin(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
 	for _, value := range x.Values {
