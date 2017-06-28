@@ -6,16 +6,16 @@ import (
 )
 
 // LIBSVM optimization through crossvalidation
-func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	C := p.Values[0]
 	Gamma := p.Values[1]
 
 	return CrossV(C, Gamma, vargs), nil
 }
 
-func CrossV(C, Gamma float64, vargs map[string]string) (accuracy float64) {
+func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64) {
 
-	fileName, found := vargs["fileName"]
+	fileName, found := vargs["fileName"].(string)
 	if !found {
 		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
 	}
@@ -49,13 +49,13 @@ func CrossV(C, Gamma float64, vargs map[string]string) (accuracy float64) {
 	return
 }
 
-func Train(C, Gamma float64, vargs map[string]string) {
+func Train(C, Gamma float64, vargs map[string]interface{}) {
 
-	fileName, found := vargs["fileName"]
+	fileName, found := vargs["fileName"].(string)
 	if !found {
 		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
 	}
-	modelName, found := vargs["modelName"]
+	modelName, found := vargs["modelName"].(string)
 	if !found {
 		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
 	}
@@ -81,13 +81,13 @@ func Train(C, Gamma float64, vargs map[string]string) {
 
 }
 
-func Test(vargs map[string]string) {
+func Test(vargs map[string]interface{}) {
 
-	fileName, found := vargs["fileName"]
+	fileName, found := vargs["fileName"].(string)
 	if !found {
 		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
 	}
-	modelName, found := vargs["modelName"]
+	modelName, found := vargs["modelName"].(string)
 	if !found {
 		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
 	}

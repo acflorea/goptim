@@ -66,15 +66,15 @@ func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 }
 
 // A type alias for a function taking a variable number of parameters and returning a float
-type NumericalFunction func(point MultidimensionalPoint, vargs map[string]string) (float64, error)
+type NumericalFunction func(point MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 
 // Constant function
-func F_constant(_ MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func F_constant(_ MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	return 10, nil
 }
 
 // Identity function
-func F_identity(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func F_identity(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
 		return value, nil
 	}
@@ -82,7 +82,7 @@ func F_identity(x MultidimensionalPoint, vargs map[string]string) (float64, erro
 }
 
 // x^2 function
-func F_x_square(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func F_x_square(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
 		return value * value, nil
 	}
@@ -98,7 +98,7 @@ func F_x_square_sin(x MultidimensionalPoint) (float64, error) {
 }
 
 // sin(x) function
-func F_sin(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func F_sin(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
 		return math.Sin(value), nil
 	}
@@ -106,7 +106,7 @@ func F_sin(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
 }
 
 // sin(sqrt(sq(x)+sq(y)))/sqrt(sq(x)+sq(y))
-func F_sombrero(p MultidimensionalPoint, vargs map[string]string) (float64, error) {
+func F_sombrero(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	x := p.Values[0]
 	y := p.Values[1]
 
@@ -120,7 +120,7 @@ func F_sombrero(p MultidimensionalPoint, vargs map[string]string) (float64, erro
 }
 
 func Negate(f NumericalFunction) NumericalFunction {
-	return func(x MultidimensionalPoint, vargs map[string]string) (float64, error) {
+	return func(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 		y, err := f(x, vargs)
 		return -y, err
 	}
