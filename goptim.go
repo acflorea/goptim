@@ -15,6 +15,8 @@ func main() {
 	fileNamePtr := flag.String("fileName", "MissingFile", "Name of the input file.")
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 100, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
+	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
+	fct := flag.String("fct", "F_identity", "Target function")
 
 	flag.Parse()
 
@@ -30,29 +32,34 @@ func main() {
 	vargs["fileName"] = *fileNamePtr
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
 	vargs["silent"] = *silentPtr
+	vargs["maxAttempts"] = *maxAttemptsPtr
+	vargs["fct"] = *fct
 
 	Optimize(vargs)
 }
 
 func Optimize(vargs map[string]interface{}) {
 
-	noOfExperiments := vargs["noOfExperiments"].(int)
-	silent := vargs["silent"].(bool)
+	fmt.Println("Optimization start!")
+	fmt.Println(vargs)
 
 	start := time.Now()
 
+	noOfExperiments := vargs["noOfExperiments"].(int)
+	silent := vargs["silent"].(bool)
+
 	// Maximum number of attempts
-	maxAttempts := 30
+	maxAttempts := vargs["maxAttempts"].(int)
 
 	// The function we attempt to optimize
-	targetFunction := functions.LIBSVM_optim
+	targetFunction := functions.Functions[vargs["fct"].(string)]
 
 	// Algorithm
 	//(generators.SeqSplit seems to rule)
 	algorithm := generators.SeqSplit
 
 	// number of workers
-	W := 1
+	W := 10
 
 	// 2^-3 to 2^10
 	restrictions := []generators.Range{
@@ -61,6 +68,7 @@ func Optimize(vargs map[string]interface{}) {
 	}
 
 	match := 0
+	var globalTries = 0
 
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
@@ -104,14 +112,17 @@ func Optimize(vargs map[string]interface{}) {
 
 		if optim == goptim {
 			match++
+			globalTries += totalTries
 			fmt.Println("+", totalTries, point, optim, goptim)
 		} else {
+			globalTries += totalTries
 			fmt.Println("-", totalTries, point, optim, goptim)
 		}
 	}
 
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Results matched on %d cases", match))
+	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
+	fmt.Println(fmt.Sprintf("Average number of attepts %f", float64(globalTries)/float64(noOfExperiments)))
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
 }
@@ -161,7 +172,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		rndPoint := generator.Next(w)
 		f_rnd, _ := f(rndPoint, vargs)
 
-		if (minReached) {
+		if minReached {
 			if f_rnd < gmin {
 				gmin = f_rnd
 			}
@@ -173,19 +184,28 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					// Increase the number of optimum points found
-					optimNo += 1
 					s := rand.NewSource(time.Now().UnixNano())
 					tmpr := rand.New(s)
 					threshold := tmpr.Float64()
-					if !goAllTheWay && threshold < 0.4+0.1*float64(optimNo) {
-						break
-					} else {
+					if threshold < 0.5+(0.05*float64(optimNo)) {
 						minReached = true
+						// Increase the number of optimum points found
+						optimNo += 1
+						if !goAllTheWay {
+							break
+						}
+					} else {
+						// Increase the number of optimum points found
+						optimNo += 1
 					}
 				}
 			}
 		}
+	}
+
+	if !minReached {
+		// The stop condition was not met
+		optimNo = 0
 	}
 
 	return
