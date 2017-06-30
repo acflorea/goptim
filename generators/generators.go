@@ -40,6 +40,14 @@ type Generator interface {
 // The random generation algorithm
 type Algorithm int
 
+// Map with functions by name
+var Algorithms = map[string]Algorithm{
+	"ManagerWorker":   ManagerWorker,
+	"Leapfrog":        Leapfrog,
+	"SeqSplit":        SeqSplit,
+	"Parametrization": Parametrization,
+}
+
 // Types of parallel random generators
 const (
 	// A single generator, the master generates the values and pushes them to workers

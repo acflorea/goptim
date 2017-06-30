@@ -12,17 +12,14 @@ import (
 
 func main() {
 
-	fileNamePtr := flag.String("fileName", "MissingFile", "Name of the input file.")
+	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 100, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
 	fct := flag.String("fct", "F_identity", "Target function")
+	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 
 	flag.Parse()
-
-	if *fileNamePtr == "MissingFile" {
-		panic("Missing File Name, specify it with -fileName flag!")
-	}
 
 	//functions.CrossV(1, 0.1)
 	//functions.Train(1.0, 1.0/10.0)
@@ -34,6 +31,7 @@ func main() {
 	vargs["silent"] = *silentPtr
 	vargs["maxAttempts"] = *maxAttemptsPtr
 	vargs["fct"] = *fct
+	vargs["alg"] = *alg
 
 	Optimize(vargs)
 }
@@ -56,7 +54,7 @@ func Optimize(vargs map[string]interface{}) {
 
 	// Algorithm
 	//(generators.SeqSplit seems to rule)
-	algorithm := generators.SeqSplit
+	algorithm := generators.Algorithms[vargs["alg"].(string)]
 
 	// number of workers
 	W := 10
@@ -122,7 +120,8 @@ func Optimize(vargs map[string]interface{}) {
 
 	elapsed := time.Since(start)
 	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
-	fmt.Println(fmt.Sprintf("Average number of attepts %f", float64(globalTries)/float64(noOfExperiments)))
+	avg := float64(globalTries) / float64(noOfExperiments)
+	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avg, (float64(maxAttempts)-avg)/float64(maxAttempts)*100))
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
 }
