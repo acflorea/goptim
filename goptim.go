@@ -213,10 +213,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					s := rand.NewSource(time.Now().UnixNano())
-					tmpr := rand.New(s)
-					threshold := tmpr.Float64()
-					if threshold < 0.3+(0.1*float64(optimNo)) {
+					if accept(optimNo) {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
@@ -238,6 +235,11 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 	}
 
 	return
+}
+
+func accept(optimNo int) bool {
+	s := rand.NewSource(time.Now().UnixNano())
+	return true || rand.New(s).Float64() < 0.4+(0.1*float64(optimNo))
 }
 
 // Dynamically Minimizes the negation of the target function
