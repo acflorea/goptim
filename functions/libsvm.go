@@ -17,7 +17,7 @@ func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64) {
 
 	fileName, found := vargs["fileName"].(string)
 	if !found {
-		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+		panic("Missing input data! Please specify a fileName!")
 	}
 
 	quietMode := true
@@ -53,11 +53,11 @@ func Train(C, Gamma float64, vargs map[string]interface{}) {
 
 	fileName, found := vargs["fileName"].(string)
 	if !found {
-		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+		panic("Missing input data! Please specify a fileName!")
 	}
 	modelName, found := vargs["modelName"].(string)
 	if !found {
-		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
+		panic("Missing model data! Please specify a modelName!")
 	}
 
 	param := libSvm.NewParameter() // Create a parameter object with default values
@@ -85,11 +85,11 @@ func Test(vargs map[string]interface{}) {
 
 	fileName, found := vargs["fileName"].(string)
 	if !found {
-		fileName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.scale"
+		panic("Missing input data! Please specify a fileName!")
 	}
 	modelName, found := vargs["modelName"].(string)
 	if !found {
-		modelName = "/Users/acflorea/phd/libsvm-datasets/wine/wine.model"
+		panic("Missing model data! Please specify a modelName!")
 	}
 
 	// Create a model object from the model file generated from training
