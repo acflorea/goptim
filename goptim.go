@@ -10,6 +10,14 @@ import (
 	"flag"
 )
 
+// The result of one trial
+type OptimizationOutput struct {
+	Optim  float64
+	GOptim float64
+	X      functions.MultidimensionalPoint
+	Trials int
+}
+
 func main() {
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
@@ -68,6 +76,8 @@ func Optimize(vargs map[string]interface{}) {
 	match := 0
 	var globalTries = 0
 
+	OptResults := make([]OptimizationOutput, noOfExperiments)
+
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
@@ -108,6 +118,8 @@ func Optimize(vargs map[string]interface{}) {
 			}
 		}
 
+		OptResults[expIndex] = OptimizationOutput{optim, goptim, point, totalTries}
+
 		if optim == goptim {
 			match++
 			globalTries += totalTries
@@ -118,10 +130,28 @@ func Optimize(vargs map[string]interface{}) {
 		}
 	}
 
+	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
+	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
+		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
+		if best < OptResults[expIndex].Optim {
+			best = OptResults[expIndex].Optim
+		}
+		if gbest < OptResults[expIndex].GOptim {
+			gbest = OptResults[expIndex].GOptim
+		}
+	}
+	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
+		std += (OptResults[expIndex].GOptim - avg) * (OptResults[expIndex].GOptim - avg) / float64(noOfExperiments)
+	}
+	std = math.Sqrt(std)
+
 	elapsed := time.Since(start)
 	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
-	avg := float64(globalTries) / float64(noOfExperiments)
-	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avg, (float64(maxAttempts)-avg)/float64(maxAttempts)*100))
+	avgTrials := float64(globalTries) / float64(noOfExperiments)
+	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avgTrials,
+		(float64(maxAttempts)-avgTrials)/float64(maxAttempts)*100))
+	fmt.Println(fmt.Sprintf("Optimisation best and global best results are %f, %f", best, gbest))
+	fmt.Println(fmt.Sprintf("Optimisation average result and standard deviation are %f, %f", avg, std))
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
 }
@@ -186,7 +216,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 					s := rand.NewSource(time.Now().UnixNano())
 					tmpr := rand.New(s)
 					threshold := tmpr.Float64()
-					if threshold < 0.5+(0.05*float64(optimNo)) {
+					if threshold < 0.5+(0.2*float64(optimNo)) {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
