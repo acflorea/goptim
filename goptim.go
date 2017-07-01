@@ -123,10 +123,10 @@ func Optimize(vargs map[string]interface{}) {
 		if optim == goptim {
 			match++
 			globalTries += totalTries
-			fmt.Println("+", totalTries, point, optim, goptim)
+			fmt.Println("+", expIndex, match, totalTries, point, optim, goptim)
 		} else {
 			globalTries += totalTries
-			fmt.Println("-", totalTries, point, optim, goptim)
+			fmt.Println("-", expIndex, match, totalTries, point, optim, goptim)
 		}
 	}
 
@@ -216,7 +216,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 					s := rand.NewSource(time.Now().UnixNano())
 					tmpr := rand.New(s)
 					threshold := tmpr.Float64()
-					if threshold < 0.5+(0.2*float64(optimNo)) {
+					if threshold < 0.3+(0.1*float64(optimNo)) {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
