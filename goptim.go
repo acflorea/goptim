@@ -170,7 +170,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	gmin float64,
 	optimNo int) {
 
-	k := int(float64(2*n) / (3 * math.E))
+	k := int(float64(n) / (2 * math.E))
 	return Minimize(f, vargs, generator, k, n, w, goAllTheWay)
 }
 
