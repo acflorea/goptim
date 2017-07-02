@@ -170,7 +170,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	gmin float64,
 	optimNo int) {
 
-	k := int(float64(n) / (2 * math.E))
+	k := int(float64(2*n) / (3 * math.E))
 	return Minimize(f, vargs, generator, k, n, w, goAllTheWay)
 }
 
@@ -239,7 +239,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 func accept(optimNo int) bool {
 	s := rand.NewSource(time.Now().UnixNano())
-	return true || rand.New(s).Float64() < 0.4+(0.1*float64(optimNo))
+	return rand.New(s).Float64() < 0.4+(0.1*float64(optimNo))
 }
 
 // Dynamically Minimizes the negation of the target function
