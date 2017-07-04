@@ -81,7 +81,7 @@ func Optimize(vargs map[string]interface{}) {
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandomUniformGenerator(2, restrictions, maxAttempts, W, algorithm)
+			generators.NewRandomGenerator(2, restrictions, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
 		messages := make(chan functions.Sample, W)

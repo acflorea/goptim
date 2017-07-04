@@ -74,7 +74,7 @@ func Test_ExpFloat64(t *testing.T) {
 
 }
 
-func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
+func Test_RandomPointsGeneratorNext(t *testing.T) {
 
 	howManyPoints := 10
 	dimensionsNo := 2
@@ -85,7 +85,7 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	}
 
 	generator :=
-		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
@@ -109,7 +109,7 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	}
 }
 
-func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
+func Test_RandomPointsGeneratorAll(t *testing.T) {
 
 	howManyPoints := 10
 	dimensionsNo := 2
@@ -120,7 +120,7 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	}
 
 	generator :=
-		generators.NewRandomUniformGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := generator.AllAvailable(0)
 

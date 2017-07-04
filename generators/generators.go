@@ -120,7 +120,7 @@ var algorithms = [...]string{
 }
 
 // A multipoint generator structure
-type randomUniformGenerator struct {
+type randomGenerator struct {
 	// Number of dimensions
 	dimensionsNo int
 	// Optional restrictions on each dimension
@@ -138,8 +138,8 @@ type randomUniformGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandomUniformGenerator(dimensionsNo int, restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
-	generator := randomUniformGenerator{
+func NewRandomGenerator(dimensionsNo int, restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
+	generator := randomGenerator{
 		dimensionsNo: dimensionsNo,
 		restrictions: restrictions,
 		pointsNo:     pointsNo,
@@ -190,7 +190,7 @@ func NewRandomUniformGenerator(dimensionsNo int, restrictions []GenerationStrate
 
 // Generates g.PointsNo.
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomUniformGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
+func (g randomGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
 
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
@@ -230,7 +230,7 @@ func (g randomUniformGenerator) AllAvailable(w int) (points []functions.Multidim
 
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoint) {
+func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	values := make([]float64, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
@@ -255,7 +255,6 @@ func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoi
 		}
 
 		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
-		//Float64(lowerBound, upperBound, g.rs[w])
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}
@@ -265,6 +264,6 @@ func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoi
 	return
 }
 
-func (g randomUniformGenerator) HasNext(w int) bool {
+func (g randomGenerator) HasNext(w int) bool {
 	return g.index[w] < g.pointsNo
 }
