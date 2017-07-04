@@ -65,12 +65,12 @@ func Optimize(vargs map[string]interface{}) {
 	algorithm := generators.Algorithms[vargs["alg"].(string)]
 
 	// number of workers
-	W := 10
+	W := 5
 
 	// 2^-3 to 2^10
 	restrictions := []generators.GenerationStrategy{
-		generators.NewExponential(100),
-		generators.NewUniform(10, 100),
+		generators.NewUniform(math.Pow(2, -2), math.Pow(2, 15)),
+		generators.NewUniform(math.Pow(2, -15), math.Pow(2, 3)),
 	}
 
 	match := 0
@@ -213,7 +213,8 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					if accept(optimNo) {
+					//if accept(optimNo) {
+					if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
@@ -237,9 +238,13 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 	return
 }
 
+func acceptAll() bool {
+	return true
+}
+
 func accept(optimNo int) bool {
 	s := rand.NewSource(time.Now().UnixNano())
-	return rand.New(s).Float64() < 0.4+(0.1*float64(optimNo))
+	return rand.New(s).Float64() < 0.5+(0.1*float64(optimNo))
 }
 
 // Dynamically Minimizes the negation of the target function

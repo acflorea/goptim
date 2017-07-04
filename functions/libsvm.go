@@ -10,10 +10,12 @@ func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float6
 	C := p.Values[0]
 	Gamma := p.Values[1]
 
-	return CrossV(C, Gamma, vargs), nil
+	accuracy, _, _ := CrossV(C, Gamma, vargs)
+
+	return accuracy, nil
 }
 
-func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64) {
+func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 
 	fileName, found := vargs["fileName"].(string)
 	if !found {
@@ -32,7 +34,7 @@ func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64) {
 	// Create a problem specification from the training data and parameter attributes
 	problem, err := libSvm.NewProblem(fileName, param)
 
-	_, acc := libSvm.CrossValidationWithAccuracies(problem, param, 10)
+	_, acc, all, TPs := libSvm.CrossValidationWithAccuracies(problem, param, 10)
 
 	accuracy = 0
 	for i := 0; i < len(acc); i++ {
