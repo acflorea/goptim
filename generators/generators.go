@@ -12,29 +12,80 @@ var mutex sync.Mutex
 
 // Generates a uniform random value between a and b
 func Float64(a, b float64, r *rand.Rand) (float64, float64) {
-	if r == nil {
-		// If the generator is not specified, create a new one
-		source := rand.NewSource(time.Now().UnixNano())
-		r = rand.New(source)
-	}
-
-	// Lock - avoid data races TODO - find a way to implement this using channels
-	mutex.Lock()
-	defer mutex.Unlock()
+	r = initGenerator(r)
 
 	original := r.Float64()
 	return original, a + (b-a)*original
 }
 
+// Generates a random value from an exponential distribution with rate lambda
+func ExpFloat64(lambda float64, r *rand.Rand) (float64, float64) {
+	r = initGenerator(r)
+
+	original := r.Float64()
+	// x = log(1-u)/(−λ)
+	return original, math.Log(1-original) / (-lambda)
+}
+
+func initGenerator(r *rand.Rand) *rand.Rand {
+	if r == nil {
+		// If the generator is not specified, create a new one
+		source := rand.NewSource(time.Now().UnixNano())
+		r = rand.New(source)
+	}
+	// Lock - avoid data races TODO - find a way to implement this using channels
+	mutex.Lock()
+	defer mutex.Unlock()
+	return r
+}
+
 // One dimensional restriction [lowerBound, upperBound)
-type Range struct {
+type GenerationStrategy struct {
+	Distribution           Distribution
 	LowerBound, UpperBound float64
+}
+
+//
+func NewUniform(a, b float64) (GenerationStrategy) {
+	return GenerationStrategy{
+		Uniform, a, b,
+	}
+}
+
+//
+func NewExponential(lambda float64) (GenerationStrategy) {
+	return GenerationStrategy{
+		Exponential, lambda, 0.0,
+	}
 }
 
 type Generator interface {
 	AllAvailable(w int) (points []functions.MultidimensionalPoint)
 	Next(w int) (point functions.MultidimensionalPoint)
 	HasNext(w int) bool
+}
+
+// The distributions
+type Distribution int
+
+// Map with distribution by name
+var Distributions = map[string]Distribution{
+	"Uniform":     Uniform,
+	"Exponential": Exponential,
+}
+
+// Types of distributions
+const (
+	// Uniform
+	Uniform Distribution = iota
+	// Exponential
+	Exponential
+)
+
+// Algorithm labels
+var distributions = [...]string{
+	"Uiform",
+	"Exponential",
 }
 
 // The random generation algorithm
@@ -74,7 +125,7 @@ type randomUniformGenerator struct {
 	dimensionsNo int
 	// Optional restrictions on each dimension
 	// Restrictions are considered in the order they are defined (1st restriction applies to 1st dimension etc)
-	restrictions []Range
+	restrictions []GenerationStrategy
 	// How many points to generate
 	pointsNo int
 	// The level of parallelism
@@ -87,7 +138,7 @@ type randomUniformGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandomUniformGenerator(dimensionsNo int, restrictions []Range, pointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandomUniformGenerator(dimensionsNo int, restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
 	generator := randomUniformGenerator{
 		dimensionsNo: dimensionsNo,
 		restrictions: restrictions,
@@ -167,6 +218,7 @@ func (g randomUniformGenerator) AllAvailable(w int) (points []functions.Multidim
 			}
 
 			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+			//Float64(lowerBound, upperBound, g.rs[w])
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
@@ -203,6 +255,7 @@ func (g randomUniformGenerator) Next(w int) (point functions.MultidimensionalPoi
 		}
 
 		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+		//Float64(lowerBound, upperBound, g.rs[w])
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}

@@ -5,18 +5,73 @@ import (
 	"github.com/acflorea/goptim/generators"
 	"fmt"
 	"github.com/acflorea/goptim/functions"
+	"math"
+	"time"
+	"math/rand"
 )
 
 func Test_Float64(t *testing.T) {
 
-	a := 10.0
-	b := 20.0
-	for i := 0; i < 10; i++ {
-		_, r := generators.Float64(a, b, nil)
-		if (r < a || r >= b) {
-			t.Error("Invalid number generated")
-		}
+	// If the generator is not specified, create a new one
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+
+	count := 1000000
+	values := make([]float64, count)
+
+	a := 0.0
+	b := 1.0
+	expectedMean := (b + a) / 2
+	expectedVariance := (b - a) * (b - a) / 12.0
+	for i := 0; i < count; i++ {
+		_, values[i] = generators.Float64(a, b, r)
 	}
+	mean := 0.0
+	for i := 0; i < count; i++ {
+		mean += values[i] / float64(count)
+	}
+	variance := 0.0
+	for i := 0; i < count; i++ {
+		variance += math.Pow((values[i] - mean), 2) / float64(count)
+	}
+	if (math.Abs(mean-expectedMean) > 0.001) {
+		t.Error("The generated values don't look uniform - the mean is different.", mean, expectedMean)
+	}
+	if (math.Abs(variance-expectedVariance) > 0.001) {
+		t.Error("The generated values don't look unform - the variance is different", variance, expectedVariance)
+	}
+
+}
+
+func Test_ExpFloat64(t *testing.T) {
+
+	// If the generator is not specified, create a new one
+	source := rand.NewSource(time.Now().UnixNano())
+	r := rand.New(source)
+
+	count := 1000000
+	values := make([]float64, count)
+	a := 100.0
+	expectedMean := 1.0 / a
+	expectedVariance := 1.0 / (a * a)
+	for i := 0; i < count; i++ {
+		_, values[i] = generators.ExpFloat64(a, r)
+	}
+	mean := 0.0
+	for i := 0; i < count; i++ {
+		mean += values[i] / float64(count)
+	}
+	variance := 0.0
+	for i := 0; i < count; i++ {
+		variance += math.Pow((values[i] - mean), 2) / float64(count)
+	}
+	if (math.Abs(mean-expectedMean) > 0.001) {
+		t.Error("The generated values don't look exponential - the mean is different.", mean, expectedMean)
+	}
+	if (math.Abs(variance-expectedVariance) > 0.001) {
+		t.Error("The generated values don't look exponential - the variance is different", variance, expectedVariance)
+	}
+
 }
 
 func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
@@ -24,9 +79,9 @@ func Test_RandomUniformPointsGeneratorNext(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	restrictions := []generators.Range{
-		{-10, 10},
-		{-10, 10},
+	restrictions := []generators.GenerationStrategy{
+		generators.NewUniform(0, 100),
+		generators.NewUniform(0, 100),
 	}
 
 	generator :=
@@ -59,9 +114,9 @@ func Test_RandomUniformPointsGeneratorAll(t *testing.T) {
 	howManyPoints := 10
 	dimensionsNo := 2
 
-	restrictions := []generators.Range{
-		{-10, 10},
-		{-10, 10},
+	restrictions := []generators.GenerationStrategy{
+		generators.NewUniform(0, 100),
+		generators.NewUniform(0, 100),
 	}
 
 	generator :=
