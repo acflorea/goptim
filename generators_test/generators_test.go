@@ -80,8 +80,8 @@ func Test_RandomPointsGeneratorNext(t *testing.T) {
 	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform(0, 100),
-		generators.NewUniform(0, 100),
+		generators.NewUniform(-10, 10),
+		generators.NewUniform(-10, 10),
 	}
 
 	generator :=
@@ -115,8 +115,8 @@ func Test_RandomPointsGeneratorAll(t *testing.T) {
 	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform(0, 100),
-		generators.NewUniform(0, 100),
+		generators.NewUniform(-10, 10),
+		generators.NewUniform(-10, 10),
 	}
 
 	generator :=

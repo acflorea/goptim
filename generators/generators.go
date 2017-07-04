@@ -123,8 +123,8 @@ var algorithms = [...]string{
 type randomGenerator struct {
 	// Number of dimensions
 	dimensionsNo int
-	// Optional restrictions on each dimension
-	// Restrictions are considered in the order they are defined (1st restriction applies to 1st dimension etc)
+	// The generation strategy on each dimension
+	// GenerationStrategies are considered in the order they are defined (1st strategy applies to 1st dimension etc)
 	restrictions []GenerationStrategy
 	// How many points to generate
 	pointsNo int
@@ -198,9 +198,11 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 		values := make([]float64, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 			lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
+			distribution := Uniform
 			if len(g.restrictions) > dimIdx {
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
+				distribution = g.restrictions[dimIdx].Distribution
 			}
 
 			if g.algorithm == Leapfrog {
@@ -217,8 +219,12 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 				}
 			}
 
-			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
-			//Float64(lowerBound, upperBound, g.rs[w])
+			switch distribution {
+			case Uniform:
+				_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+			case Exponential:
+				_, values[dimIdx] = ExpFloat64(lowerBound, g.rs[w])
+			}
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
@@ -235,9 +241,11 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 	values := make([]float64, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 		lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
+		distribution := Uniform
 		if len(g.restrictions) > dimIdx {
 			lowerBound = g.restrictions[dimIdx].LowerBound
 			upperBound = g.restrictions[dimIdx].UpperBound
+			distribution = g.restrictions[dimIdx].Distribution
 		}
 
 		if g.algorithm == Leapfrog {
@@ -254,7 +262,13 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 			}
 		}
 
-		_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+		switch distribution {
+		case Uniform:
+			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+		case Exponential:
+			_, values[dimIdx] = ExpFloat64(lowerBound, g.rs[w])
+		}
+
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}
