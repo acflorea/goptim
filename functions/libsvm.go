@@ -31,6 +31,7 @@ func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64, a
 	param.C = C
 	param.Gamma = Gamma
 
+
 	// Create a problem specification from the training data and parameter attributes
 	problem, err := libSvm.NewProblem(fileName, param)
 
