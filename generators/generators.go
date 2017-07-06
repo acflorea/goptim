@@ -42,20 +42,21 @@ func initGenerator(r *rand.Rand) *rand.Rand {
 // One dimensional restriction [lowerBound, upperBound)
 type GenerationStrategy struct {
 	Distribution           Distribution
+	Lambda                 float64
 	LowerBound, UpperBound float64
 }
 
 //
 func NewUniform(a, b float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Uniform, a, b,
+		Uniform, 0.0, a, b,
 	}
 }
 
 //
 func NewExponential(lambda float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Exponential, lambda, 0.0,
+		Exponential, lambda, 0.0, 0.0,
 	}
 }
 
@@ -197,11 +198,12 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
 		values := make([]float64, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-			lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
+			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 			distribution := Uniform
 			if len(g.restrictions) > dimIdx {
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
+				lambda = g.restrictions[dimIdx].Lambda
 				distribution = g.restrictions[dimIdx].Distribution
 			}
 
@@ -223,7 +225,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 			case Uniform:
 				_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 			case Exponential:
-				_, values[dimIdx] = ExpFloat64(lowerBound, g.rs[w])
+				_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
 			}
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
@@ -240,11 +242,12 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	values := make([]float64, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-		lowerBound, upperBound := -math.MaxFloat32, math.MaxFloat32
+		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 		distribution := Uniform
 		if len(g.restrictions) > dimIdx {
 			lowerBound = g.restrictions[dimIdx].LowerBound
 			upperBound = g.restrictions[dimIdx].UpperBound
+			lambda = g.restrictions[dimIdx].Lambda
 			distribution = g.restrictions[dimIdx].Distribution
 		}
 
@@ -266,7 +269,7 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 		case Uniform:
 			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 		case Exponential:
-			_, values[dimIdx] = ExpFloat64(lowerBound, g.rs[w])
+			_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
 		}
 
 	}
