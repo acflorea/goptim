@@ -171,15 +171,17 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
-		values := make([]float64, g.dimensionsNo)
+		values := make([]interface{}, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 			distribution := Uniform
+			var samples map[interface{}]float64
 			if len(g.restrictions) > dimIdx {
 				lowerBound = g.restrictions[dimIdx].LowerBound
 				upperBound = g.restrictions[dimIdx].UpperBound
 				lambda = g.restrictions[dimIdx].Lambda
 				distribution = g.restrictions[dimIdx].Distribution
+				samples = g.restrictions[dimIdx].Values
 			}
 
 			if g.algorithm == Leapfrog {
@@ -201,6 +203,15 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 				_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 			case Exponential:
 				_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
+			case Discrete:
+				raw := g.rs[w].Float64()
+				sum := 0.0
+				for key, value := range samples {
+					sum += value
+					if raw <= sum {
+						values[dimIdx] = key
+					}
+				}
 			}
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
@@ -215,15 +226,17 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
-	values := make([]float64, g.dimensionsNo)
+	values := make([]interface{}, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 		distribution := Uniform
+		var samples map[interface{}]float64
 		if len(g.restrictions) > dimIdx {
 			lowerBound = g.restrictions[dimIdx].LowerBound
 			upperBound = g.restrictions[dimIdx].UpperBound
 			lambda = g.restrictions[dimIdx].Lambda
 			distribution = g.restrictions[dimIdx].Distribution
+			samples = g.restrictions[dimIdx].Values
 		}
 
 		if g.algorithm == Leapfrog {
@@ -245,6 +258,15 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
 		case Exponential:
 			_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
+		case Discrete:
+			raw := g.rs[w].Float64()
+			sum := 0.0
+			for key, value := range samples {
+				sum += value
+				if raw <= sum {
+					values[dimIdx] = key
+				}
+			}
 		}
 
 	}

@@ -11,13 +11,13 @@ import (
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
 func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
-	dataset:="netbeans"
+	dataset := "netbeans"
 
 	sparkSubmit := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
 	targetJar := "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
 
-	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/"+dataset+".conf"
-	fsRoot := "/Users/acflorea/phd/columbugus_data/"+dataset+"_final_test"
+	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/" + dataset + ".conf"
+	fsRoot := "/Users/acflorea/phd/columbugus_data/" + dataset + "_final_test"
 
 	resultsFileName := "gorand_results.out"
 	tuningMode := "true"
@@ -34,9 +34,9 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 		" -Dreccsys.filesystem.root=" +
 		fsRoot +
 		" -Dreccsys.preprocess.categoryScalingFactor=" +
-		FloatToString(p.Values[0]) +
+		p.Values[0].(string) +
 		" -Dreccsys.preprocess.productScalingFactor=" +
-		FloatToString(p.Values[1]) +
+		p.Values[1].(string) +
 		" -Dreccsys.train.stepSize=" +
 		"1" +
 		" -Dreccsys.train.regParam=" +
@@ -63,7 +63,7 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 
 	dat, _ := ioutil.ReadFile(fsRoot + "/" + resultsFileName)
 	resultsStr := string(dat)
-	fmt.Println(FloatToString(p.Values[0]), FloatToString(p.Values[1]), string(dat))
+	fmt.Println(p.Values[0].(string), p.Values[1].(string), string(dat))
 
 	f1str := strings.TrimPrefix(strings.Split(resultsStr, " ")[2], "F:")
 	f1Measure, _ := strconv.ParseFloat(f1str, 64)

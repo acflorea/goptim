@@ -17,7 +17,7 @@ func FloatToString(input_num float64) string {
 // Eg: The origin in a 3d space {"x":0, "y":0, "z":0}
 type MultidimensionalPoint struct {
 	// Values on each dimension
-	Values []float64
+	Values []interface{}
 	// Optional dimension labels
 	Labels []string
 }
@@ -45,11 +45,11 @@ func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 		}
 		// In sync labels and values
 		for ; i < min; i++ {
-			dimensionsLabels[i] = p.Labels[i] + "=" + FloatToString(p.Values[i])
+			dimensionsLabels[i] = p.Labels[i] + "=" + p.Values[i].(string)
 		}
 		// Extra values
 		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + FloatToString(p.Values[i])
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + p.Values[i].(string)
 		}
 		// Extra labels
 		for ; i < len(p.Labels); i++ {
@@ -57,7 +57,7 @@ func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 		}
 	} else {
 		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + FloatToString(p.Values[i])
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + p.Values[i].(string)
 		}
 	}
 
@@ -76,7 +76,9 @@ func F_constant(_ MultidimensionalPoint, vargs map[string]interface{}) (float64,
 // Identity function
 func F_identity(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
-		return value, nil
+		if v, ok := value.(float64); ok {
+			return v, nil
+		}
 	}
 	return 0.0, errors.New("Not a single parameter map.")
 }
@@ -84,7 +86,9 @@ func F_identity(x MultidimensionalPoint, vargs map[string]interface{}) (float64,
 // x^2 function
 func F_x_square(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
-		return value * value, nil
+		if v, ok := value.(float64); ok {
+			return v * v, nil
+		}
 	}
 	return 0.0, errors.New("Not a single parameter map.")
 }
@@ -92,7 +96,9 @@ func F_x_square(x MultidimensionalPoint, vargs map[string]interface{}) (float64,
 // x^2*sin(x) function
 func F_x_square_sin(x MultidimensionalPoint) (float64, error) {
 	for _, value := range x.Values {
-		return value * value * math.Sin(value), nil
+		if v, ok := value.(float64); ok {
+			return v * v * math.Sin(v), nil
+		}
 	}
 	return 0.0, errors.New("Not a single parameter map.")
 }
@@ -100,22 +106,28 @@ func F_x_square_sin(x MultidimensionalPoint) (float64, error) {
 // sin(x) function
 func F_sin(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	for _, value := range x.Values {
-		return math.Sin(value), nil
+		if v, ok := value.(float64); ok {
+			return math.Sin(v), nil
+		}
 	}
 	return 0.0, errors.New("Not a single parameter map.")
 }
 
 // sin(sqrt(sq(x)+sq(y)))/sqrt(sq(x)+sq(y))
 func F_sombrero(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	x := p.Values[0]
-	y := p.Values[1]
+	x, okx := p.Values[0].(float64)
+	y, oky := p.Values[1].(float64)
 
-	w := math.Sqrt(x*x + y*y)
+	if okx && oky {
+		w := math.Sqrt(x*x + y*y)
 
-	if w != 0 {
-		return math.Sin(w) / w, nil
+		if w != 0 {
+			return math.Sin(w) / w, nil
+		} else {
+			return 0.0, errors.New("Not a single parameter map.")
+		}
 	} else {
-		return 0.0, errors.New("Not a single parameter map.")
+		return 0.0, errors.New("Conversion failure")
 	}
 }
 

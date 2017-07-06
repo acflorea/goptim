@@ -7,8 +7,8 @@ import (
 
 // LIBSVM optimization through crossvalidation
 func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	C := p.Values[0]
-	Gamma := p.Values[1]
+	C := p.Values[0].(float64)
+	Gamma := p.Values[1].(float64)
 
 	accuracy, _, _ := CrossV(C, Gamma, vargs)
 
