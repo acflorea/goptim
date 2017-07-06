@@ -41,22 +41,33 @@ func initGenerator(r *rand.Rand) *rand.Rand {
 
 // One dimensional restriction [lowerBound, upperBound)
 type GenerationStrategy struct {
-	Distribution           Distribution
-	Lambda                 float64
-	LowerBound, UpperBound float64
+	distribution Distribution
+	// Lambda for exponential distribution
+	lambda float64
+	// Lower and Upper bounds for uniform distribution
+	lowerBound, upperBound float64
+	// Map of value->probability for discrete distribution
+	values map[interface{}]float64
 }
 
-//
+// Generates values uniform distributed between a and b
 func NewUniform(a, b float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Uniform, 0.0, a, b,
+		Uniform, 0.0, a, b, nil,
 	}
 }
 
-//
+// Generates values exponentially distributed with parameter lambda
 func NewExponential(lambda float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Exponential, lambda, 0.0, 0.0,
+		Exponential, lambda, 0.0, 0.0, nil,
+	}
+}
+
+// Generates values exponentially distributed with parameter lambda
+func NewDiscrete(values map[interface{}]float64) (GenerationStrategy) {
+	return GenerationStrategy{
+		Exponential, 1.0, 0.0, 0.0, values,
 	}
 }
 
@@ -64,60 +75,6 @@ type Generator interface {
 	AllAvailable(w int) (points []functions.MultidimensionalPoint)
 	Next(w int) (point functions.MultidimensionalPoint)
 	HasNext(w int) bool
-}
-
-// The distributions
-type Distribution int
-
-// Map with distribution by name
-var Distributions = map[string]Distribution{
-	"Uniform":     Uniform,
-	"Exponential": Exponential,
-}
-
-// Types of distributions
-const (
-	// Uniform
-	Uniform Distribution = iota
-	// Exponential
-	Exponential
-)
-
-// Algorithm labels
-var distributions = [...]string{
-	"Uiform",
-	"Exponential",
-}
-
-// The random generation algorithm
-type Algorithm int
-
-// Map with functions by name
-var Algorithms = map[string]Algorithm{
-	"ManagerWorker":   ManagerWorker,
-	"Leapfrog":        Leapfrog,
-	"SeqSplit":        SeqSplit,
-	"Parametrization": Parametrization,
-}
-
-// Types of parallel random generators
-const (
-	// A single generator, the master generates the values and pushes them to workers
-	ManagerWorker Algorithm = iota
-	// For each sequence of random numbers x[r]...x[r+p]...x[r+2p]... the process p takes every p-th value
-	Leapfrog
-	// Block allocation of data to tasks
-	SeqSplit
-	// Each woker has it's own parametrized generator
-	Parametrization
-)
-
-// Algorithm labels
-var algorithms = [...]string{
-	"ManagerWorker",
-	"FebrLeapfroguary",
-	"SeqSplit",
-	"Parametrization",
 }
 
 // A multipoint generator structure
@@ -201,10 +158,10 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 			distribution := Uniform
 			if len(g.restrictions) > dimIdx {
-				lowerBound = g.restrictions[dimIdx].LowerBound
-				upperBound = g.restrictions[dimIdx].UpperBound
-				lambda = g.restrictions[dimIdx].Lambda
-				distribution = g.restrictions[dimIdx].Distribution
+				lowerBound = g.restrictions[dimIdx].lowerBound
+				upperBound = g.restrictions[dimIdx].upperBound
+				lambda = g.restrictions[dimIdx].lambda
+				distribution = g.restrictions[dimIdx].distribution
 			}
 
 			if g.algorithm == Leapfrog {
@@ -245,10 +202,10 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 		distribution := Uniform
 		if len(g.restrictions) > dimIdx {
-			lowerBound = g.restrictions[dimIdx].LowerBound
-			upperBound = g.restrictions[dimIdx].UpperBound
-			lambda = g.restrictions[dimIdx].Lambda
-			distribution = g.restrictions[dimIdx].Distribution
+			lowerBound = g.restrictions[dimIdx].lowerBound
+			upperBound = g.restrictions[dimIdx].upperBound
+			lambda = g.restrictions[dimIdx].lambda
+			distribution = g.restrictions[dimIdx].distribution
 		}
 
 		if g.algorithm == Leapfrog {

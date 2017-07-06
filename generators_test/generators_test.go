@@ -74,7 +74,7 @@ func Test_ExpFloat64(t *testing.T) {
 
 }
 
-func Test_RandomPointsGeneratorNext(t *testing.T) {
+func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 
 	howManyPoints := 10
 	dimensionsNo := 2
@@ -109,7 +109,7 @@ func Test_RandomPointsGeneratorNext(t *testing.T) {
 	}
 }
 
-func Test_RandomPointsGeneratorAll(t *testing.T) {
+func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 
 	howManyPoints := 10
 	dimensionsNo := 2
