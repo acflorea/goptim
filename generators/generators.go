@@ -41,13 +41,13 @@ func initGenerator(r *rand.Rand) *rand.Rand {
 
 // One dimensional restriction [lowerBound, upperBound)
 type GenerationStrategy struct {
-	distribution Distribution
+	Distribution Distribution
 	// Lambda for exponential distribution
-	lambda float64
+	Lambda float64
 	// Lower and Upper bounds for uniform distribution
-	lowerBound, upperBound float64
+	LowerBound, UpperBound float64
 	// Map of value->probability for discrete distribution
-	values map[interface{}]float64
+	Values map[interface{}]float64
 }
 
 // Generates values uniform distributed between a and b
@@ -66,9 +66,27 @@ func NewExponential(lambda float64) (GenerationStrategy) {
 
 // Generates values exponentially distributed with parameter lambda
 func NewDiscrete(values map[interface{}]float64) (GenerationStrategy) {
-	return GenerationStrategy{
-		Exponential, 1.0, 0.0, 0.0, values,
+
+	// normalize the values so the sum gives one
+	sum := 0.0
+	for _, value := range values {
+		sum += value
 	}
+	if sum == 1.0 {
+		return GenerationStrategy{
+			Exponential, 1.0, 0.0, 0.0, values,
+		}
+	} else {
+		factor := 1.0 / sum
+		nValues := make(map[interface{}]float64)
+		for key, value := range values {
+			nValues[key] = value * factor
+		}
+		return GenerationStrategy{
+			Exponential, 1.0, 0.0, 0.0, nValues,
+		}
+	}
+
 }
 
 type Generator interface {
@@ -158,10 +176,10 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 			distribution := Uniform
 			if len(g.restrictions) > dimIdx {
-				lowerBound = g.restrictions[dimIdx].lowerBound
-				upperBound = g.restrictions[dimIdx].upperBound
-				lambda = g.restrictions[dimIdx].lambda
-				distribution = g.restrictions[dimIdx].distribution
+				lowerBound = g.restrictions[dimIdx].LowerBound
+				upperBound = g.restrictions[dimIdx].UpperBound
+				lambda = g.restrictions[dimIdx].Lambda
+				distribution = g.restrictions[dimIdx].Distribution
 			}
 
 			if g.algorithm == Leapfrog {
@@ -202,10 +220,10 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 		distribution := Uniform
 		if len(g.restrictions) > dimIdx {
-			lowerBound = g.restrictions[dimIdx].lowerBound
-			upperBound = g.restrictions[dimIdx].upperBound
-			lambda = g.restrictions[dimIdx].lambda
-			distribution = g.restrictions[dimIdx].distribution
+			lowerBound = g.restrictions[dimIdx].LowerBound
+			upperBound = g.restrictions[dimIdx].UpperBound
+			lambda = g.restrictions[dimIdx].Lambda
+			distribution = g.restrictions[dimIdx].Distribution
 		}
 
 		if g.algorithm == Leapfrog {

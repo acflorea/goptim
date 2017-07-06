@@ -10,6 +10,31 @@ import (
 	"math/rand"
 )
 
+func Test_DiscreteNormalization(t *testing.T) {
+
+	values := make(map[interface{}]float64)
+	values["x"] = 1.1
+	values[1.01] = 2.2
+	values[10] = 3.3
+	discreteG := generators.NewDiscrete(values)
+
+	sum := 0.0
+	for _, value := range values {
+		sum += value
+	}
+
+	nsum := 0.0
+	nValues := discreteG.Values
+	for _, value := range nValues {
+		nsum += value
+	}
+
+	if (nsum != 1.0) {
+		t.Error("Error normalizing the probabilites. The sum is ", nsum)
+	}
+
+}
+
 func Test_Float64(t *testing.T) {
 
 	// If the generator is not specified, create a new one
