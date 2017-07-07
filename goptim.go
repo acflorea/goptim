@@ -75,7 +75,7 @@ func Optimize(vargs map[string]interface{}) {
 
 	restrictions := []generators.GenerationStrategy{
 		generators.NewUniform("C", 1, 1),
-		generators.NewUniform("gama", 0, 0),
+		generators.NewUniform("gamma", 0, 0),
 	}
 
 	match := 0
@@ -128,10 +128,10 @@ func Optimize(vargs map[string]interface{}) {
 		if optim == goptim {
 			match++
 			globalTries += totalTries
-			fmt.Println("+", expIndex, match, totalTries, point, optim, goptim)
+			fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
 		} else {
 			globalTries += totalTries
-			fmt.Println("-", expIndex, match, totalTries, point, optim, goptim)
+			fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
 		}
 	}
 

@@ -173,6 +173,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
 		values := make([]interface{}, g.dimensionsNo)
+		labels := make([]string, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 			distribution := Uniform
@@ -183,6 +184,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 				lambda = g.restrictions[dimIdx].Lambda
 				distribution = g.restrictions[dimIdx].Distribution
 				samples = g.restrictions[dimIdx].Values
+				labels[dimIdx] = g.restrictions[dimIdx].Label
 			}
 
 			if g.algorithm == Leapfrog {
@@ -215,7 +217,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 				}
 			}
 		}
-		points[pIdx] = functions.MultidimensionalPoint{Values: values}
+		points[pIdx] = functions.MultidimensionalPoint{Values: values, Labels:labels}
 	}
 
 	g.index[w] = g.pointsNo
@@ -228,6 +230,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	values := make([]interface{}, g.dimensionsNo)
+	labels := make([]string, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
 		distribution := Uniform
@@ -238,6 +241,7 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 			lambda = g.restrictions[dimIdx].Lambda
 			distribution = g.restrictions[dimIdx].Distribution
 			samples = g.restrictions[dimIdx].Values
+			labels[dimIdx] = g.restrictions[dimIdx].Label
 		}
 
 		if g.algorithm == Leapfrog {
@@ -272,7 +276,7 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	}
 
-	point = functions.MultidimensionalPoint{Values: values}
+	point = functions.MultidimensionalPoint{Values: values, Labels:labels}
 
 	g.index[w]++
 
