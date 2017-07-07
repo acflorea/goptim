@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"math"
+	"fmt"
 )
 
 func FloatToString(input_num float64) string {
@@ -45,11 +46,11 @@ func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 		}
 		// In sync labels and values
 		for ; i < min; i++ {
-			dimensionsLabels[i] = p.Labels[i] + "=" + p.Values[i].(string)
+			dimensionsLabels[i] = p.Labels[i] + "=" + fmt.Sprintf("%v", p.Values[i])
 		}
 		// Extra values
 		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + p.Values[i].(string)
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + fmt.Sprintf("%v", p.Values[i])
 		}
 		// Extra labels
 		for ; i < len(p.Labels); i++ {
@@ -57,7 +58,7 @@ func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 		}
 	} else {
 		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + p.Values[i].(string)
+			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" +  fmt.Sprintf("%v", p.Values[i])
 		}
 	}
 
