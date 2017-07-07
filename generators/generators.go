@@ -41,6 +41,7 @@ func initGenerator(r *rand.Rand) *rand.Rand {
 
 // One dimensional restriction [lowerBound, upperBound)
 type GenerationStrategy struct {
+	Label        string
 	Distribution Distribution
 	// Lambda for exponential distribution
 	Lambda float64
@@ -51,21 +52,21 @@ type GenerationStrategy struct {
 }
 
 // Generates values uniform distributed between a and b
-func NewUniform(a, b float64) (GenerationStrategy) {
+func NewUniform(label string, a, b float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Uniform, 0.0, a, b, nil,
+		label, Uniform, 0.0, a, b, nil,
 	}
 }
 
 // Generates values exponentially distributed with parameter lambda
-func NewExponential(lambda float64) (GenerationStrategy) {
+func NewExponential(label string, lambda float64) (GenerationStrategy) {
 	return GenerationStrategy{
-		Exponential, lambda, 0.0, 0.0, nil,
+		label, Exponential, lambda, 0.0, 0.0, nil,
 	}
 }
 
 // Generates values exponentially distributed with parameter lambda
-func NewDiscrete(values map[interface{}]float64) (GenerationStrategy) {
+func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrategy) {
 
 	// normalize the values so the sum gives one
 	sum := 0.0
@@ -74,7 +75,7 @@ func NewDiscrete(values map[interface{}]float64) (GenerationStrategy) {
 	}
 	if sum == 1.0 {
 		return GenerationStrategy{
-			Exponential, 1.0, 0.0, 0.0, values,
+			label, Discrete, 1.0, 0.0, 0.0, values,
 		}
 	} else {
 		factor := 1.0 / sum
@@ -83,7 +84,7 @@ func NewDiscrete(values map[interface{}]float64) (GenerationStrategy) {
 			nValues[key] = value * factor
 		}
 		return GenerationStrategy{
-			Exponential, 1.0, 0.0, 0.0, nValues,
+			label, Discrete, 1.0, 0.0, 0.0, nValues,
 		}
 	}
 

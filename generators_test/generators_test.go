@@ -16,7 +16,7 @@ func Test_DiscreteNormalization(t *testing.T) {
 	values["x"] = 1.1
 	values[1.01] = 2.2
 	values[10] = 3.3
-	discreteG := generators.NewDiscrete(values)
+	discreteG := generators.NewDiscrete("X", values)
 
 	sum := 0.0
 	for _, value := range values {
@@ -105,8 +105,8 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform(-10, 10),
-		generators.NewUniform(-10, 10),
+		generators.NewUniform("x", -10, 10),
+		generators.NewUniform("y", -10, 10),
 	}
 
 	generator :=
@@ -140,8 +140,8 @@ func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform(-10, 10),
-		generators.NewUniform(-10, 10),
+		generators.NewUniform("x", -10, 10),
+		generators.NewUniform("y", -10, 10),
 	}
 
 	generator :=
