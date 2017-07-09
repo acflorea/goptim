@@ -84,6 +84,13 @@ func Optimize(vargs map[string]interface{}) {
 		}),
 		generators.NewExponential("C", 10),
 		generators.NewExponential("gamma", 10),
+		generators.NewDiscrete("degree", map[interface{}]float64{
+			2: 1.0,
+			3: 1.0,
+			4: 1.0,
+			5: 1.0,
+		}),
+		generators.NewUniform("coef0", -10, 10),
 	}
 
 	match := 0

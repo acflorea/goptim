@@ -13,7 +13,7 @@ import (
 func Test_DiscreteNormalization(t *testing.T) {
 
 	values := make(map[interface{}]float64)
-	values["x"] = 1.1
+	values["x"] = 1
 	values[1.01] = 2.2
 	values[10] = 3.3
 	discreteG := generators.NewDiscrete("X", values)

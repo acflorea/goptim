@@ -7,40 +7,48 @@ import (
 
 // LIBSVM optimization through crossvalidation
 func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	C, ok := p.Values["C"].(float64)
-	if !ok {
-		C = 0.01
-	}
-	Gamma, ok := p.Values["gamma"].(float64)
-	if !ok {
-		Gamma = 0.0
-	}
-	kernel, ok := p.Values["kernel"].(int)
-	if !ok {
-		kernel = libSvm.RBF
+
+	// Add Values to vargs
+	for key, value := range p.Values {
+		vargs[key] = value
 	}
 
-	accuracy, _, _ := CrossV(kernel, C, Gamma, vargs)
+	accuracy, _, _ := CrossV(vargs)
 
 	return accuracy, nil
 }
 
-func CrossV(kernel int, C, Gamma float64, vargs map[string]interface{}) (accuracy float64, all, TPs int) {
-
-	fileName, found := vargs["fileName"].(string)
-	if !found {
-		panic("Missing input data! Please specify a fileName!")
-	}
+func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 
 	quietMode := true
+	fileName, ok := vargs["fileName"].(string)
+	if !ok {
+		panic("Missing input data! Please specify a fileName!")
+	}
 
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.QuietMode = quietMode
 
-	// Parameters
-	param.KernelType = kernel
-	param.C = C
-	param.Gamma = Gamma
+	kernel, ok := vargs["kernel"].(int)
+	if ok {
+		param.KernelType = kernel
+	}
+	C, ok := vargs["C"].(float64)
+	if ok {
+		param.C = C
+	}
+	Gamma, ok := vargs["gamma"].(float64)
+	if ok {
+		param.Gamma = Gamma
+	}
+	Degree, ok := vargs["degree"].(int)
+	if ok {
+		param.Degree = Degree
+	}
+	Coef0, ok := vargs["coef0"].(float64)
+	if ok {
+		param.Coef0 = Coef0
+	}
 
 	// Create a problem specification from the training data and parameter attributes
 	problem, err := libSvm.NewProblem(fileName, param)
