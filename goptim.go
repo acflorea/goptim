@@ -66,7 +66,7 @@ func Optimize(vargs map[string]interface{}) {
 	algorithm := generators.Algorithms[vargs["alg"].(string)]
 
 	// number of workers
-	W := 1
+	W := 5
 
 	// 2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
@@ -107,8 +107,14 @@ func Optimize(vargs map[string]interface{}) {
 		messages := make(chan functions.Sample, W)
 
 		for w := 0; w < W; w++ {
+
+			localvargs := map[string]interface{}{}
+			for k, v := range vargs {
+				localvargs[k] = v
+			}
+
 			go func(w int) {
-				i, p, v, gv, o := DMaximize(targetFunction, vargs, generator, maxAttempts/W, w, true)
+				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, maxAttempts/W, w, true)
 				if !silent {
 					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
 				}
@@ -190,7 +196,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	gmin float64,
 	optimNo int) {
 
-	k := int(float64(n) / (2 * math.E))
+	k := int(math.Max(1, float64(n)/(2*math.E)))
 	return Minimize(f, vargs, generator, k, n, w, goAllTheWay)
 }
 
