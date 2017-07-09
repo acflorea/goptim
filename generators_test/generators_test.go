@@ -35,6 +35,53 @@ func Test_DiscreteNormalization(t *testing.T) {
 
 }
 
+func Test_DiscreteGenerate(t *testing.T) {
+
+	values := make(map[interface{}]float64)
+	values["x"] = 25
+	values[1.01] = 25
+	values[10] = 50
+	discreteG := generators.NewDiscrete("X", values)
+
+	howManyPoints := 1000000
+	dimensionsNo := 1
+
+	restrictions := []generators.GenerationStrategy{
+		discreteG,
+	}
+
+	sum := 0.0
+	for _, value := range values {
+		sum += value
+	}
+
+	generator :=
+		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+
+	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
+	for pIdx := 0; generator.HasNext(0); pIdx++ {
+		generatedPoints[pIdx] = generator.Next(0)
+	}
+
+	counts := []int{
+		0, 0, 0,
+	}
+	for pIdx := 0; pIdx < howManyPoints; pIdx++ {
+		switch generatedPoints[pIdx].Values[0] {
+		case "x":
+			counts[0] = counts[0] + 1
+		case 1.01:
+			counts[1] = counts[1] + 1
+		case 10:
+			counts[2] = counts[2] + 1
+		}
+	}
+
+	for _, c := range counts {
+		fmt.Println(float64(c) / float64(howManyPoints))
+	}
+}
+
 func Test_Float64(t *testing.T) {
 
 	// If the generator is not specified, create a new one

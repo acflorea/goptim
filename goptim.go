@@ -69,13 +69,13 @@ func Optimize(vargs map[string]interface{}) {
 
 	// 2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewUniform(math.Pow(2, -2), math.Pow(2, 15)),
-	//	generators.NewUniform(math.Pow(2, -15), math.Pow(2, 3)),
+	//	generators.NewUniform("C", math.Pow(2, -2), math.Pow(2, 15)),
+	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
 	//}
 
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform("C", 1, 1),
-		generators.NewUniform("gamma", 0, 0),
+		generators.NewExponential("C", 10),
+		generators.NewExponential("gamma", 10),
 	}
 
 	match := 0

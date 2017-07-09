@@ -213,6 +213,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 					sum += value
 					if raw <= sum {
 						values[dimIdx] = key
+						break
 					}
 				}
 			}
@@ -270,6 +271,7 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 				sum += value
 				if raw <= sum {
 					values[dimIdx] = key
+					break
 				}
 			}
 		}
