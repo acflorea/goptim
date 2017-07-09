@@ -172,7 +172,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 	points = make([]functions.MultidimensionalPoint, g.pointsNo)
 
 	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
-		values := make([]interface{}, g.dimensionsNo)
+		values := make(map[string]interface{})
 		labels := make([]string, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
@@ -203,22 +203,22 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 
 			switch distribution {
 			case Uniform:
-				_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+				_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
 			case Exponential:
-				_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
+				_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
 			case Discrete:
 				raw := g.rs[w].Float64()
 				sum := 0.0
 				for key, value := range samples {
 					sum += value
 					if raw <= sum {
-						values[dimIdx] = key
+						values[labels[dimIdx]] = key
 						break
 					}
 				}
 			}
 		}
-		points[pIdx] = functions.MultidimensionalPoint{Values: values, Labels:labels}
+		points[pIdx] = functions.MultidimensionalPoint{Values: values}
 	}
 
 	g.index[w] = g.pointsNo
@@ -230,7 +230,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
-	values := make([]interface{}, g.dimensionsNo)
+	values := make(map[string]interface{})
 	labels := make([]string, g.dimensionsNo)
 	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
@@ -261,16 +261,16 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 		switch distribution {
 		case Uniform:
-			_, values[dimIdx] = Float64(lowerBound, upperBound, g.rs[w])
+			_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
 		case Exponential:
-			_, values[dimIdx] = ExpFloat64(lambda, g.rs[w])
+			_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
 		case Discrete:
 			raw := g.rs[w].Float64()
 			sum := 0.0
 			for key, value := range samples {
 				sum += value
 				if raw <= sum {
-					values[dimIdx] = key
+					values[labels[dimIdx]] = key
 					break
 				}
 			}
@@ -278,7 +278,7 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 
 	}
 
-	point = functions.MultidimensionalPoint{Values: values, Labels:labels}
+	point = functions.MultidimensionalPoint{Values: values}
 
 	g.index[w]++
 

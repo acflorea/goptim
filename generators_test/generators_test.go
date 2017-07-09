@@ -67,7 +67,7 @@ func Test_DiscreteGenerate(t *testing.T) {
 		0, 0, 0,
 	}
 	for pIdx := 0; pIdx < howManyPoints; pIdx++ {
-		switch generatedPoints[pIdx].Values[0] {
+		switch generatedPoints[pIdx].Values["X"] {
 		case "x":
 			counts[0] = counts[0] + 1
 		case 1.01:
@@ -171,8 +171,8 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 	}
 
 	for pIdx := 0; pIdx < len(generatedPoints); pIdx++ {
-		x := generatedPoints[pIdx].Values[0].(float64)
-		y := generatedPoints[pIdx].Values[1].(float64)
+		x := generatedPoints[pIdx].Values["x"].(float64)
+		y := generatedPoints[pIdx].Values["y"].(float64)
 		if x < -10 || x >= 10 || y < -10 || y >= 10 {
 			msg := fmt.Sprintf("Error generating points. Coordinate out of bounds "+
 				"(x, y) = (%f, %f)", x, y)
@@ -203,8 +203,8 @@ func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 	}
 
 	for pIdx := 0; pIdx < len(generatedPoints); pIdx++ {
-		x := generatedPoints[pIdx].Values[0].(float64)
-		y := generatedPoints[pIdx].Values[1].(float64)
+		x := generatedPoints[pIdx].Values["x"].(float64)
+		y := generatedPoints[pIdx].Values["y"].(float64)
 		if x < -10 || x >= 10 || y < -10 || y >= 10 {
 			msg := fmt.Sprintf("Error generating points. Coordinate out of bounds "+
 				"(x, y) = (%f, %f)", x, y)

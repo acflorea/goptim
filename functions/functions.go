@@ -17,10 +17,8 @@ func FloatToString(input_num float64) string {
 // (basically a map which entries have the form dimensionName -> value)
 // Eg: The origin in a 3d space {"x":0, "y":0, "z":0}
 type MultidimensionalPoint struct {
-	// Values on each dimension
-	Values []interface{}
-	// Optional dimension labels
-	Labels []string
+	// Label->Value on each dimension
+	Values map[string]interface{}
 }
 
 // A sample
@@ -38,28 +36,11 @@ type Sample struct {
 func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 
 	var dimensionsLabels = make([]string, len(p.Values))
-	if i := 0; p.Labels != nil {
-		// if some dimension labels are specified
-		min := len(p.Labels)
-		if min > len(dimensionsLabels) {
-			min = len(dimensionsLabels)
-		}
-		// In sync labels and values
-		for ; i < min; i++ {
-			dimensionsLabels[i] = p.Labels[i] + "=" + fmt.Sprintf("%v", p.Values[i])
-		}
-		// Extra values
-		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" + fmt.Sprintf("%v", p.Values[i])
-		}
-		// Extra labels
-		for ; i < len(p.Labels); i++ {
-			dimensionsLabels = append(dimensionsLabels, p.Labels[i]+"=nil")
-		}
-	} else {
-		for ; i < len(dimensionsLabels); i++ {
-			dimensionsLabels[i] = "x" + strconv.Itoa(i) + "=" +  fmt.Sprintf("%v", p.Values[i])
-		}
+
+	idx := 0
+	for key, value := range p.Values {
+		dimensionsLabels[idx] = key + "=" + fmt.Sprintf("%v", value)
+		idx++
 	}
 
 	desc = strings.Join(dimensionsLabels[:], ",")
@@ -116,8 +97,8 @@ func F_sin(x MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 
 // sin(sqrt(sq(x)+sq(y)))/sqrt(sq(x)+sq(y))
 func F_sombrero(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	x, okx := p.Values[0].(float64)
-	y, oky := p.Values[1].(float64)
+	x, okx := p.Values["x"].(float64)
+	y, oky := p.Values["y"].(float64)
 
 	if okx && oky {
 		w := math.Sqrt(x*x + y*y)

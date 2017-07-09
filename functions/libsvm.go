@@ -7,8 +7,8 @@ import (
 
 // LIBSVM optimization through crossvalidation
 func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	C := p.Values[0].(float64)
-	Gamma := p.Values[1].(float64)
+	C := p.Values["C"].(float64)
+	Gamma := p.Values["gamma"].(float64)
 
 	accuracy, _, _ := CrossV(C, Gamma, vargs)
 
@@ -30,7 +30,6 @@ func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64, a
 
 	param.C = C
 	param.Gamma = Gamma
-
 
 	// Create a problem specification from the training data and parameter attributes
 	problem, err := libSvm.NewProblem(fileName, param)

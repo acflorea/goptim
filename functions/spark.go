@@ -34,9 +34,9 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 		" -Dreccsys.filesystem.root=" +
 		fsRoot +
 		" -Dreccsys.preprocess.categoryScalingFactor=" +
-		p.Values[0].(string) +
+		p.Values["categoryScalingFactor"].(string) +
 		" -Dreccsys.preprocess.productScalingFactor=" +
-		p.Values[1].(string) +
+		p.Values["productScalingFactor"].(string) +
 		" -Dreccsys.train.stepSize=" +
 		"1" +
 		" -Dreccsys.train.regParam=" +
@@ -63,7 +63,7 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 
 	dat, _ := ioutil.ReadFile(fsRoot + "/" + resultsFileName)
 	resultsStr := string(dat)
-	fmt.Println(p.Values[0].(string), p.Values[1].(string), string(dat))
+	fmt.Println(p.Values["categoryScalingFactor"].(string), p.Values["productScalingFactor"].(string), string(dat))
 
 	f1str := strings.TrimPrefix(strings.Split(resultsStr, " ")[2], "F:")
 	f1Measure, _ := strconv.ParseFloat(f1str, 64)
