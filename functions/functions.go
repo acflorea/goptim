@@ -6,6 +6,7 @@ import (
 	"strings"
 	"math"
 	"fmt"
+	"sort"
 )
 
 func FloatToString(input_num float64) string {
@@ -36,10 +37,18 @@ type Sample struct {
 func (p *MultidimensionalPoint) PrettyPrint() (desc string) {
 
 	var dimensionsLabels = make([]string, len(p.Values))
+	var keys = make([]string, len(p.Values))
 
 	idx := 0
-	for key, value := range p.Values {
-		dimensionsLabels[idx] = key + "=" + fmt.Sprintf("%v", value)
+	for key := range p.Values {
+		keys[idx] = key
+		idx++
+	}
+	sort.Strings(keys)
+
+	idx = 0
+	for _, key := range keys {
+		dimensionsLabels[idx] = key + "=" + fmt.Sprintf("%v", p.Values[key])
 		idx++
 	}
 
