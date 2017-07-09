@@ -7,15 +7,25 @@ import (
 
 // LIBSVM optimization through crossvalidation
 func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
-	C := p.Values["C"].(float64)
-	Gamma := p.Values["gamma"].(float64)
+	C, ok := p.Values["C"].(float64)
+	if !ok {
+		C = 0.01
+	}
+	Gamma, ok := p.Values["gamma"].(float64)
+	if !ok {
+		Gamma = 0.0
+	}
+	kernel, ok := p.Values["kernel"].(int)
+	if !ok {
+		kernel = libSvm.RBF
+	}
 
-	accuracy, _, _ := CrossV(C, Gamma, vargs)
+	accuracy, _, _ := CrossV(kernel, C, Gamma, vargs)
 
 	return accuracy, nil
 }
 
-func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64, all, TPs int) {
+func CrossV(kernel int, C, Gamma float64, vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 
 	fileName, found := vargs["fileName"].(string)
 	if !found {
@@ -25,9 +35,10 @@ func CrossV(C, Gamma float64, vargs map[string]interface{}) (accuracy float64, a
 	quietMode := true
 
 	param := libSvm.NewParameter() // Create a parameter object with default values
-	param.KernelType = libSvm.RBF  // Use the polynomial kernel
 	param.QuietMode = quietMode
 
+	// Parameters
+	param.KernelType = kernel
 	param.C = C
 	param.Gamma = Gamma
 

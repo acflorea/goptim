@@ -8,6 +8,7 @@ import (
 	"time"
 	"math/rand"
 	"flag"
+	"github.com/acflorea/libsvm-go"
 )
 
 // The result of one trial
@@ -74,6 +75,11 @@ func Optimize(vargs map[string]interface{}) {
 	//}
 
 	restrictions := []generators.GenerationStrategy{
+		generators.NewDiscrete("kernel", map[interface{}]float64{
+			libSvm.RBF:    1.0,
+			libSvm.POLY:   1.0,
+			libSvm.LINEAR: 1.0,
+		}),
 		generators.NewExponential("C", 10),
 		generators.NewExponential("gamma", 10),
 	}
@@ -86,7 +92,7 @@ func Optimize(vargs map[string]interface{}) {
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandomGenerator(2, restrictions, maxAttempts, W, algorithm)
+			generators.NewRandomGenerator(len(restrictions), restrictions, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
 		messages := make(chan functions.Sample, W)
