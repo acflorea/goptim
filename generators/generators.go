@@ -115,9 +115,9 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandomGenerator(dimensionsNo int, restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
 	generator := randomGenerator{
-		dimensionsNo: dimensionsNo,
+		dimensionsNo: len(restrictions),
 		restrictions: restrictions,
 		pointsNo:     pointsNo,
 		cores:        cores,

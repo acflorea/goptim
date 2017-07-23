@@ -8,7 +8,6 @@ import (
 	"time"
 	"math/rand"
 	"flag"
-	"github.com/acflorea/libsvm-go"
 )
 
 // The result of one trial
@@ -74,23 +73,32 @@ func Optimize(vargs map[string]interface{}) {
 	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
 	//}
 
-	// {"linear", "polynomial", "rbf", "sigmoid"}
+	//{"linear", "polynomial", "rbf", "sigmoid"}
+	//restrictions := []generators.GenerationStrategy{
+	//	generators.NewDiscrete("kernel", map[interface{}]float64{
+	//		libSvm.LINEAR:  1.0, // 0
+	//		libSvm.POLY:    1.0, // 1
+	//		libSvm.RBF:     1.0, // 2
+	//		libSvm.SIGMOID: 1.0, // 3
+	//	}),
+	//	generators.NewExponential("C", 10),
+	//	generators.NewExponential("gamma", 10),
+	//	generators.NewDiscrete("degree", map[interface{}]float64{
+	//		2: 1.0,
+	//		3: 1.0,
+	//		4: 1.0,
+	//		5: 1.0,
+	//	}),
+	//	generators.NewUniform("coef0", -10, 10),
+	//}
+
+	onetoonehundred := map[interface{}]float64{}
+	for i := 1; i <= 1000; i++ {
+		onetoonehundred[float64(i)] = 1.0
+	}
+
 	restrictions := []generators.GenerationStrategy{
-		generators.NewDiscrete("kernel", map[interface{}]float64{
-			libSvm.LINEAR:  1.0, // 0
-			libSvm.POLY:    1.0, // 1
-			libSvm.RBF:     1.0, // 2
-			libSvm.SIGMOID: 1.0, // 3
-		}),
-		generators.NewExponential("C", 10),
-		generators.NewExponential("gamma", 10),
-		generators.NewDiscrete("degree", map[interface{}]float64{
-			2: 1.0,
-			3: 1.0,
-			4: 1.0,
-			5: 1.0,
-		}),
-		generators.NewUniform("coef0", -10, 10),
+		generators.NewDiscrete("x", onetoonehundred),
 	}
 
 	match := 0
@@ -101,7 +109,7 @@ func Optimize(vargs map[string]interface{}) {
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandomGenerator(len(restrictions), restrictions, maxAttempts, W, algorithm)
+			generators.NewRandom(restrictions, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
 		messages := make(chan functions.Sample, W)
@@ -239,8 +247,8 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					//if accept(optimNo) {
-					if acceptAll() {
+					if accept(optimNo) {
+					//if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1

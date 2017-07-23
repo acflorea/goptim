@@ -44,7 +44,6 @@ func Test_DiscreteGenerate(t *testing.T) {
 	discreteG := generators.NewDiscrete("X", values)
 
 	howManyPoints := 1000000
-	dimensionsNo := 1
 
 	restrictions := []generators.GenerationStrategy{
 		discreteG,
@@ -56,7 +55,7 @@ func Test_DiscreteGenerate(t *testing.T) {
 	}
 
 	generator :=
-		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
@@ -149,7 +148,6 @@ func Test_ExpFloat64(t *testing.T) {
 func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 
 	howManyPoints := 10
-	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
 		generators.NewUniform("x", -10, 10),
@@ -157,7 +155,7 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 	}
 
 	generator :=
-		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
@@ -184,7 +182,6 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 
 	howManyPoints := 10
-	dimensionsNo := 2
 
 	restrictions := []generators.GenerationStrategy{
 		generators.NewUniform("x", -10, 10),
@@ -192,7 +189,7 @@ func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 	}
 
 	generator :=
-		generators.NewRandomGenerator(dimensionsNo, restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := generator.AllAvailable(0)
 
