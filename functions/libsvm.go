@@ -3,6 +3,7 @@ package functions
 import (
 	"github.com/acflorea/libsvm-go"
 	"fmt"
+	"encoding/json"
 )
 
 // LIBSVM optimization through crossvalidation
@@ -64,7 +65,8 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 	}
 	//if !quietMode {
 	fmt.Println("Accuracy is ", accuracy)
-	fmt.Println("Confusion Matrix ", confusion)
+	jsonedCM, err := json.Marshal(confusion)
+	fmt.Println("Confusion Matrix ", string(jsonedCM))
 	//}
 
 	if err != nil {
