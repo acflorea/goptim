@@ -53,7 +53,7 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 	// Create a problem specification from the training data and parameter attributes
 	problem, err := libSvm.NewProblem(fileName, param)
 
-	_, acc, all, TPs := libSvm.CrossValidationWithAccuracies(problem, param, 10)
+	_, acc, confusion := libSvm.CrossValidationWithAccuracies(problem, param, 10)
 
 	accuracy = 0
 	for i := 0; i < len(acc); i++ {
@@ -62,6 +62,10 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 		}
 		accuracy += acc[i] / float64(len(acc))
 	}
+	//if !quietMode {
+	fmt.Println("Accuracy is ", accuracy)
+	fmt.Println("Confusion Matrix ", confusion)
+	//}
 
 	if err != nil {
 		panic(err)

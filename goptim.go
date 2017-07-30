@@ -8,6 +8,7 @@ import (
 	"time"
 	"math/rand"
 	"flag"
+	"github.com/acflorea/libsvm-go"
 )
 
 // The result of one trial
@@ -42,6 +43,7 @@ func main() {
 	vargs["alg"] = *alg
 
 	Optimize(vargs)
+
 }
 
 func Optimize(vargs map[string]interface{}) {
@@ -67,39 +69,39 @@ func Optimize(vargs map[string]interface{}) {
 	// number of workers
 	W := 5
 
-	// 2^-3 to 2^10
+	//2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
 	//	generators.NewUniform("C", math.Pow(2, -2), math.Pow(2, 15)),
 	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
 	//}
 
 	//{"linear", "polynomial", "rbf", "sigmoid"}
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewDiscrete("kernel", map[interface{}]float64{
-	//		libSvm.LINEAR:  1.0, // 0
-	//		libSvm.POLY:    1.0, // 1
-	//		libSvm.RBF:     1.0, // 2
-	//		libSvm.SIGMOID: 1.0, // 3
-	//	}),
-	//	generators.NewExponential("C", 10),
-	//	generators.NewExponential("gamma", 10),
-	//	generators.NewDiscrete("degree", map[interface{}]float64{
-	//		2: 1.0,
-	//		3: 1.0,
-	//		4: 1.0,
-	//		5: 1.0,
-	//	}),
-	//	generators.NewUniform("coef0", -10, 10),
-	//}
-
-	onetoonehundred := map[interface{}]float64{}
-	for i := 1; i <= 1000; i++ {
-		onetoonehundred[float64(i)] = 1.0
-	}
-
 	restrictions := []generators.GenerationStrategy{
-		generators.NewDiscrete("x", onetoonehundred),
+		generators.NewDiscrete("kernel", map[interface{}]float64{
+			libSvm.LINEAR:  1.0, // 0
+			libSvm.POLY:    1.0, // 1
+			libSvm.RBF:     1.0, // 2
+			libSvm.SIGMOID: 1.0, // 3
+		}),
+		generators.NewExponential("C", 10),
+		generators.NewExponential("gamma", 10),
+		generators.NewDiscrete("degree", map[interface{}]float64{
+			2: 1.0,
+			3: 1.0,
+			4: 1.0,
+			5: 1.0,
+		}),
+		generators.NewUniform("coef0", -10, 10),
 	}
+
+	//onetoonehundred := map[interface{}]float64{}
+	//for i := 1; i <= 1000; i++ {
+	//	onetoonehundred[float64(i)] = 1.0
+	//}
+	//
+	//restrictions := []generators.GenerationStrategy{
+	//	generators.NewDiscrete("x", onetoonehundred),
+	//}
 
 	match := 0
 	var globalTries = 0
@@ -112,7 +114,7 @@ func Optimize(vargs map[string]interface{}) {
 			generators.NewRandom(restrictions, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
-		messages := make(chan functions.Sample, W)
+		resultsChans := make(chan functions.Sample, W)
 
 		for w := 0; w < W; w++ {
 
@@ -127,7 +129,7 @@ func Optimize(vargs map[string]interface{}) {
 					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
 				}
 
-				messages <- functions.Sample{i, p, v, gv, o == 0}
+				resultsChans <- functions.Sample{i, p, v, gv, o == 0}
 			}(w)
 		}
 
@@ -137,7 +139,7 @@ func Optimize(vargs map[string]interface{}) {
 		optim, goptim := -math.MaxFloat64, -math.MaxFloat64
 		var point functions.MultidimensionalPoint
 		for i := 0; i < W; i++ {
-			results[i] = <-messages
+			results[i] = <-resultsChans
 			if results[i].FullSearch {
 				totalTries += maxAttempts / W
 			} else {
@@ -248,7 +250,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 				if i > k {
 					if accept(optimNo) {
-					//if acceptAll() {
+						//if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
