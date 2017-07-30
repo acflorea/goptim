@@ -63,11 +63,11 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 		}
 		accuracy += acc[i] / float64(len(acc))
 	}
-	//if !quietMode {
-	fmt.Println("Accuracy is ", accuracy)
-	jsonedCM, err := json.Marshal(confusion)
-	fmt.Println("Confusion Matrix ", string(jsonedCM))
-	//}
+	if !quietMode {
+		fmt.Println("Accuracy is ", accuracy)
+		jsonedCM, _ := json.Marshal(confusion)
+		fmt.Println("Confusion Matrix ", string(jsonedCM))
+	}
 
 	if err != nil {
 		panic(err)
