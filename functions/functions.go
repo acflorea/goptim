@@ -69,6 +69,8 @@ func F_identity(x MultidimensionalPoint, vargs map[string]interface{}) (float64,
 	for _, value := range x.Values {
 		if v, ok := value.(float64); ok {
 			return v, nil
+		} else {
+			return 0.0, errors.New("Not a float.")
 		}
 	}
 	return 0.0, errors.New("Not a single parameter map.")
