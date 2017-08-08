@@ -53,8 +53,8 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 		Coef0 = 0.0
 	}
 
-	fmt.Println("python", "/Users/aflorea/phd/optimus-prime/crossVal.py",
-		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
+	fmt.Print("python", "/Users/aflorea/phd/optimus-prime/crossVal.py",
+		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0), " -> ")
 
 	cmd := exec.Command("python", "/Users/aflorea/phd/optimus-prime/crossVal.py",
 		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
@@ -77,6 +77,8 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 		accuracy = accuracy + parsed
 	}
 	accuracy = accuracy / 10.0
+
+	fmt.Println(accuracy)
 
 	return accuracy, nil
 }
