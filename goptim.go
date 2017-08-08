@@ -67,7 +67,7 @@ func Optimize(vargs map[string]interface{}) {
 	algorithm := generators.Algorithms[vargs["alg"].(string)]
 
 	// number of workers
-	W := 10
+	W := 25
 
 	//2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{

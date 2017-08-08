@@ -88,7 +88,7 @@ func Train(C, Gamma float64, vargs map[string]interface{}) {
 	}
 
 	param := libSvm.NewParameter() // Create a parameter object with default values
-	param.KernelType = libSvm.RBF  // Use the polynomial kernel
+	param.KernelType = libSvm.RBF  // Use the gaussian kernel
 
 	param.C = C
 	param.Gamma = Gamma
