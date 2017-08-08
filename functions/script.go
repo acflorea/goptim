@@ -7,6 +7,15 @@ import (
 	"fmt"
 )
 
+// Map with kernels
+var Kernels = map[int]string{
+	0: "linear",
+	1: "poly",
+	2: "rbf",
+	3: "sigmoid",
+	4: "precomputed",
+}
+
 // Calls an external script and collects the results
 func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
@@ -20,10 +29,12 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 		vargs[key] = value
 	}
 
-	//kernel, ok := vargs["kernel"].(int)
-	//if !ok {
-	//	kernel = "linear"
-	//}
+	_kernel, ok := vargs["kernel"].(int)
+	kernel := "linear"
+	if ok {
+		kernel = Kernels[_kernel]
+	}
+
 	C, ok := vargs["C"].(float64)
 	if !ok {
 		C = 1
@@ -43,10 +54,10 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 	}
 
 	fmt.Println("python", "/Users/aflorea/phd/optimus-prime/crossVal.py",
-		fileName, "rbf", FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
+		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
 
 	cmd := exec.Command("python", "/Users/aflorea/phd/optimus-prime/crossVal.py",
-		fileName, "rbf", FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
+		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
 
 	results, err := cmd.Output()
 
