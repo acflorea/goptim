@@ -27,6 +27,7 @@ func main() {
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
+	script := flag.String("script", "", "External script to run")
 
 	flag.Parse()
 
@@ -41,6 +42,7 @@ func main() {
 	vargs["maxAttempts"] = *maxAttemptsPtr
 	vargs["fct"] = *fct
 	vargs["alg"] = *alg
+	vargs["script"] = *script
 
 	Optimize(vargs)
 

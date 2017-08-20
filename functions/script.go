@@ -24,6 +24,11 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 		panic("Missing input data! Please specify a fileName!")
 	}
 
+	targetScript, ok := vargs["script"].(string)
+	if !ok {
+		panic("Missing script information! Please specify a valid location!")
+	}
+
 	// Add Values to vargs
 	for key, value := range p.Values {
 		vargs[key] = value
@@ -52,9 +57,6 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 	if !ok {
 		Coef0 = 0.0
 	}
-
-	// targetScript := "/Users/aflorea/phd/optimus-prime/crossVal.py"
-	targetScript := "/Users/acflorea/phd/optimus-prime/crossVal.py"
 
 	fmt.Print("python", targetScript,
 		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0), " -> ")
