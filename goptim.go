@@ -78,20 +78,19 @@ func Optimize(vargs map[string]interface{}) {
 	//{"linear", "polynomial", "rbf", "sigmoid"}
 	restrictions := []generators.GenerationStrategy{
 		generators.NewDiscrete("kernel", map[interface{}]float64{
-			libSvm.LINEAR:  1.0, // 0
-			libSvm.POLY:    1.0, // 1
-			libSvm.RBF:     1.0, // 2
-			libSvm.SIGMOID: 1.0, // 3
+			libSvm.LINEAR: 1.0, // 0
+			libSvm.POLY:   1.0, // 1
+			libSvm.RBF:    1.0, // 2
 		}),
-		generators.NewExponential("C", 10),
-		generators.NewExponential("gamma", 10),
+		generators.NewUniform("C", 0.0, 2.0),
+		generators.NewUniform("gamma", 0.0, 1.0),
 		generators.NewDiscrete("degree", map[interface{}]float64{
 			2: 1.0,
 			3: 1.0,
 			4: 1.0,
 			5: 1.0,
 		}),
-		generators.NewUniform("coef0", -10, 10),
+		generators.NewUniform("coef0", 0.0, 1.0),
 	}
 
 	//onetoonehundred := map[interface{}]float64{}

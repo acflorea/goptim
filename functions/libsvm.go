@@ -14,18 +14,28 @@ func LIBSVM_optim(p MultidimensionalPoint, vargs map[string]interface{}) (float6
 		vargs[key] = value
 	}
 
-	accuracy, _, _ := CrossV(vargs)
-
-	return accuracy, nil
-}
-
-func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
-
-	quietMode := true
 	fileName, ok := vargs["fileName"].(string)
 	if !ok {
 		panic("Missing input data! Please specify a fileName!")
 	}
+
+	param := libSvm.NewParameter() // Create a parameter object with default values
+
+	// Create a problem specification from the training data and parameter attributes
+	problem, err := libSvm.NewProblem(fileName, param)
+
+	if err != nil {
+		panic(err)
+	}
+
+	accuracy, _, _ := CrossV(problem, vargs)
+
+	return accuracy, nil
+}
+
+func CrossV(problem *libSvm.Problem, vargs map[string]interface{}) (accuracy float64, all, TPs int) {
+
+	quietMode := true
 
 	param := libSvm.NewParameter() // Create a parameter object with default values
 	param.QuietMode = quietMode
@@ -51,9 +61,6 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 		param.Coef0 = Coef0
 	}
 
-	// Create a problem specification from the training data and parameter attributes
-	problem, err := libSvm.NewProblem(fileName, param)
-
 	_, acc, confusion := libSvm.CrossValidationWithAccuracies(problem, param, 10)
 
 	accuracy = 0
@@ -67,10 +74,6 @@ func CrossV(vargs map[string]interface{}) (accuracy float64, all, TPs int) {
 		fmt.Println("Accuracy is ", accuracy)
 		jsonedCM, _ := json.Marshal(confusion)
 		fmt.Println("Confusion Matrix ", string(jsonedCM))
-	}
-
-	if err != nil {
-		panic(err)
 	}
 
 	return
