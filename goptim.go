@@ -84,8 +84,8 @@ func Optimize(vargs map[string]interface{}) {
 			libSvm.POLY:   1.0, // 1
 			libSvm.RBF:    1.0, // 2
 		}),
-		generators.NewUniform("C", 0.0, 2.0),
-		generators.NewUniform("gamma", 0.0, 1.0),
+		generators.NewExponential("C", 10.0),
+		generators.NewExponential("gamma", 10.0),
 		generators.NewDiscrete("degree", map[interface{}]float64{
 			2: 1.0,
 			3: 1.0,

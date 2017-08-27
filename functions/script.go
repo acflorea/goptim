@@ -58,9 +58,6 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 		Coef0 = 0.0
 	}
 
-	fmt.Print("python", targetScript,
-		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0), " -> ")
-
 	cmd := exec.Command("python", targetScript,
 		fileName, kernel, FloatToString(C), Gamma, strconv.Itoa(Degree), FloatToString(Coef0))
 
@@ -83,6 +80,8 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 	}
 	accuracy = accuracy / 10.0
 
+	fmt.Println(kernel, " ", FloatToString(C), " ", Gamma, " ", strconv.Itoa(Degree), " ", FloatToString(Coef0))
+	fmt.Print("[", string(results), "] ")
 	fmt.Println(accuracy)
 
 	return accuracy, nil
