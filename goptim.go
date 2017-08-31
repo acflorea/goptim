@@ -28,6 +28,7 @@ func main() {
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
+	workers := flag.Int("w", 8, "Number of goroutines")
 
 	flag.Parse()
 
@@ -43,6 +44,7 @@ func main() {
 	vargs["fct"] = *fct
 	vargs["alg"] = *alg
 	vargs["script"] = *script
+	vargs["workers"] = *workers
 
 	Optimize(vargs)
 
@@ -69,7 +71,7 @@ func Optimize(vargs map[string]interface{}) {
 	algorithm := generators.Algorithms[vargs["alg"].(string)]
 
 	// number of workers
-	W := 8
+	W := vargs["workers"].(int)
 
 	//2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
