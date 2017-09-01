@@ -80,9 +80,9 @@ func Script(p MultidimensionalPoint, vargs map[string]interface{}) (float64, err
 	}
 	accuracy = accuracy / 10.0
 
-	fmt.Println(kernel, " ", FloatToString(C), " ", Gamma, " ", strconv.Itoa(Degree), " ", FloatToString(Coef0))
-	fmt.Print("[", string(results), "] ")
-	fmt.Println(accuracy)
+	fmt.Print(kernel, ", ", FloatToString(C), ", ", Gamma, ", ", strconv.Itoa(Degree), ", ", FloatToString(Coef0))
+	fmt.Print(", ", string(results))
+	fmt.Println(", ", accuracy)
 
 	return accuracy, nil
 }
