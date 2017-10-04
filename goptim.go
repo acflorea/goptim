@@ -29,6 +29,7 @@ func main() {
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
 	workers := flag.Int("w", 8, "Number of goroutines")
+	targetstop := flag.Int("targetstop", 0, "Target stop")
 
 	flag.Parse()
 
@@ -45,6 +46,7 @@ func main() {
 	vargs["alg"] = *alg
 	vargs["script"] = *script
 	vargs["workers"] = *workers
+	vargs["targetstop"] = *targetstop
 
 	Optimize(vargs)
 
@@ -72,6 +74,12 @@ func Optimize(vargs map[string]interface{}) {
 
 	// number of workers
 	W := vargs["workers"].(int)
+
+	// We target a stop after targetstop attempts
+	targetstop := vargs["targetstop"].(int)
+	if targetstop == 0 {
+		targetstop = maxAttempts
+	}
 
 	//2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
@@ -127,7 +135,7 @@ func Optimize(vargs map[string]interface{}) {
 			}
 
 			go func(w int) {
-				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, maxAttempts/W, w, true)
+				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, targetstop/W, maxAttempts/W, w, true)
 				if !silent {
 					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
 				}
@@ -202,7 +210,7 @@ func Optimize(vargs map[string]interface{}) {
 // The algorithm stops either if a value found at the second step is lower than the minimum
 // of if n attempts have been made (in which case the 1st step minimum is reported)
 // w is thw worker index
-func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, w int, goAllTheWay bool) (
+func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, N, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -210,7 +218,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	optimNo int) {
 
 	k := int(math.Max(1, float64(n)/(2*math.E)))
-	return Minimize(f, vargs, generator, k, n, w, goAllTheWay)
+	return Minimize(f, vargs, generator, k, n, N, w, goAllTheWay)
 }
 
 // Attempts to minimize the function f
@@ -222,7 +230,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 // gmin is the global minimum (if goAllTheWay then the algorithm continues and computes it
 // for comparison purposes)
 // w is the worker index
-func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, w int, goAllTheWay bool) (
+func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, N, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -252,8 +260,8 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					if accept(optimNo) {
-						//if acceptAll() {
+					//if accept(optimNo) {
+					if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
@@ -287,25 +295,25 @@ func accept(optimNo int) bool {
 }
 
 // Dynamically Minimizes the negation of the target function
-func DMaximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, w int, goAllTheWay bool) (
+func DMaximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, N, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
 	gmax float64,
 	optimNo int) {
 
-	index, p, max, gmax, optimNo = DMinimize(functions.Negate(f), vargs, generator, n, w, goAllTheWay)
+	index, p, max, gmax, optimNo = DMinimize(functions.Negate(f), vargs, generator, n, N, w, goAllTheWay)
 	return index, p, -max, -gmax, optimNo
 }
 
 // Minimizes the negation of the target function
-func Maximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, w int, goAllTheWay bool) (
+func Maximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, N, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	max float64,
 	gmax float64,
 	optimNo int) {
 
-	index, p, max, gmax, optimNo = Minimize(functions.Negate(f), vargs, generator, k, n, w, goAllTheWay)
+	index, p, max, gmax, optimNo = Minimize(functions.Negate(f), vargs, generator, k, n, N, w, goAllTheWay)
 	return index, p, -max, -gmax, optimNo
 }
