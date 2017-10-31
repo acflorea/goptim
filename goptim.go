@@ -31,6 +31,13 @@ func main() {
 	workers := flag.Int("w", 8, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
+	// Spark specifics
+	sparkSubmit := flag.String("sparkSubmit", "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit", "Location of the Spark submit script")
+	targetJar := flag.String("targetJar", "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar", "Location of the job jar")
+	mainClass := flag.String("mainClass", "dr.acf.recc.ReccomenderBackbone", "The target class to execute")
+	configFile := flag.String("configFile", "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf", "Config file for the spark job")
+	fsRoot := flag.String("fsRoot", "/Users/acflorea/phd/columbugus_data/netbeans_final_test", "Location of data files")
+
 	flag.Parse()
 
 	//functions.CrossV(1, 0.1)
@@ -47,6 +54,13 @@ func main() {
 	vargs["script"] = *script
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop
+
+	// Spark specifics
+	vargs["sparkSubmit"] = *sparkSubmit
+	vargs["targetJar"] = *targetJar
+	vargs["mainClass"] = *mainClass
+	vargs["configFile"] = *configFile
+	vargs["fsRoot"] = *fsRoot
 
 	Optimize(vargs)
 
@@ -103,6 +117,8 @@ func Optimize(vargs map[string]interface{}) {
 			5: 1.0,
 		}),
 		generators.NewUniform("coef0", 0.0, 1.0),
+		generators.NewUniform("categoryScalingFactor", 1.0, 100.0),
+		generators.NewUniform("productScalingFactor", 1.0, 100.0),
 	}
 
 	//onetoonehundred := map[interface{}]float64{}
@@ -218,7 +234,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	optimNo int) {
 
 	k := int(math.Max(1, float64(n)/(2*math.E)))
-	return Minimize(f, vargs, generator, k, n, N, w, goAllTheWay)
+	return Minimize(f, vargs, generator, k, N, w, goAllTheWay)
 }
 
 // Attempts to minimize the function f
@@ -230,7 +246,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 // gmin is the global minimum (if goAllTheWay then the algorithm continues and computes it
 // for comparison purposes)
 // w is the worker index
-func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, N, w int, goAllTheWay bool) (
+func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, N, w int, goAllTheWay bool) (
 	index int,
 	p functions.MultidimensionalPoint,
 	min float64,
@@ -244,7 +260,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
-	for i := 0; i < n; i++ {
+	for i := 0; i < N; i++ {
 		rndPoint := generator.Next(w)
 		f_rnd, _ := f(rndPoint, vargs)
 
@@ -314,6 +330,6 @@ func Maximize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 	gmax float64,
 	optimNo int) {
 
-	index, p, max, gmax, optimNo = Minimize(functions.Negate(f), vargs, generator, k, n, N, w, goAllTheWay)
+	index, p, max, gmax, optimNo = Minimize(functions.Negate(f), vargs, generator, k, N, w, goAllTheWay)
 	return index, p, -max, -gmax, optimNo
 }

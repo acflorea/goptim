@@ -11,13 +11,14 @@ import (
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
 func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
-	dataset := "netbeans"
+
+	mainClass := "dr.acf.recc.ReccomenderBackbone"
 
 	sparkSubmit := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
 	targetJar := "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
 
-	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/" + dataset + ".conf"
-	fsRoot := "/Users/acflorea/phd/columbugus_data/" + dataset + "_final_test"
+	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf"
+	fsRoot := "/Users/acflorea/phd/columbugus_data/netbeans_final_test"
 
 	resultsFileName := "gorand_results.out"
 	tuningMode := "true"
@@ -34,13 +35,13 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 		" -Dreccsys.filesystem.root=" +
 		fsRoot +
 		" -Dreccsys.preprocess.categoryScalingFactor=" +
-		p.Values["categoryScalingFactor"].(string) +
+		FloatToString(p.Values["categoryScalingFactor"].(float64)) +
 		" -Dreccsys.preprocess.productScalingFactor=" +
-		p.Values["productScalingFactor"].(string) +
+		FloatToString(p.Values["productScalingFactor"].(float64)) +
 		" -Dreccsys.train.stepSize=" +
 		"1" +
 		" -Dreccsys.train.regParam=" +
-		"0.01"
+		FloatToString(p.Values["C"].(float64))
 
 	//"--master=local[*]"
 	//"--executor-memory 10G"
@@ -50,7 +51,7 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 
 	//cmd := exec.Command(sparkSubmit, sparkParams, "&2 > ./xxx.log")
 	cmd := exec.Command(sparkSubmit,
-		"--class", "dr.acf.recc.ReccomenderBackbone",
+		"--class", mainClass,
 		"--master=local[3]",
 		"--driver-java-options",
 		sparkParams,
@@ -63,7 +64,11 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 
 	dat, _ := ioutil.ReadFile(fsRoot + "/" + resultsFileName)
 	resultsStr := string(dat)
-	fmt.Println(p.Values["categoryScalingFactor"].(string), p.Values["productScalingFactor"].(string), string(dat))
+	fmt.Println(
+		FloatToString(p.Values["C"].(float64)),
+		FloatToString(p.Values["categoryScalingFactor"].(float64)),
+		FloatToString(p.Values["productScalingFactor"].(float64)),
+		string(dat))
 
 	f1str := strings.TrimPrefix(strings.Split(resultsStr, " ")[2], "F:")
 	f1Measure, _ := strconv.ParseFloat(f1str, 64)
