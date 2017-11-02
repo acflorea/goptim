@@ -22,7 +22,7 @@ type OptimizationOutput struct {
 func main() {
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
-	noOfExperimentsPtr := flag.Int("noOfExperiments", 100, "Number of experiments.")
+	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
 	fct := flag.String("fct", "F_identity", "Target function")
