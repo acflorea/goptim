@@ -11,14 +11,13 @@ import (
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
 func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
+	mainClass := vargs["mainClass"].(string) // "dr.acf.recc.ReccomenderBackbone"
 
-	mainClass := "dr.acf.recc.ReccomenderBackbone"
+	sparkSubmit := vargs["sparkSubmit"].(string) // "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
+	targetJar := vargs["targetJar"].(string)     // "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
 
-	sparkSubmit := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
-	targetJar := "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
-
-	configFile := "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf"
-	fsRoot := "/Users/acflorea/phd/columbugus_data/netbeans_final_test"
+	configFile := vargs["configFile"].(string) // "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf"
+	fsRoot := vargs["fsRoot"].(string)         //"/Users/acflorea/phd/columbugus_data/netbeans_final_test"
 
 	resultsFileName := "gorand_results.out"
 	tuningMode := "true"
