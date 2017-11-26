@@ -32,6 +32,7 @@ func main() {
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
 	// Spark specifics
+	sparkMaster := flag.String("sparkMaster", "local[*]", "Spark master")
 	sparkSubmit := flag.String("sparkSubmit", "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit", "Location of the Spark submit script")
 	targetJar := flag.String("targetJar", "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar", "Location of the job jar")
 	mainClass := flag.String("mainClass", "dr.acf.recc.ReccomenderBackbone", "The target class to execute")
@@ -56,6 +57,7 @@ func main() {
 	vargs["targetstop"] = *targetstop
 
 	// Spark specifics
+	vargs["sparkMaster"] = *sparkMaster
 	vargs["sparkSubmit"] = *sparkSubmit
 	vargs["targetJar"] = *targetJar
 	vargs["mainClass"] = *mainClass
@@ -151,6 +153,10 @@ func Optimize(vargs map[string]interface{}) {
 			}
 
 			go func(w int) {
+
+				// Add the worker id to the args map
+				localvargs["workerId"] = w
+
 				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, targetstop/W, maxAttempts/W, w, true)
 				if !silent {
 					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
@@ -261,6 +267,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 	minReached := false
 
 	for i := 0; i < N; i++ {
+
 		rndPoint := generator.Next(w)
 		f_rnd, _ := f(rndPoint, vargs)
 

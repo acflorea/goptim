@@ -11,7 +11,11 @@ import (
 // A more complicated function (submits a task to Apache Spark, and gathers the results)
 func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
+	workerId := vargs["workerId"].(int)
+
 	mainClass := vargs["mainClass"].(string) // "dr.acf.recc.ReccomenderBackbone"
+
+	sparkMaster := vargs["sparkMaster"].(string) // "local[*]"
 
 	sparkSubmit := vargs["sparkSubmit"].(string) // "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/bin/spark-submit"
 	targetJar := vargs["targetJar"].(string)     // "/Users/acflorea/phd/columbugus/target/scala-2.10/columbugus-assembly-2.3.1.jar"
@@ -19,12 +23,13 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 	configFile := vargs["configFile"].(string) // "/Users/acflorea/Bin/spark-1.6.2-bin-hadoop2.6/columbugus-conf/netbeans.conf"
 	fsRoot := vargs["fsRoot"].(string)         //"/Users/acflorea/phd/columbugus_data/netbeans_final_test"
 
-	resultsFileName := "gorand_results.out"
+	resultsFileName := "gorand_results_" + strconv.Itoa(workerId) + ".out"
 	tuningMode := "true"
 
 	sparkParams := "-Dconfig.file=" +
 		configFile +
 		" " +
+		"-Dreccsys.spark.master=" + sparkMaster +
 		"-Dreccsys.phases.preprocess=true " +
 		"-Dreccsys.preprocess.includeCategory=true " +
 		"-Dreccsys.preprocess.includeProduct=true " +
@@ -51,7 +56,7 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 	//cmd := exec.Command(sparkSubmit, sparkParams, "&2 > ./xxx.log")
 	cmd := exec.Command(sparkSubmit,
 		"--class", mainClass,
-		"--master=local[3]",
+		"--master="+sparkMaster,
 		"--driver-java-options",
 		sparkParams,
 		targetJar)
