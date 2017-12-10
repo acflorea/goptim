@@ -30,7 +30,7 @@ func SparkIt(p MultidimensionalPoint, vargs map[string]interface{}) (float64, er
 		configFile +
 		" " +
 		"-Dreccsys.spark.master=" + sparkMaster +
-		"-Dreccsys.phases.preprocess=true " +
+		" -Dreccsys.phases.preprocess=true " +
 		"-Dreccsys.preprocess.includeCategory=true " +
 		"-Dreccsys.preprocess.includeProduct=true " +
 		"-Dreccsys.global.tuningMode=" + tuningMode +
