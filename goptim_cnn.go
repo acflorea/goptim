@@ -14,6 +14,7 @@ func main() {
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
 
+	command := flag.String("command", "python", "Target command.")
 	fct := flag.String("fct", "Keras", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 
@@ -29,6 +30,7 @@ func main() {
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
 	vargs["silent"] = *silentPtr
 	vargs["maxAttempts"] = *maxAttemptsPtr
+	vargs["command"] = *command
 	vargs["fct"] = *fct
 	vargs["alg"] = *alg
 	vargs["script"] = *script
