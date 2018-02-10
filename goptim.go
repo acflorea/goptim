@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/acflorea/goptim/core"
 	"github.com/acflorea/goptim/generators"
 	"math"
 	"github.com/acflorea/goptim/functions"
@@ -132,96 +133,7 @@ func Optimize(vargs map[string]interface{}) {
 	//	generators.NewDiscrete("x", onetoonehundred),
 	//}
 
-	match := 0
-	var globalTries = 0
-
-	OptResults := make([]OptimizationOutput, noOfExperiments)
-
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-
-		generator :=
-			generators.NewRandom(restrictions, maxAttempts, W, algorithm)
-
-		// channel used by workers to communicate their results
-		resultsChans := make(chan functions.Sample, W)
-
-		for w := 0; w < W; w++ {
-
-			localvargs := map[string]interface{}{}
-			for k, v := range vargs {
-				localvargs[k] = v
-			}
-
-			go func(w int) {
-
-				// Add the worker id to the args map
-				localvargs["workerId"] = w
-
-				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, targetstop/W, maxAttempts/W, w, true)
-				if !silent {
-					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
-				}
-
-				resultsChans <- functions.Sample{i, p, v, gv, o == 0}
-			}(w)
-		}
-
-		// Collect results
-		results := make([]functions.Sample, W)
-		totalTries := 0
-		optim, goptim := -math.MaxFloat64, -math.MaxFloat64
-		var point functions.MultidimensionalPoint
-		for i := 0; i < W; i++ {
-			results[i] = <-resultsChans
-			if results[i].FullSearch {
-				totalTries += maxAttempts / W
-			} else {
-				totalTries += results[i].Index
-			}
-			if optim < results[i].Value {
-				optim = results[i].Value
-				point = results[i].Point
-			}
-			if goptim < results[i].GValue {
-				goptim = results[i].GValue
-			}
-		}
-
-		OptResults[expIndex] = OptimizationOutput{optim, goptim, point, totalTries}
-
-		if optim == goptim {
-			match++
-			globalTries += totalTries
-			fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
-		} else {
-			globalTries += totalTries
-			fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
-		}
-	}
-
-	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
-		if best < OptResults[expIndex].Optim {
-			best = OptResults[expIndex].Optim
-		}
-		if gbest < OptResults[expIndex].GOptim {
-			gbest = OptResults[expIndex].GOptim
-		}
-	}
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		std += (OptResults[expIndex].GOptim - avg) * (OptResults[expIndex].GOptim - avg) / float64(noOfExperiments)
-	}
-	std = math.Sqrt(std)
-
-	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
-	avgTrials := float64(globalTries) / float64(noOfExperiments)
-	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avgTrials,
-		(float64(maxAttempts)-avgTrials)/float64(maxAttempts)*100))
-	fmt.Println(fmt.Sprintf("Optimisation best and global best results are %f, %f", best, gbest))
-	fmt.Println(fmt.Sprintf("Optimisation average result and standard deviation are %f, %f", avg, std))
-	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
+	core.Optimize(noOfExperiments, restrictions, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
 }
 
