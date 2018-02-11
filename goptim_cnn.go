@@ -20,6 +20,8 @@ func main() {
 
 	script := flag.String("script", "", "External script to run")
 
+	test := flag.String("test", "False", "Test Mode.")
+
 	workers := flag.Int("w", 1, "Number of goroutines")
 
 	targetstop := flag.Int("targetstop", 300, "Target stop")
@@ -33,6 +35,7 @@ func main() {
 	vargs["command"] = *command
 	vargs["fct"] = *fct
 	vargs["alg"] = *alg
+	vargs["test"] = *test
 	vargs["script"] = *script
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop

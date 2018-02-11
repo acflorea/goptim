@@ -20,12 +20,17 @@ func Keras(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 		panic("Missing input data! Please specify a command to execute!")
 	}
 
+	test, ok := vargs["test"].(string)
+	if !ok {
+		test = "False"
+	}
+
 	// Add Values to vargs
 	for key, value := range p.Values {
 		vargs[key] = value
 	}
 
-	cmd := exec.Command(command, targetScript, "-tTrue")
+	cmd := exec.Command(command, targetScript, "-t"+test)
 
 	results, err := cmd.Output()
 
