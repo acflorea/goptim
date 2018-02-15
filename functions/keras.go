@@ -35,7 +35,7 @@ func Keras(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	results, err := cmd.Output()
 
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	averages := strings.Split(string(results), "\n")
