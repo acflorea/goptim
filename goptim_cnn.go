@@ -6,6 +6,7 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"fmt"
 	"flag"
+	"strconv"
 )
 
 func main() {
@@ -71,7 +72,42 @@ func Optimize_cnn(vargs map[string]interface{}) {
 		targetstop = maxAttempts
 	}
 
-	restrictions := []generators.GenerationStrategy{}
+	// Generators
+
+	// Number of convolutional layers from 3 to 50
+	conv_layers_map := make(map[interface{}]float64)
+	for i := 3; i <= 50; i++ {
+		conv_layers_map[i] = 1.0
+	}
+	conv_layers := generators.NewDiscrete("conv_layers", conv_layers_map)
+
+	// Number of maps in a convolutional layer from 8 to 512
+	maps_map := make(map[interface{}]float64)
+	for i := 8; i <= 512; i++ {
+		maps_map[i] = 1.0
+	}
+
+	// Number of fully connected layers from 1 to 4
+	full_layers_map := make(map[interface{}]float64)
+	for i := 1; i <= 4; i++ {
+		full_layers_map[i] = 1.0
+	}
+	full_layers := generators.NewDiscrete("full_layers", full_layers_map)
+
+	// Number of neurons in fully connected layer from 5 to 2048
+	neurons_map := make(map[interface{}]float64)
+	for i := 5; i <= 2048; i++ {
+		neurons_map[i] = 1.0
+	}
+
+	restrictions := []generators.GenerationStrategy{conv_layers, full_layers}
+
+	for i := 3; i <= 50; i++ {
+		restrictions = append(restrictions, generators.NewDiscrete("maps_"+strconv.Itoa(i), maps_map))
+	}
+	for i := 1; i <= 4; i++ {
+		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
+	}
 
 	core.Optimize(noOfExperiments, restrictions, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
