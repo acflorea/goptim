@@ -30,7 +30,24 @@ func Keras(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 		vargs[key] = value
 	}
 
-	cmd := exec.Command(command, targetScript, "-t"+test)
+	conv_layers := strconv.Itoa(vargs["conv_layers"].(int))
+	full_layers := strconv.Itoa(vargs["full_layers"].(int))
+
+	var maps [48]int
+	for i := 3; i <= 50; i++ {
+		maps[i-3] = vargs["maps_"+strconv.Itoa(i)].(int)
+	}
+	maps_str := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(maps)), ","), "[]")
+
+	var neurons [4]int
+	for i := 1; i <= 4; i++ {
+		neurons[i-1] = vargs["neurons_"+strconv.Itoa(i)].(int)
+	}
+	neurons_str := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(neurons)), ","), "[]")
+
+	params := []string{targetScript, "-c" + conv_layers, "-f" + full_layers, "-t" + test, "-n" + maps_str + ";" + neurons_str}
+
+	cmd := exec.Command(command, params...)
 
 	results, err := cmd.Output()
 
