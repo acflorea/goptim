@@ -74,9 +74,9 @@ func Optimize_cnn(vargs map[string]interface{}) {
 
 	// Generators
 
-	// Number of convolutional layers from 3 to 50
+	// Number of convolutional layers from 3 to 50/15 (after 15 seems to crash.... no more dimensions)
 	conv_layers_map := make(map[interface{}]float64)
-	for i := 3; i <= 50; i++ {
+	for i := 3; i <= 15; i++ {
 		conv_layers_map[i] = 1.0
 	}
 	conv_layers := generators.NewDiscrete("conv_layers", conv_layers_map)
