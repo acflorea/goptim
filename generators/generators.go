@@ -92,7 +92,7 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 
 type Generator interface {
 	AllAvailable(w int) (points []functions.MultidimensionalPoint)
-	Next(w int) (point functions.MultidimensionalPoint)
+	Next(w int, initialState []functions.MultidimensionalPoint) (point functions.MultidimensionalPoint, state []functions.MultidimensionalPoint)
 	HasNext(w int) bool
 }
 
@@ -219,6 +219,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 			}
 		}
 		points[pIdx] = functions.MultidimensionalPoint{Values: values}
+
 	}
 
 	g.index[w] = g.pointsNo
@@ -228,7 +229,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
+func (g randomGenerator) Next(w int, initialState []functions.MultidimensionalPoint) (point functions.MultidimensionalPoint, state []functions.MultidimensionalPoint) {
 
 	values := make(map[string]interface{})
 	labels := make([]string, g.dimensionsNo)
@@ -279,6 +280,8 @@ func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
 	}
 
 	point = functions.MultidimensionalPoint{Values: values}
+
+	state = append(initialState, point)
 
 	g.index[w]++
 

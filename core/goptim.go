@@ -163,9 +163,12 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
+	state := []functions.MultidimensionalPoint{}
+
 	for i := 0; i < N; i++ {
 
-		rndPoint := generator.Next(w)
+		rndPoint, newState := generator.Next(w, state)
+		state = newState
 		f_rnd, _ := f(rndPoint, vargs)
 
 		if minReached {
