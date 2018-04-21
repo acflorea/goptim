@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func main() {
+func _main() {
 
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")

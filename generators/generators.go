@@ -231,58 +231,67 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomGenerator) Next(w int, initialState []functions.MultidimensionalPoint) (point functions.MultidimensionalPoint, state []functions.MultidimensionalPoint) {
 
-	values := make(map[string]interface{})
-	labels := make([]string, g.dimensionsNo)
-	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
-		distribution := Uniform
-		var samples map[interface{}]float64
-		if len(g.restrictions) > dimIdx {
-			lowerBound = g.restrictions[dimIdx].LowerBound
-			upperBound = g.restrictions[dimIdx].UpperBound
-			lambda = g.restrictions[dimIdx].Lambda
-			distribution = g.restrictions[dimIdx].Distribution
-			samples = g.restrictions[dimIdx].Values
-			labels[dimIdx] = g.restrictions[dimIdx].Label
-		}
+	if (len(initialState) > 0) {
+		// we have state (either we have generated some numbers or this is the provided initial state)
 
-		if g.algorithm == Leapfrog {
-			if g.index[w] == 0 {
-				// Set the counter in place
-				for i := 0; i < w; i++ {
-					g.rs[w].Float64()
-				}
-			} else {
-				// Jump "cores" positions
-				for i := 0; i < g.cores; i++ {
-					g.rs[w].Float64()
+		point = initialState[len(initialState)-1]
+
+	} else {
+		// 1st attempt, no state given
+
+		values := make(map[string]interface{})
+		labels := make([]string, g.dimensionsNo)
+		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
+			distribution := Uniform
+			var samples map[interface{}]float64
+			if len(g.restrictions) > dimIdx {
+				lowerBound = g.restrictions[dimIdx].LowerBound
+				upperBound = g.restrictions[dimIdx].UpperBound
+				lambda = g.restrictions[dimIdx].Lambda
+				distribution = g.restrictions[dimIdx].Distribution
+				samples = g.restrictions[dimIdx].Values
+				labels[dimIdx] = g.restrictions[dimIdx].Label
+			}
+
+			if g.algorithm == Leapfrog {
+				if g.index[w] == 0 {
+					// Set the counter in place
+					for i := 0; i < w; i++ {
+						g.rs[w].Float64()
+					}
+				} else {
+					// Jump "cores" positions
+					for i := 0; i < g.cores; i++ {
+						g.rs[w].Float64()
+					}
 				}
 			}
-		}
 
-		switch distribution {
-		case Uniform:
-			_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
-		case Exponential:
-			_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
-		case Discrete:
-			raw := g.rs[w].Float64()
-			sum := 0.0
-			for key, value := range samples {
-				sum += value
-				if raw <= sum {
-					values[labels[dimIdx]] = key
-					break
+			switch distribution {
+			case Uniform:
+				_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
+			case Exponential:
+				_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
+			case Discrete:
+				raw := g.rs[w].Float64()
+				sum := 0.0
+				for key, value := range samples {
+					sum += value
+					if raw <= sum {
+						values[labels[dimIdx]] = key
+						break
+					}
 				}
 			}
+
 		}
+
+		point = functions.MultidimensionalPoint{Values: values}
 
 	}
 
-	point = functions.MultidimensionalPoint{Values: values}
-
 	state = append(initialState, point)
-
 	g.index[w]++
 
 	return
