@@ -109,7 +109,7 @@ func Optimize_cnn(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
 	}
 
-	var probabilityToChange = []float32{}
+	var probabilityToChange = []float32{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
 	core.Optimize(noOfExperiments, restrictions, probabilityToChange, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 

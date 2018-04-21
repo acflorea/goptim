@@ -54,12 +54,14 @@ func Test_DiscreteGenerate(t *testing.T) {
 		sum += value
 	}
 
+	var probabilityToChange = []float32{1.0}
+
 	generator :=
-		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, probabilityToChange, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
-		generatedPoints[pIdx] = generator.Next(0)
+		generatedPoints[pIdx], _ = generator.Next(0, generators.GeneratorState{})
 	}
 
 	counts := []int{
@@ -154,12 +156,14 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 		generators.NewUniform("y", -10, 10),
 	}
 
+	var probabilityToChange = []float32{1.0, 1.0}
+
 	generator :=
-		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, probabilityToChange, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
-		generatedPoints[pIdx] = generator.Next(0)
+		generatedPoints[pIdx], _ = generator.Next(0, generators.GeneratorState{})
 	}
 
 	if len(generatedPoints) != howManyPoints {
@@ -188,8 +192,10 @@ func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
 		generators.NewUniform("y", -10, 10),
 	}
 
+	var probabilityToChange = []float32{1.0, 1.0}
+
 	generator :=
-		generators.NewRandom(restrictions, howManyPoints, 1, generators.ManagerWorker)
+		generators.NewRandom(restrictions, probabilityToChange, howManyPoints, 1, generators.ManagerWorker)
 
 	generatedPoints := generator.AllAvailable(0)
 
