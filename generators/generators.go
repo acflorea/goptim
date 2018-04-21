@@ -90,9 +90,16 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 
 }
 
+type GeneratorState struct {
+	// points generated so far
+	GeneratedPoints []functions.MultidimensionalPoint
+	// the probability to change for each dimension
+	ProbabilityToChange []float32
+}
+
 type Generator interface {
 	AllAvailable(w int) (points []functions.MultidimensionalPoint)
-	Next(w int, initialState []functions.MultidimensionalPoint) (point functions.MultidimensionalPoint, state []functions.MultidimensionalPoint)
+	Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState)
 	HasNext(w int) bool
 }
 
@@ -229,15 +236,17 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomGenerator) Next(w int, initialState []functions.MultidimensionalPoint) (point functions.MultidimensionalPoint, state []functions.MultidimensionalPoint) {
+func (g randomGenerator) Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState) {
 
-	if (len(initialState) > 0) {
+	state = initialState
+	if (len(state.GeneratedPoints) > 0) {
 		// we have state (either we have generated some numbers or this is the provided initial state)
 
-		point = initialState[len(initialState)-1]
+		point = state.GeneratedPoints[len(state.GeneratedPoints)-1]
 
 	} else {
 		// 1st attempt, no state given
+
 
 		values := make(map[string]interface{})
 		labels := make([]string, g.dimensionsNo)
@@ -291,7 +300,8 @@ func (g randomGenerator) Next(w int, initialState []functions.MultidimensionalPo
 
 	}
 
-	state = append(initialState, point)
+	state.GeneratedPoints = append(state.GeneratedPoints, point)
+
 	g.index[w]++
 
 	return
