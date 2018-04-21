@@ -37,7 +37,7 @@ func Optimize(noOfExperiments int,
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandom(restrictions, maxAttempts, W, algorithm)
+			generators.NewRandom(restrictions, []float32{}, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
 		resultsChans := make(chan functions.Sample, W)
@@ -163,7 +163,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
-	state := generators.GeneratorState{[]functions.MultidimensionalPoint{}, []float32{},}
+	state := generators.GeneratorState{[]functions.MultidimensionalPoint{},}
 
 	for i := 0; i < N; i++ {
 

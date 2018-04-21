@@ -93,8 +93,6 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 type GeneratorState struct {
 	// points generated so far
 	GeneratedPoints []functions.MultidimensionalPoint
-	// the probability to change for each dimension
-	ProbabilityToChange []float32
 }
 
 type Generator interface {
@@ -110,6 +108,9 @@ type randomGenerator struct {
 	// The generation strategy on each dimension
 	// GenerationStrategies are considered in the order they are defined (1st strategy applies to 1st dimension etc)
 	restrictions []GenerationStrategy
+	// probability to change for each dimension
+	// the probability to change for each dimension
+	probabilityToChange []float32
 	// How many points to generate
 	pointsNo int
 	// The level of parallelism
@@ -122,14 +123,15 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, pointsNo int, cores int, algorithm Algorithm) Generator {
 	generator := randomGenerator{
-		dimensionsNo: len(restrictions),
-		restrictions: restrictions,
-		pointsNo:     pointsNo,
-		cores:        cores,
-		algorithm:    algorithm,
-		index:        make([]int, cores),
+		dimensionsNo:        len(restrictions),
+		restrictions:        restrictions,
+		probabilityToChange: probabilityToChange,
+		pointsNo:            pointsNo,
+		cores:               cores,
+		algorithm:           algorithm,
+		index:               make([]int, cores),
 	}
 
 	// Init generator
@@ -246,7 +248,6 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 	} else {
 		// 1st attempt, no state given
-
 
 		values := make(map[string]interface{})
 		labels := make([]string, g.dimensionsNo)
