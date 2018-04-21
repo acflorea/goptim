@@ -19,6 +19,7 @@ type OptimizationOutput struct {
 
 func Optimize(noOfExperiments int,
 	restrictions []generators.GenerationStrategy,
+	probabilityToChange []float32,
 	maxAttempts int,
 	targetstop int,
 	W int,
@@ -37,7 +38,7 @@ func Optimize(noOfExperiments int,
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandom(restrictions, []float32{}, maxAttempts, W, algorithm)
+			generators.NewRandom(restrictions, probabilityToChange, maxAttempts, W, algorithm)
 
 		// channel used by workers to communicate their results
 		resultsChans := make(chan functions.Sample, W)

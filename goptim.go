@@ -120,6 +120,8 @@ func Optimize(vargs map[string]interface{}) {
 	//	generators.NewDiscrete("x", onetoonehundred),
 	//}
 
-	core.Optimize(noOfExperiments, restrictions, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
+	var probabilityToChange = []float32{}
+
+	core.Optimize(noOfExperiments, restrictions, probabilityToChange, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
 }
