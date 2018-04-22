@@ -34,7 +34,7 @@ func Keras(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	full_layers := strconv.Itoa(vargs["full_layers"].(int))
 
 	var maps [48]int
-	for i := 3; i <= 50; i++ {
+	for i := 3; i <= 6; i++ {
 		maps[i-3] = vargs["maps_"+strconv.Itoa(i)].(int)
 	}
 	maps_str := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(maps)), ","), "[]")

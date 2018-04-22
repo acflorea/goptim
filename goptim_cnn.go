@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func _main() {
+func main() {
 
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
@@ -74,7 +74,7 @@ func Optimize_cnn(vargs map[string]interface{}) {
 
 	// Generators
 
-	// Number of convolutional layers from 3 to 50/15 (after 15 seems to crash.... no more dimensions)
+	// Number of convolutional layers from 3 to 6
 	conv_layers_map := make(map[interface{}]float64)
 	for i := 3; i <= 6; i++ {
 		conv_layers_map[i] = 1.0
@@ -102,7 +102,7 @@ func Optimize_cnn(vargs map[string]interface{}) {
 
 	restrictions := []generators.GenerationStrategy{conv_layers, full_layers}
 
-	for i := 3; i <= 50; i++ {
+	for i := 3; i <= 6; i++ {
 		restrictions = append(restrictions, generators.NewDiscrete("maps_"+strconv.Itoa(i), maps_map))
 	}
 	for i := 1; i <= 4; i++ {
