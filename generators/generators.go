@@ -261,19 +261,51 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 		// Each value changes with this probability
 		globalProbabilityToChange := g.rs[w].Float32()
+		indexToChange := -1
+
+		if g.adjustSingleValue {
+
+			// Identify which value should change
+			sum := float32(0.0)
+			for key, value := range g.probabilityToChange {
+				sum += value
+				if globalProbabilityToChange <= sum {
+					indexToChange = key
+					break
+				}
+			}
+
+		}
 
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 
 			// attempt to retrieve individual probability to change
-			var probabilityToChange float32 = 1.0
-			if len(g.probabilityToChange) > dimIdx {
-				probabilityToChange = g.probabilityToChange[dimIdx]
+			var probabilityToChange float32 = 0.0
+
+			if g.adjustSingleValue {
+				// we are in the case where a single value changes
+				if dimIdx == indexToChange {
+					// and this is the one
+					probabilityToChange = 1.0
+				} else {
+					// and this is not the one
+					probabilityToChange = 0.0
+				}
+			} else {
+				// we are in the case where multiple values change...
+				// thy to get the probability to change for each one
+				if len(g.probabilityToChange) > dimIdx {
+					probabilityToChange = g.probabilityToChange[dimIdx]
+				} else {
+					// if the probability is not explicit, consider it 1.0
+					probabilityToChange = 1.0
+				}
 			}
 
 			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
 			labels[dimIdx] = label
 
-			if (probabilityToChange >= globalProbabilityToChange) {
+			if probabilityToChange >= globalProbabilityToChange {
 				// change
 				if g.algorithm == Leapfrog {
 					if g.index[w] == 0 {
