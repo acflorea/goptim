@@ -109,8 +109,35 @@ func Optimize_cnn(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
 	}
 
+	//7.40% due to main effect: X0
+	//11.85% due to main effect: X1
+	//0.51% due to main effect: X2
+	//0.79% due to main effect: X3
+	//1.62% due to main effect: X4
+	//0.73% due to main effect: X5
+	//2.26% due to main effect: X6
+	//1.26% due to main effect: X7
+	//26.28% due to main effect: X8
+	//0.87% due to main effect: X9
+	//3.22% due to main effect: X10
+	//1.75% due to main effect: X11
+
+	// fANOVA - list them here for brevity...
+	var x0 float32 = 7.40
+	var x1 float32 = 11.85
+	var x2 float32 = 0.51
+	var x3 float32 = 0.79
+	var x4 float32 = 1.62
+	var x5 float32 = 0.73
+	var x6 float32 = 2.26
+	var x7 float32 = 1.26
+	var x8 float32 = 26.28
+	var x9 float32 = 0.87
+	var x10 float32 = 3.22
+	var x11 float32 = 1.75
+
 	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
-	var probabilityToChange = []float32{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+	var probabilityToChange = []float32{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = true
