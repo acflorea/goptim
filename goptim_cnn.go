@@ -102,13 +102,14 @@ func Optimize_cnn(vargs map[string]interface{}) {
 
 	restrictions := []generators.GenerationStrategy{conv_layers, full_layers}
 
-	for i := 3; i <= 6; i++ {
+	for i := 1; i <= 6; i++ {
 		restrictions = append(restrictions, generators.NewDiscrete("maps_"+strconv.Itoa(i), maps_map))
 	}
 	for i := 1; i <= 4; i++ {
 		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
 	}
 
+	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
 	var probabilityToChange = []float32{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
