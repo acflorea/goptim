@@ -184,17 +184,9 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 		values := make(map[string]interface{})
 		labels := make([]string, g.dimensionsNo)
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
-			distribution := Uniform
-			var samples map[interface{}]float64
-			if len(g.restrictions) > dimIdx {
-				lowerBound = g.restrictions[dimIdx].LowerBound
-				upperBound = g.restrictions[dimIdx].UpperBound
-				lambda = g.restrictions[dimIdx].Lambda
-				distribution = g.restrictions[dimIdx].Distribution
-				samples = g.restrictions[dimIdx].Values
-				labels[dimIdx] = g.restrictions[dimIdx].Label
-			}
+
+			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
+			labels[dimIdx] = label
 
 			if g.algorithm == Leapfrog {
 				if g.index[w] == 0 {
@@ -247,42 +239,58 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 	if len(state.GeneratedPoints) > 0 {
 		// we have state (either we have generated some numbers or this is the provided initial state)
 
-		// previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
+		previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
+
+		// Each value changes with this probability
+		globalProbabilityToChange := g.rs[w].Float32()
 
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+
+			// attempt to retrieve individual probability to change
+			var probabilityToChange float32 = 1.0
+			if len(g.probabilityToChange) > dimIdx {
+				probabilityToChange = g.probabilityToChange[dimIdx]
+			}
 
 			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
 			labels[dimIdx] = label
 
-			if g.algorithm == Leapfrog {
-				if g.index[w] == 0 {
-					// Set the counter in place
-					for i := 0; i < w; i++ {
-						g.rs[w].Float64()
-					}
-				} else {
-					// Jump "cores" positions
-					for i := 0; i < g.cores; i++ {
-						g.rs[w].Float64()
+			if (probabilityToChange >= globalProbabilityToChange) {
+				// change
+				if g.algorithm == Leapfrog {
+					if g.index[w] == 0 {
+						// Set the counter in place
+						for i := 0; i < w; i++ {
+							g.rs[w].Float64()
+						}
+					} else {
+						// Jump "cores" positions
+						for i := 0; i < g.cores; i++ {
+							g.rs[w].Float64()
+						}
 					}
 				}
-			}
 
-			switch distribution {
-			case Uniform:
-				_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
-			case Exponential:
-				_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
-			case Discrete:
-				raw := g.rs[w].Float64()
-				sum := 0.0
-				for key, value := range samples {
-					sum += value
-					if raw <= sum {
-						values[labels[dimIdx]] = key
-						break
+				switch distribution {
+				case Uniform:
+					_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
+				case Exponential:
+					_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
+				case Discrete:
+					raw := g.rs[w].Float64()
+					sum := 0.0
+					for key, value := range samples {
+						sum += value
+						if raw <= sum {
+							values[labels[dimIdx]] = key
+							break
+						}
 					}
 				}
+
+			} else {
+				// preserve
+				values[labels[dimIdx]] = previousPoint.Values[labels[dimIdx]]
 			}
 
 		}
@@ -290,6 +298,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		point = functions.MultidimensionalPoint{Values: values}
 
 	} else {
+
 		// 1st attempt, no state given
 
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
