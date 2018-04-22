@@ -120,7 +120,7 @@ func Optimize(vargs map[string]interface{}) {
 	//	generators.NewDiscrete("x", onetoonehundred),
 	//}
 
-	var probabilityToChange = []float32{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+	var probabilityToChange = []float32{10.0, 10.0, 5.0, 2.0, 1.0, 0.0, 0.0}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = true
