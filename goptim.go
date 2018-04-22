@@ -121,7 +121,10 @@ func Optimize(vargs map[string]interface{}) {
 	//}
 
 	var probabilityToChange = []float32{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+	// if this is true a single value changes for each step
+	// otherwise the values are changing according to their probabilities
+	var adjustSingleValue = true
 
-	core.Optimize(noOfExperiments, restrictions, probabilityToChange, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
+	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
 }

@@ -111,6 +111,8 @@ type randomGenerator struct {
 	// probability to change for each dimension
 	// the probability to change for each dimension
 	probabilityToChange []float32
+	// change a single value per step
+	adjustSingleValue bool
 	// How many points to generate
 	pointsNo int
 	// The level of parallelism
@@ -123,15 +125,31 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, pointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, pointsNo int, cores int, algorithm Algorithm) Generator {
 	generator := randomGenerator{
 		dimensionsNo:        len(restrictions),
 		restrictions:        restrictions,
 		probabilityToChange: probabilityToChange,
+		adjustSingleValue:   adjustSingleValue,
 		pointsNo:            pointsNo,
 		cores:               cores,
 		algorithm:           algorithm,
 		index:               make([]int, cores),
+	}
+
+	if adjustSingleValue {
+		// adjust the probabilityToChange values to sum up to 1.0
+		// normalize the values so the sum gives one
+		sum := float32(0.0)
+		for _, value := range probabilityToChange {
+			sum += value
+		}
+		if sum != 1.0 {
+			factor := 1.0 / sum
+			for key, value := range probabilityToChange {
+				probabilityToChange[key] = value * factor
+			}
+		}
 	}
 
 	// Init generator
