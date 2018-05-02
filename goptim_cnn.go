@@ -27,6 +27,8 @@ func main() {
 
 	targetstop := flag.Int("targetstop", 300, "Target stop")
 
+	adjustSingleValue := flag.Bool("adjustSingleValue", true, "Adjust Single Value")
+
 	flag.Parse()
 
 	vargs := map[string]interface{}{}
@@ -40,6 +42,7 @@ func main() {
 	vargs["script"] = *script
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop
+	vargs["adjustSingleValue"] = *adjustSingleValue
 
 	Optimize_cnn(vargs)
 
@@ -71,6 +74,10 @@ func Optimize_cnn(vargs map[string]interface{}) {
 	if targetstop == 0 {
 		targetstop = maxAttempts
 	}
+
+	// if this is true a single value changes for each step
+	// otherwise the values are changing according to their probabilities
+	adjustSingleValue := vargs["adjustSingleValue"].(bool)
 
 	// Generators
 
@@ -138,9 +145,6 @@ func Optimize_cnn(vargs map[string]interface{}) {
 
 	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
 	var probabilityToChange = []float32{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
-	// if this is true a single value changes for each step
-	// otherwise the values are changing according to their probabilities
-	var adjustSingleValue = true
 
 	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
