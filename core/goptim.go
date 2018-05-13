@@ -165,13 +165,14 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
-	state := generators.GeneratorState{[]functions.MultidimensionalPoint{},}
+	state := generators.GeneratorState{[]functions.MultidimensionalPoint{}, []float64{}}
 
 	for i := 0; i < N; i++ {
 
 		rndPoint, newState := generator.Next(w, state)
-		state = newState
 		f_rnd, _ := f(rndPoint, vargs)
+		// append the generated value to new state
+		state = generators.GeneratorState{newState.GeneratedPoints, append(newState.Output, f_rnd)}
 
 		if minReached {
 			if f_rnd < gmin {

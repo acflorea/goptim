@@ -93,6 +93,8 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 type GeneratorState struct {
 	// points generated so far
 	GeneratedPoints []functions.MultidimensionalPoint
+	// values for those points
+	Output []float64
 }
 
 type Generator interface {

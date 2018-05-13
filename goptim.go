@@ -126,10 +126,14 @@ func Optimize(vargs map[string]interface{}) {
 		generators.NewUniform("z", 0.0, 20.0),
 	}
 
-	var probabilityToChange = []float32{10.0, 10.0, 5.0, 2.0, 1.0, 0.0, 0.0}
+	//60.22% due to main effect: X0
+	//18.76% due to main effect: X1
+	//10.01% due to main effect: X2
+
+	var probabilityToChange = []float32{60.22, 18.76, 10.01}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
-	var adjustSingleValue = true
+	var adjustSingleValue = false
 
 	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
