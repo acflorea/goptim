@@ -101,6 +101,7 @@ type Generator interface {
 	AllAvailable(w int) (points []functions.MultidimensionalPoint)
 	Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState)
 	HasNext(w int) bool
+	Improvement(state GeneratorState) bool
 }
 
 // A multipoint generator structure
@@ -260,6 +261,17 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 	return points
 }
 
+// Check if improvement was made
+func (g randomGenerator) Improvement(state GeneratorState) bool{
+	previousOutputLength := len(state.Output)
+	if previousOutputLength > 2 {
+		if state.Output[previousOutputLength-1] > state.Output[previousOutputLength-2] {
+			return true
+		}
+	}
+	return false
+}
+
 // Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
 func (g randomGenerator) Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState) {
@@ -275,14 +287,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
 
 		// check if previous point was an improvement
-		var wasAnImprovement = false
-
-		previousOutputLength := len(state.Output)
-		if previousOutputLength > 2 {
-			if state.Output[previousOutputLength-1] > state.Output[previousOutputLength-2] {
-				wasAnImprovement = true
-			}
-		}
+		var wasAnImprovement = g.Improvement(state)
 
 		var probabilities = g.probabilityToChange
 		if wasAnImprovement {
