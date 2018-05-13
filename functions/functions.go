@@ -124,6 +124,20 @@ func F_sombrero(p MultidimensionalPoint, vargs map[string]interface{}) (float64,
 	}
 }
 
+// x^2-10*y+z
+func F_synthetic_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
+	x, okx := p.Values["x"].(float64)
+	y, oky := p.Values["y"].(float64)
+	z, okz := p.Values["z"].(float64)
+
+	if okx && oky && okz {
+		w := x*x - 10*y + z
+		return w, nil
+	} else {
+		return 0.0, errors.New("Conversion failure")
+	}
+}
+
 func Negate(f NumericalFunction) NumericalFunction {
 	return func(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 		y, err := f(x, vargs)

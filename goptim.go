@@ -6,7 +6,6 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"fmt"
 	"flag"
-	"github.com/acflorea/libsvm-go"
 )
 
 func main() {
@@ -91,25 +90,25 @@ func Optimize(vargs map[string]interface{}) {
 	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
 	//}
 
-	//{"linear", "polynomial", "rbf", "sigmoid"}
-	restrictions := []generators.GenerationStrategy{
-		generators.NewDiscrete("kernel", map[interface{}]float64{
-			libSvm.LINEAR: 1.0, // 0
-			libSvm.POLY:   1.0, // 1
-			libSvm.RBF:    1.0, // 2
-		}),
-		generators.NewExponential("C", 10.0),
-		generators.NewExponential("gamma", 10.0),
-		generators.NewDiscrete("degree", map[interface{}]float64{
-			2: 1.0,
-			3: 1.0,
-			4: 1.0,
-			5: 1.0,
-		}),
-		generators.NewUniform("coef0", 0.0, 1.0),
-		generators.NewUniform("categoryScalingFactor", 1.0, 100.0),
-		generators.NewUniform("productScalingFactor", 1.0, 100.0),
-	}
+	////{"linear", "polynomial", "rbf", "sigmoid"}
+	//restrictions := []generators.GenerationStrategy{
+	//	generators.NewDiscrete("kernel", map[interface{}]float64{
+	//		libSvm.LINEAR: 1.0, // 0
+	//		libSvm.POLY:   1.0, // 1
+	//		libSvm.RBF:    1.0, // 2
+	//	}),
+	//	generators.NewExponential("C", 10.0),
+	//	generators.NewExponential("gamma", 10.0),
+	//	generators.NewDiscrete("degree", map[interface{}]float64{
+	//		2: 1.0,
+	//		3: 1.0,
+	//		4: 1.0,
+	//		5: 1.0,
+	//	}),
+	//	generators.NewUniform("coef0", 0.0, 1.0),
+	//	generators.NewUniform("categoryScalingFactor", 1.0, 100.0),
+	//	generators.NewUniform("productScalingFactor", 1.0, 100.0),
+	//}
 
 	//onetoonehundred := map[interface{}]float64{}
 	//for i := 1; i <= 1000; i++ {
@@ -119,6 +118,13 @@ func Optimize(vargs map[string]interface{}) {
 	//restrictions := []generators.GenerationStrategy{
 	//	generators.NewDiscrete("x", onetoonehundred),
 	//}
+
+	//{"linear", "polynomial", "rbf", "sigmoid"}
+	restrictions := []generators.GenerationStrategy{
+		generators.NewUniform("x", 0.0, 20.0),
+		generators.NewUniform("y", 0.0, 20.0),
+		generators.NewUniform("z", 0.0, 20.0),
+	}
 
 	var probabilityToChange = []float32{10.0, 10.0, 5.0, 2.0, 1.0, 0.0, 0.0}
 	// if this is true a single value changes for each step
