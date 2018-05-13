@@ -265,6 +265,7 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 func (g randomGenerator) Improvement(state GeneratorState) bool {
 	previousOutputLength := len(state.Output)
 
+	// TODO - Store this in the state
 	min, max := math.MaxFloat32, -math.MaxFloat32
 	for _, value := range state.Output {
 		if min > value {
@@ -275,11 +276,12 @@ func (g randomGenerator) Improvement(state GeneratorState) bool {
 		}
 	}
 
-	if previousOutputLength > 2 {
-		if state.Output[previousOutputLength-1] < state.Output[previousOutputLength-2] {
-			return true
-		}
+	boundary := min + (max-min)/3
+
+	if state.Output[previousOutputLength-1] < boundary {
+		return true
 	}
+
 	return false
 }
 
@@ -298,7 +300,10 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
 
 		// check if previous point was an improvement
-		var wasAnImprovement = g.Improvement(state)
+		var wasAnImprovement = false
+		if currentIndex >= g.minPointsNo/g.cores {
+			wasAnImprovement = g.Improvement(state)
+		}
 
 		var probabilities = g.probabilityToChange
 		if wasAnImprovement {

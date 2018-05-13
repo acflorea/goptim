@@ -134,6 +134,7 @@ func Optimize(vargs map[string]interface{}) {
 	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
 	//var probabilityToChange = []float32{0.1, 0.1, 0.8}
 	//var probabilityToChange = []float32{0.8, 0.1, 0.1}
+	//var probabilityToChange = []float32{}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false

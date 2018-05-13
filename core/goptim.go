@@ -38,8 +38,10 @@ func Optimize(noOfExperiments int,
 
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
+		tuningTrials := int(math.Max(1, float64(targetstop)/(math.E)))
+		//tuningTrials := maxAttempts
 		generator :=
-			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, maxAttempts, int(math.Max(1, float64(targetstop)/(math.E))), W, algorithm)
+			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, maxAttempts, tuningTrials, W, algorithm)
 
 		// channel used by workers to communicate their results
 		resultsChans := make(chan functions.Sample, W)
