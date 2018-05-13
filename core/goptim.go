@@ -39,7 +39,7 @@ func Optimize(noOfExperiments int,
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 
 		generator :=
-			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, maxAttempts, int(math.Max(1, float64(targetstop)/(2*math.E))), W, algorithm)
+			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, maxAttempts, int(math.Max(1, float64(targetstop)/(math.E))), W, algorithm)
 
 		// channel used by workers to communicate their results
 		resultsChans := make(chan functions.Sample, W)
@@ -138,7 +138,7 @@ func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, gene
 	gmin float64,
 	optimNo int) {
 
-	k := int(math.Max(1, float64(n)/(2*math.E)))
+	k := int(math.Max(1, float64(n)/math.E))
 	return Minimize(f, vargs, generator, k, N, w, goAllTheWay)
 }
 
