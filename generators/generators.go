@@ -262,10 +262,21 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 }
 
 // Check if improvement was made
-func (g randomGenerator) Improvement(state GeneratorState) bool{
+func (g randomGenerator) Improvement(state GeneratorState) bool {
 	previousOutputLength := len(state.Output)
+
+	min, max := math.MaxFloat32, -math.MaxFloat32
+	for _, value := range state.Output {
+		if min > value {
+			min = value
+		}
+		if max < value {
+			max = value
+		}
+	}
+
 	if previousOutputLength > 2 {
-		if state.Output[previousOutputLength-1] > state.Output[previousOutputLength-2] {
+		if state.Output[previousOutputLength-1] < state.Output[previousOutputLength-2] {
 			return true
 		}
 	}
