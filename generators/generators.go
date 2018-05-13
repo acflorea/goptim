@@ -117,8 +117,10 @@ type randomGenerator struct {
 	reverse_probabilityToChange []float32
 	// change a single value per step
 	adjustSingleValue bool
-	// How many points to generate
+	// How many points to generate in total
 	pointsNo int
+	// Minimum number of point to generate
+	minPointsNo int
 	// The level of parallelism
 	cores int
 	// The random generation algorithm
@@ -129,7 +131,7 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, pointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, pointsNo int, minPointsNo int, cores int, algorithm Algorithm) Generator {
 
 	// adjust the probabilityToChange values to sum up to 1.0
 	// normalize the values so the sum gives one
@@ -195,6 +197,7 @@ func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32,
 		pointsNo:                    pointsNo,
 		cores:                       cores,
 		algorithm:                   algorithm,
+		minPointsNo:                 minPointsNo,
 		index:                       make([]int, cores),
 	}
 
@@ -263,6 +266,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 	values := make(map[string]interface{})
 	labels := make([]string, g.dimensionsNo)
+	currentIndex := g.index[w]
 
 	state = initialState
 	if len(state.GeneratedPoints) > 0 {
@@ -309,23 +313,30 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 			// attempt to retrieve individual probability to change
 			var probabilityToChange float32 = 0.0
 
-			if g.adjustSingleValue {
-				// we are in the case where a single value changes
-				if dimIdx == indexToChange {
-					// and this is the one
-					probabilityToChange = 1.0
-				} else {
-					// and this is not the one
-					probabilityToChange = 0.0
-				}
+			// we are still in the tuning phase
+			if currentIndex < g.minPointsNo/g.cores {
+				// so we change all the values
+				probabilityToChange = 1.0
 			} else {
-				// we are in the case where multiple values change...
-				// thy to get the probability to change for each one
-				if len(g.probabilityToChange) > dimIdx {
-					probabilityToChange = probabilities[dimIdx]
+
+				if g.adjustSingleValue {
+					// we are in the case where a single value changes
+					if dimIdx == indexToChange {
+						// and this is the one
+						probabilityToChange = 1.0
+					} else {
+						// and this is not the one
+						probabilityToChange = 0.0
+					}
 				} else {
-					// if the probability is not explicit, consider it 1.0
-					probabilityToChange = 1.0
+					// we are in the case where multiple values change...
+					// thy to get the probability to change for each one
+					if len(g.probabilityToChange) > dimIdx {
+						probabilityToChange = probabilities[dimIdx]
+					} else {
+						// if the probability is not explicit, consider it 1.0
+						probabilityToChange = 1.0
+					}
 				}
 			}
 
