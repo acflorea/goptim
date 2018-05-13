@@ -17,7 +17,7 @@ func main() {
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
-	workers := flag.Int("w", 8, "Number of goroutines")
+	workers := flag.Int("w", 1, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
 	// Spark specifics
@@ -131,6 +131,9 @@ func Optimize(vargs map[string]interface{}) {
 	//10.01% due to main effect: X2
 
 	var probabilityToChange = []float32{60.22, 18.76, 10.01}
+	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
+	//var probabilityToChange = []float32{0.1, 0.1, 0.8}
+	//var probabilityToChange = []float32{0.8, 0.1, 0.1}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false

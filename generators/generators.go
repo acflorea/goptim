@@ -113,6 +113,8 @@ type randomGenerator struct {
 	// probability to change for each dimension
 	// the probability to change for each dimension
 	probabilityToChange []float32
+	// the probability to change for each dimension - reversed
+	reverse_probabilityToChange []float32
 	// change a single value per step
 	adjustSingleValue bool
 	// How many points to generate
@@ -128,30 +130,25 @@ type randomGenerator struct {
 }
 
 func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, pointsNo int, cores int, algorithm Algorithm) Generator {
-	generator := randomGenerator{
-		dimensionsNo:        len(restrictions),
-		restrictions:        restrictions,
-		probabilityToChange: probabilityToChange,
-		adjustSingleValue:   adjustSingleValue,
-		pointsNo:            pointsNo,
-		cores:               cores,
-		algorithm:           algorithm,
-		index:               make([]int, cores),
+
+	// adjust the probabilityToChange values to sum up to 1.0
+	// normalize the values so the sum gives one
+	sum := float32(0.0)
+	for _, value := range probabilityToChange {
+		sum += value
+	}
+	if sum != 1.0 {
+		factor := 1.0 / sum
+		for key, value := range probabilityToChange {
+			probabilityToChange[key] = value * factor
+		}
 	}
 
-	if adjustSingleValue {
-		// adjust the probabilityToChange values to sum up to 1.0
-		// normalize the values so the sum gives one
-		sum := float32(0.0)
-		for _, value := range probabilityToChange {
-			sum += value
-		}
-		if sum != 1.0 {
-			factor := 1.0 / sum
-			for key, value := range probabilityToChange {
-				probabilityToChange[key] = value * factor
-			}
-		}
+	// compute the reverse probabilityToChange
+	reverse_probabilityToChange := []float32{}
+	sum = float32(len(probabilityToChange) - 1)
+	for _, value := range probabilityToChange {
+		reverse_probabilityToChange = append(reverse_probabilityToChange, (1.0-value)/sum)
 	}
 
 	// Init generator
@@ -187,6 +184,18 @@ func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32,
 			source := rand.NewSource(now - int64(i))
 			rs[i] = rand.New(source)
 		}
+	}
+
+	generator := randomGenerator{
+		dimensionsNo:                len(restrictions),
+		restrictions:                restrictions,
+		probabilityToChange:         probabilityToChange,
+		reverse_probabilityToChange: reverse_probabilityToChange,
+		adjustSingleValue:           adjustSingleValue,
+		pointsNo:                    pointsNo,
+		cores:                       cores,
+		algorithm:                   algorithm,
+		index:                       make([]int, cores),
 	}
 
 	generator.rs = rs
@@ -261,6 +270,22 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 		previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
 
+		// check if previous point was an improvement
+		var wasAnImprovement = false
+
+		previousOutputLength := len(state.Output)
+		if previousOutputLength > 2 {
+			if state.Output[previousOutputLength-1] > state.Output[previousOutputLength-2] {
+				wasAnImprovement = true
+			}
+		}
+
+		var probabilities = g.probabilityToChange
+		if wasAnImprovement {
+			// we reverse probabilities if the value was an improvement
+			probabilities = g.reverse_probabilityToChange
+		}
+
 		// Each value changes with this probability
 		globalProbabilityToChange := g.rs[w].Float32()
 		indexToChange := -1
@@ -269,7 +294,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 			// Identify which value should change
 			sum := float32(0.0)
-			for key, value := range g.probabilityToChange {
+			for key, value := range probabilities {
 				sum += value
 				if globalProbabilityToChange <= sum {
 					indexToChange = key
@@ -297,7 +322,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 				// we are in the case where multiple values change...
 				// thy to get the probability to change for each one
 				if len(g.probabilityToChange) > dimIdx {
-					probabilityToChange = g.probabilityToChange[dimIdx]
+					probabilityToChange = probabilities[dimIdx]
 				} else {
 					// if the probability is not explicit, consider it 1.0
 					probabilityToChange = 1.0
