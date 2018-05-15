@@ -132,6 +132,7 @@ func F_synthetic_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (flo
 
 	if okx && oky && okz {
 		w := x*x - 10*y + z
+		fmt.Println(x, y, z, w)
 		return w, nil
 	} else {
 		return 0.0, errors.New("Conversion failure")

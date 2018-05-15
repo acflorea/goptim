@@ -121,16 +121,16 @@ func Optimize(vargs map[string]interface{}) {
 
 	//{"linear", "polynomial", "rbf", "sigmoid"}
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform("x", 0.0, 20.0),
-		generators.NewUniform("y", 0.0, 20.0),
-		generators.NewUniform("z", 0.0, 20.0),
+		generators.NewUniform("x", 0.0, 100.0),
+		generators.NewUniform("y", 0.0, 100.0),
+		generators.NewUniform("z", 0.0, 100.0),
 	}
 
-	//60.22% due to main effect: X0
-	//18.76% due to main effect: X1
-	//10.01% due to main effect: X2
+	//81.72% due to main effect: X0
+	//8.23% due to main effect: X1
+	//0.90% due to main effect: X2
 
-	var probabilityToChange = []float32{60.22, 18.76, 10.01}
+	var probabilityToChange = []float32{81.72, 8.23, 0.9}
 	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
 	//var probabilityToChange = []float32{0.1, 0.1, 0.8}
 	//var probabilityToChange = []float32{0.8, 0.1, 0.1}
