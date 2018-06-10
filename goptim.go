@@ -121,21 +121,23 @@ func Optimize(vargs map[string]interface{}) {
 
 	//{"linear", "polynomial", "rbf", "sigmoid"}
 	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform("x", 0.0, 20.0),
-		generators.NewUniform("y", 0.0, 20.0),
-		generators.NewUniform("z", 0.0, 20.0),
+		generators.NewUniform("x", 0.0, 3000.0),
+		generators.NewUniform("y", 0.0, 3000.0),
+		generators.NewUniform("z", 0.0, 3000.0),
 	}
 
 	//60.22% due to main effect: X0
 	//18.76% due to main effect: X1
 	//10.01% due to main effect: X2
 
-	var probabilityToChange = []float32{60.22, 18.76, 10.01}
+	//var probabilityToChange = []float32{60.22, 18.76, 10.01}
 	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
-	//var probabilityToChange = []float32{0.1, 0.1, 0.8}
-	//var probabilityToChange = []float32{0.8, 0.1, 0.1}
+	// 3*x-2*y+z
+	var probabilityToChange = []float32{60.52, 26.97, 3.09}
+	//var probabilityToChange = []float32{3, 2, 1}
+	//var probabilityToChange = []float32{0.85, 0.1, 0.1}
 	//var probabilityToChange = []float32{}
-	// if this is true a single value changes for each step
+	//if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false
 

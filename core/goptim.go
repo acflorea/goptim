@@ -32,6 +32,7 @@ func Optimize(noOfExperiments int,
 	start := time.Now()
 
 	match := 0
+	early := 0
 	var globalTries = 0
 
 	OptResults := make([]OptimizationOutput, noOfExperiments)
@@ -90,12 +91,18 @@ func Optimize(noOfExperiments int,
 
 		OptResults[expIndex] = OptimizationOutput{optim, goptim, point, totalTries}
 
+		globalTries += totalTries
+
+		if (totalTries < maxAttempts) {
+			early++
+			if optim == goptim {
+				match++
+			}
+		}
+
 		if optim == goptim {
-			match++
-			globalTries += totalTries
 			fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
 		} else {
-			globalTries += totalTries
 			fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
 		}
 	}
@@ -116,7 +123,9 @@ func Optimize(noOfExperiments int,
 	std = math.Sqrt(std)
 
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
+	fmt.Println(fmt.Sprintf("Early stop in %d (%f) cases", early, float64(early)/float64(noOfExperiments)))
+	fmt.Println(fmt.Sprintf("Results matched on %d (%f) early stoping cases meaning %f of the total trials",
+		match, float64(match)/float64(early), float64(match)/float64(noOfExperiments)))
 	avgTrials := float64(globalTries) / float64(noOfExperiments)
 	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avgTrials,
 		(float64(maxAttempts)-avgTrials)/float64(maxAttempts)*100))
@@ -167,14 +176,28 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
-	state := generators.GeneratorState{[]functions.MultidimensionalPoint{}, []float64{}}
+	state := generators.GeneratorState{[]functions.MultidimensionalPoint{},
+		[]float64{},
+		functions.MultidimensionalPoint{}}
 
 	for i := 0; i < N; i++ {
 
 		rndPoint, newState := generator.Next(w, state)
 		f_rnd, _ := f(rndPoint, vargs)
-		// append the generated value to new state
-		state = generators.GeneratorState{newState.GeneratedPoints, append(newState.Output, f_rnd)}
+
+		if i == 0 {
+			// append the generated value to new state
+			state = generators.GeneratorState{newState.GeneratedPoints,
+				append(newState.Output, f_rnd),
+				rndPoint}
+		} else {
+
+			// append the generated value to new state
+			// compute a new centroid
+			state = generators.GeneratorState{newState.GeneratedPoints,
+				append(newState.Output, f_rnd),
+				functions.MultidimensionalPoint{}}
+		}
 
 		if minReached {
 			if f_rnd < gmin {

@@ -95,6 +95,8 @@ type GeneratorState struct {
 	GeneratedPoints []functions.MultidimensionalPoint
 	// values for those points
 	Output []float64
+	// centroid
+	Centroid functions.MultidimensionalPoint
 }
 
 type Generator interface {
@@ -276,7 +278,7 @@ func (g randomGenerator) Improvement(state GeneratorState) bool {
 		}
 	}
 
-	boundary := min + (max-min)/3
+	boundary := min + (max-min)/10
 
 	if state.Output[previousOutputLength-1] < boundary {
 		return true
