@@ -6,6 +6,8 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"fmt"
 	"flag"
+	"strings"
+	"strconv"
 )
 
 func main() {
@@ -19,6 +21,9 @@ func main() {
 	script := flag.String("script", "", "External script to run")
 	workers := flag.Int("w", 1, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
+
+	// Hyperopt specifics
+	probs := flag.String("probs", "", "Probabilities to change each value")
 
 	// Spark specifics
 	sparkMaster := flag.String("sparkMaster", "local[*]", "Spark master")
@@ -53,6 +58,9 @@ func main() {
 	vargs["configFile"] = *configFile
 	vargs["fsRoot"] = *fsRoot
 
+	// Hyperopt specifics
+	vargs["probs"] = *probs
+
 	Optimize(vargs)
 
 }
@@ -82,6 +90,15 @@ func Optimize(vargs map[string]interface{}) {
 	targetstop := vargs["targetstop"].(int)
 	if targetstop == 0 {
 		targetstop = maxAttempts
+	}
+
+	// We target a stop after targetstop attempts
+	var probabilityToChange = []float32{}
+	probsStr := vargs["probs"].(string)
+	for _, prob := range strings.Split(probsStr, " ") {
+		if n, err := strconv.ParseFloat(prob, 32); err == nil {
+			probabilityToChange = append(probabilityToChange, float32(n))
+		}
 	}
 
 	//2^-3 to 2^10
@@ -130,13 +147,13 @@ func Optimize(vargs map[string]interface{}) {
 	//8.23% due to main effect: X1
 	//0.90% due to main effect: X2
 
-	var probabilityToChange = []float32{81.72, 8.23, 0.9}
+	//var probabilityToChange = []float32{81.72, 8.23, 0.9}
 	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
 	// 3*x-2*y+z
 	//var probabilityToChange = []float32{60.52, 26.97, 3.09}
 	//var probabilityToChange = []float32{3, 2, 1}
 	//var probabilityToChange = []float32{0.85, 0.1, 0.1}
-	//var probabilityToChange = []float32{}
+	//var probabilityToChange = []float32{1, 1, 1}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false
