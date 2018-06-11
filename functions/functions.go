@@ -131,8 +131,11 @@ func F_synthetic_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (flo
 	z, okz := p.Values["z"].(float64)
 
 	if okx && oky && okz {
+		// Heart
+		w := math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
 		//w := x*x - 10*y + z
-		w := 3*x - 2*y - z
+		//w := 3*x - 2*y - z
+		//w := x*x*x + 2*x*x*y*z + math.Sin(z) - 1
 		//fmt.Println(x, ",", y, ",", z, ",", w)
 		return w, nil
 	} else {
