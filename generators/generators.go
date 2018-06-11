@@ -120,6 +120,8 @@ type randomGenerator struct {
 	reverse_probabilityToChange []float32
 	// change a single value per step
 	adjustSingleValue bool
+	// optimalSlicePercent - the slice of results that are considered in the optimal range
+	optimalSlicePercent float64
 	// How many points to generate in total
 	pointsNo int
 	// Minimum number of point to generate
@@ -134,7 +136,7 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, pointsNo int, minPointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, optimalSlicePercent float64, pointsNo int, minPointsNo int, cores int, algorithm Algorithm) Generator {
 
 	// adjust the probabilityToChange values to sum up to 1.0
 	// normalize the values so the sum gives one
@@ -197,6 +199,7 @@ func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32,
 		probabilityToChange:         probabilityToChange,
 		reverse_probabilityToChange: reverse_probabilityToChange,
 		adjustSingleValue:           adjustSingleValue,
+		optimalSlicePercent:         optimalSlicePercent,
 		pointsNo:                    pointsNo,
 		cores:                       cores,
 		algorithm:                   algorithm,
@@ -278,7 +281,7 @@ func (g randomGenerator) Improvement(state GeneratorState) bool {
 		}
 	}
 
-	boundary := min + (max-min)/10
+	boundary := min + (max-min)/100.0*g.optimalSlicePercent
 
 	if state.Output[previousOutputLength-1] < boundary {
 		return true

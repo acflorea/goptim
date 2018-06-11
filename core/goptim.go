@@ -21,6 +21,7 @@ func Optimize(noOfExperiments int,
 	restrictions []generators.GenerationStrategy,
 	probabilityToChange []float32,
 	adjustSingleValue bool,
+	optimalSlicePercent float64,
 	maxAttempts int,
 	targetstop int,
 	W int,
@@ -42,7 +43,7 @@ func Optimize(noOfExperiments int,
 		tuningTrials := int(math.Max(1, float64(targetstop)/(math.E)))
 		//tuningTrials := maxAttempts
 		generator :=
-			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, maxAttempts, tuningTrials, W, algorithm)
+			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, optimalSlicePercent, maxAttempts, tuningTrials, W, algorithm)
 
 		// channel used by workers to communicate their results
 		resultsChans := make(chan functions.Sample, W)

@@ -24,6 +24,7 @@ func main() {
 
 	// Hyperopt specifics
 	probs := flag.String("probs", "", "Probabilities to change each value")
+	optSlicePercent := flag.Float64("optSlicePercent", 0.0, "Slice of results considered to be optimal")
 
 	// Spark specifics
 	sparkMaster := flag.String("sparkMaster", "local[*]", "Spark master")
@@ -60,6 +61,7 @@ func main() {
 
 	// Hyperopt specifics
 	vargs["probs"] = *probs
+	vargs["optSlicePercent"] = *optSlicePercent
 
 	Optimize(vargs)
 
@@ -100,6 +102,8 @@ func Optimize(vargs map[string]interface{}) {
 			probabilityToChange = append(probabilityToChange, float32(n))
 		}
 	}
+
+	optSlicePercent := vargs["optSlicePercent"].(float64)
 
 	//2^-3 to 2^10
 	//restrictions := []generators.GenerationStrategy{
@@ -158,6 +162,6 @@ func Optimize(vargs map[string]interface{}) {
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false
 
-	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
+	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, optSlicePercent, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
 
 }
