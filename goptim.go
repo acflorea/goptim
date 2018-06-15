@@ -19,7 +19,7 @@ func main() {
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
-	workers := flag.Int("w", 1, "Number of goroutines")
+	workers := flag.Int("w", 8, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
 	// Hyperopt specifics
@@ -154,20 +154,14 @@ func Optimize(vargs map[string]interface{}) {
 	//8.23% due to main effect: X1
 	//0.90% due to main effect: X2
 
+	// heart math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
+	//var probabilityToChange = []float32{81.72, 8.23, 0.90}
 
-	// heart
-	//65.08% due to main effect: X0
-	//9.80% due to main effect: X2
-	//7.24% due to interaction: X1 x X0
-	//7.07% due to interaction: X2 x X0
-	//5.17% due to main effect: X1
-	//3.50% due to interaction: X2 x X1
-	//65.08 5.17 9.80
+	// dummy 3*x-2*y+z
+	//var probabilityToChange = []float32{60.52, 26.97, 3.09}
 
 	//var probabilityToChange = []float32{81.72, 8.23, 0.9}
 	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
-	// 3*x-2*y+z
-	//var probabilityToChange = []float32{60.52, 26.97, 3.09}
 	//var probabilityToChange = []float32{3, 2, 1}
 	//var probabilityToChange = []float32{0.85, 0.1, 0.1}
 	//var probabilityToChange = []float32{1, 1, 1}

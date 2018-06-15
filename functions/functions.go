@@ -131,25 +131,21 @@ func F_synthetic_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (flo
 	z, okz := p.Values["z"].(float64)
 
 	if okx && oky && okz {
-		// Heart
-		w := math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
-		//w := x*x - 10*y + z
-		//w := 3*x - 2*y - z
-		//w := x*x*x + 2*x*x*y*z + math.Sin(z) - 1
-		//fmt.Println(x, ",", y, ",", z, ",", w)
+		w := 3*x - 2*y - z
 		return w, nil
 	} else {
 		return 0.0, errors.New("Conversion failure")
 	}
 }
 
-// x^2-10*y
-func F_synthetic_xy(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
+// math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
+func F_heart_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 	x, okx := p.Values["x"].(float64)
 	y, oky := p.Values["y"].(float64)
+	z, okz := p.Values["z"].(float64)
 
-	if okx && oky {
-		w := x*x - 10*y
+	if okx && oky && okz {
+		w := math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
 		return w, nil
 	} else {
 		return 0.0, errors.New("Conversion failure")
