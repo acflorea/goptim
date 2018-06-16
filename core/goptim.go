@@ -28,7 +28,7 @@ func Optimize(noOfExperiments int,
 	algorithm generators.Algorithm,
 	targetFunction functions.NumericalFunction,
 	silent bool,
-	vargs map[string]interface{}) {
+	vargs map[string]interface{}) map[string]interface{} {
 
 	start := time.Now()
 
@@ -46,7 +46,7 @@ func Optimize(noOfExperiments int,
 			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, optimalSlicePercent, maxAttempts, tuningTrials, W, algorithm)
 
 		// channel used by workers to communicate their results
-		resultsChans := make(chan functions.Sample, W)
+		resultsChans := make(chan functions.Sample)
 
 		for w := 0; w < W; w++ {
 
@@ -55,7 +55,7 @@ func Optimize(noOfExperiments int,
 				localvargs[k] = v
 			}
 
-			go func(w int) {
+			go func(w int, ch chan functions.Sample) {
 
 				// Add the worker id to the args map
 				localvargs["workerId"] = w
@@ -65,8 +65,8 @@ func Optimize(noOfExperiments int,
 					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
 				}
 
-				resultsChans <- functions.Sample{i, p, v, gv, o == 0}
-			}(w)
+				ch <- functions.Sample{i, p, v, gv, o == 0}
+			}(w, resultsChans)
 		}
 
 		// Collect results
@@ -101,10 +101,12 @@ func Optimize(noOfExperiments int,
 			}
 		}
 
-		if optim == goptim {
-			fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
-		} else {
-			fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
+		if !silent {
+			if optim == goptim {
+				fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
+			} else {
+				fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
+			}
 		}
 	}
 
@@ -124,16 +126,36 @@ func Optimize(noOfExperiments int,
 	std = math.Sqrt(std)
 
 	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Early stop in %d (%f) cases", early, float64(early)/float64(noOfExperiments)))
+	earlyStopPercent := float64(early) / float64(noOfExperiments)
+	fmt.Println(fmt.Sprintf("Early stop in %d (%f) cases", early, earlyStopPercent))
+
+	matchStopPercent := float64(match) / float64(early)
+	matchPercent := float64(match) / float64(noOfExperiments)
 	fmt.Println(fmt.Sprintf("Results matched on %d (%f) early stoping cases meaning %f of the total trials",
-		match, float64(match)/float64(early), float64(match)/float64(noOfExperiments)))
+		match, matchStopPercent, matchPercent))
+
 	avgTrials := float64(globalTries) / float64(noOfExperiments)
 	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avgTrials,
 		(float64(maxAttempts)-avgTrials)/float64(maxAttempts)*100))
+
 	fmt.Println(fmt.Sprintf("Optimisation best and global best results are %f, %f", best, gbest))
+
 	fmt.Println(fmt.Sprintf("Optimisation average result and standard deviation are %f, %f", avg, std))
+
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
+	results := make(map[string]interface{})
+	results["earlyStopPercent"] = earlyStopPercent
+	results["matchStopPercent"] = matchStopPercent
+	results["matchPercent"] = matchPercent
+	results["avg"] = avg
+	results["std"] = std
+
+	fmt.Println("[earlyStopPercent, matchStopPercent, matchPercent, avg, std]")
+	fmt.Println(fmt.Sprintf("[%f, %f, %f, %f, %f]",
+		earlyStopPercent, matchStopPercent, matchPercent, avg, std))
+
+	return results
 }
 
 // Attempts to dynamically minimize the function f

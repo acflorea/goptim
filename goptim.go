@@ -66,11 +66,11 @@ func main() {
 	vargs["optSlicePercent"] = *optSlicePercent
 	vargs["grievank"] = *grievank
 
-	Optimize(vargs)
+	fmt.Println(Optimize(vargs))
 
 }
 
-func Optimize(vargs map[string]interface{}) {
+func Optimize(vargs map[string]interface{}) map[string]interface{} {
 
 	fmt.Println("Optimization start!")
 	fmt.Println(vargs)
@@ -108,6 +108,13 @@ func Optimize(vargs map[string]interface{}) {
 	// 0.04% due to main effect: X0
 	// "0.04 16.88 77.57"
 
+	// 4
+	// 62.96% due to main effect: X3
+	// 23.14% due to main effect: X2
+	// 2.31% due to main effect: X1
+	// 0.05% due to main effect: X0
+	// "0.05 2.31 23.14 62.96"
+
 	// We target a stop after targetstop attempts
 	var probabilityToChange = []float32{}
 	probsStr := vargs["probs"].(string)
@@ -131,6 +138,18 @@ func Optimize(vargs map[string]interface{}) {
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false
 
-	core.Optimize(noOfExperiments, restrictions, probabilityToChange, adjustSingleValue, optSlicePercent, maxAttempts, targetstop, W, algorithm, targetFunction, silent, vargs)
+	return core.Optimize(
+		noOfExperiments,
+		restrictions,
+		probabilityToChange,
+		adjustSingleValue,
+		optSlicePercent,
+		maxAttempts,
+		targetstop,
+		W,
+		algorithm,
+		targetFunction,
+		silent,
+		vargs)
 
 }
