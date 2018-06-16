@@ -11,5 +11,6 @@ var Functions = map[string]NumericalFunction{
 	"SparkIt":         SparkIt,
 	"Keras":           Keras,
 	"F_synthetic_xyz": F_synthetic_xyz,
-	"F_heart_xyz": F_heart_xyz,
+	"F_heart_xyz":     F_heart_xyz,
+	"F_Griewank":      F_Griewank,
 }

@@ -19,12 +19,13 @@ func main() {
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
-	workers := flag.Int("w", 8, "Number of goroutines")
+	workers := flag.Int("w", 1, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
 	// Hyperopt specifics
 	probs := flag.String("probs", "", "Probabilities to change each value")
 	optSlicePercent := flag.Float64("optSlicePercent", 0.0, "Slice of results considered to be optimal")
+	grievank := flag.Int("grievank", 3, "Number of variables in Grievank function")
 
 	// Spark specifics
 	sparkMaster := flag.String("sparkMaster", "local[*]", "Spark master")
@@ -62,6 +63,7 @@ func main() {
 	// Hyperopt specifics
 	vargs["probs"] = *probs
 	vargs["optSlicePercent"] = *optSlicePercent
+	vargs["grievank"] = *grievank
 
 	Optimize(vargs)
 
@@ -105,66 +107,14 @@ func Optimize(vargs map[string]interface{}) {
 
 	optSlicePercent := vargs["optSlicePercent"].(float64)
 
-	//2^-3 to 2^10
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewUniform("C", math.Pow(2, -2), math.Pow(2, 15)),
-	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
-	//}
+	grievank := vargs["grievank"].(int)
 
-	////{"linear", "polynomial", "rbf", "sigmoid"}
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewDiscrete("kernel", map[interface{}]float64{
-	//		libSvm.LINEAR: 1.0, // 0
-	//		libSvm.POLY:   1.0, // 1
-	//		libSvm.RBF:    1.0, // 2
-	//	}),
-	//	generators.NewExponential("C", 10.0),
-	//	generators.NewExponential("gamma", 10.0),
-	//	generators.NewDiscrete("degree", map[interface{}]float64{
-	//		2: 1.0,
-	//		3: 1.0,
-	//		4: 1.0,
-	//		5: 1.0,
-	//	}),
-	//	generators.NewUniform("coef0", 0.0, 1.0),
-	//	generators.NewUniform("categoryScalingFactor", 1.0, 100.0),
-	//	generators.NewUniform("productScalingFactor", 1.0, 100.0),
-	//}
+	var restrictions []generators.GenerationStrategy
 
-	//onetoonehundred := map[interface{}]float64{}
-	//for i := 1; i <= 1000; i++ {
-	//	onetoonehundred[float64(i)] = 1.0
-	//}
-	//
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewDiscrete("x", onetoonehundred),
-	//}
-
-	//{"linear", "polynomial", "rbf", "sigmoid"}
-	restrictions := []generators.GenerationStrategy{
-		//generators.NewUniform("x", -3000.0, 3000.0),
-		//generators.NewUniform("y", -3000.0, 3000.0),
-		//generators.NewUniform("z", -3000.0, 3000.0),
-		generators.NewUniform("x", -3.0, 3.0),
-		generators.NewUniform("y", -3.0, 3.0),
-		generators.NewUniform("z", -3.0, 3.0),
+	for i := 0; i < grievank; i++ {
+		restrictions = append(restrictions, generators.NewUniform("x"+strconv.Itoa(i+1), -600.0, 600.0))
 	}
 
-	//81.72% due to main effect: X0
-	//8.23% due to main effect: X1
-	//0.90% due to main effect: X2
-
-	// heart math.Pow(2*x*x+y*y+z*z-1, 3) - 1.0/10.0*x*x*z*z - y*y*z*z*z
-	//var probabilityToChange = []float32{81.72, 8.23, 0.90}
-
-	// dummy 3*x-2*y+z
-	//var probabilityToChange = []float32{60.52, 26.97, 3.09}
-
-	//var probabilityToChange = []float32{81.72, 8.23, 0.9}
-	//var probabilityToChange = []float32{10.01, 18.76, 60.22}
-	//var probabilityToChange = []float32{3, 2, 1}
-	//var probabilityToChange = []float32{0.85, 0.1, 0.1}
-	//var probabilityToChange = []float32{1, 1, 1}
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false

@@ -152,6 +152,31 @@ func F_heart_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (float64
 	}
 }
 
+// 1 + 1/4000*(x1*x1+x2*x2+x3*x3) - math.Cos(x1/math.Sqrt(1))*math.Cos(x2/math.Sqrt(2))*math.Cos(x3/math.Sqrt(3))
+func F_Griewank(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
+
+	// read all the xi variables
+	n := vargs["grievank"].(int)
+	var x []float64
+
+	for i := 0; i < n; i++ {
+		index := "x" + strconv.Itoa(i+1)
+		x = append(x, p.Values[index].(float64))
+	}
+
+	sum := 0.0
+	prod := 1.0
+
+	for i := 0; i < n; i++ {
+		sum = sum + x[i]*x[i]/4000
+		prod = prod * math.Cos(x[i]/math.Sqrt(float64(i+1)))
+	}
+
+	w := 1 + sum - prod
+
+	return w, nil
+}
+
 func Negate(f NumericalFunction) NumericalFunction {
 	return func(x MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 		y, err := f(x, vargs)
