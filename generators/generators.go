@@ -332,6 +332,22 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 				}
 			}
 
+		} else {
+			change := false
+			for !change {
+				// check if at least one dimension changes
+				for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+					if g.probabilityToChange[dimIdx] >= globalProbabilityToChange {
+						change = true
+						break
+					}
+				}
+				// if nothing changes regenerate the probability
+				if !change {
+					globalProbabilityToChange = g.rs[w].Float32()
+				}
+			}
+
 		}
 
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {

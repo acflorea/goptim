@@ -96,6 +96,17 @@ func Optimize(vargs map[string]interface{}) {
 		targetstop = maxAttempts
 	}
 
+	// 2
+	// 91.72% due to main effect: X1
+	// 2.44% due to main effect: X0
+	// "2.44 91.72"
+
+	// 3
+	// 77.57% due to main effect: X2
+	// 16.88% due to main effect: X1
+	// 0.04% due to main effect: X0
+	// "0.04 16.88 77.57"
+
 	// We target a stop after targetstop attempts
 	var probabilityToChange = []float32{}
 	probsStr := vargs["probs"].(string)

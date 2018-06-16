@@ -168,13 +168,16 @@ func F_Griewank(p MultidimensionalPoint, vargs map[string]interface{}) (float64,
 	prod := 1.0
 
 	for i := 0; i < n; i++ {
-		sum = sum + x[i]*x[i]/4000
+		// float64(i) - this is a variation from the standard Griewank function
+		sum = sum + x[i]*x[i]*float64(i)/4000
 		prod = prod * math.Cos(x[i]/math.Sqrt(float64(i+1)))
 	}
 
 	w := 1 + sum - prod
 
-	return w, nil
+	//fmt.Println(p.PrettyPrint(), ", ", w)
+
+	return - w, nil
 }
 
 func Negate(f NumericalFunction) NumericalFunction {
