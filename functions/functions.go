@@ -155,6 +155,8 @@ func F_heart_xyz(p MultidimensionalPoint, vargs map[string]interface{}) (float64
 // 1 + 1/4000*(x1*x1+x2*x2+x3*x3) - math.Cos(x1/math.Sqrt(1))*math.Cos(x2/math.Sqrt(2))*math.Cos(x3/math.Sqrt(3))
 func F_Griewank(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error) {
 
+	verbose := vargs["verbose"].(bool)
+
 	// read all the xi variables
 	n := vargs["grievank"].(int)
 	var x []float64
@@ -175,7 +177,9 @@ func F_Griewank(p MultidimensionalPoint, vargs map[string]interface{}) (float64,
 
 	w := 1 + sum - prod
 
-	//fmt.Println(p.PrettyPrint(), ", ", w)
+	if verbose {
+		fmt.Println(p.PrettyPrint(), ", ", w)
+	}
 
 	return - w, nil
 }

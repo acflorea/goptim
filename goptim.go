@@ -12,6 +12,8 @@ import (
 
 func main() {
 
+	verbose := flag.Bool("verbose", false, "Talkative or not")
+
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
@@ -37,11 +39,10 @@ func main() {
 
 	flag.Parse()
 
-	//functions.CrossV(1, 0.1)
-	//functions.Train(1.0, 1.0/10.0)
-	//functions.Test()
-
 	vargs := map[string]interface{}{}
+
+	vargs["verbose"] = *verbose
+
 	vargs["fileName"] = *fileNamePtr
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
 	vargs["silent"] = *silentPtr
