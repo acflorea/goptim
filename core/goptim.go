@@ -209,23 +209,12 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 		rndPoint, newState := generator.Next(w, state)
 		f_rnd, _ := f(rndPoint, vargs)
-
-		if i == 0 {
-			// append the generated value to new state
-			state = generators.GeneratorState{newState.GeneratedPoints,
-				append(newState.Output, f_rnd),
-				rndPoint}
-		} else {
-
-			// append the generated value to new state
-			// compute a new centroid
-			state = generators.GeneratorState{newState.GeneratedPoints,
-				append(newState.Output, f_rnd),
-				functions.MultidimensionalPoint{}}
-		}
+		centroid := newState.Centroid
 
 		if minReached {
 			if f_rnd < gmin {
+				// the centroid is tmpOpt
+				centroid = rndPoint
 				gmin = f_rnd
 			}
 		} else {
@@ -250,6 +239,19 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 					}
 				}
 			}
+		}
+
+		if i == 0 {
+			// append the generated value to new state
+			state = generators.GeneratorState{newState.GeneratedPoints,
+				append(newState.Output, f_rnd),
+				rndPoint}
+		} else {
+
+			state = generators.GeneratorState{newState.GeneratedPoints,
+				append(newState.Output, f_rnd),
+				centroid}
+
 		}
 	}
 

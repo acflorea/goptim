@@ -421,6 +421,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 			} else {
 				// preserve
 				values[labels[dimIdx]] = previousPoint.Values[labels[dimIdx]]
+				// values[labels[dimIdx]] = state.Centroid.Values[labels[dimIdx]]
 			}
 
 		}
