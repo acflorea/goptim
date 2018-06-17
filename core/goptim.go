@@ -127,6 +127,8 @@ func Optimize(noOfExperiments int,
 
 	elapsed := time.Since(start)
 	earlyStopPercent := float64(early) / float64(noOfExperiments)
+
+	fmt.Println()
 	fmt.Println(fmt.Sprintf("Early stop in %d (%f) cases", early, earlyStopPercent))
 
 	matchStopPercent := float64(match) / float64(early)

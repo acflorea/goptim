@@ -8,6 +8,7 @@ import (
 	"flag"
 	"strings"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -137,6 +138,16 @@ func Optimize(vargs map[string]interface{}) map[string]interface{} {
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	var adjustSingleValue = false
+
+	// if silent add a progress "bar"
+	if silent {
+		go func() {
+			for {
+				fmt.Print("...")
+				time.Sleep(1 * time.Second)
+			}
+		}()
+	}
 
 	return core.Optimize(
 		noOfExperiments,
