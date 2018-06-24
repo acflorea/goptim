@@ -110,6 +110,9 @@ func Optimize(noOfExperiments int,
 		}
 	}
 
+	fmt.Println()
+	fmt.Println("Optimisation done. Computing results")
+
 	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
