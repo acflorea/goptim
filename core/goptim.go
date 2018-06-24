@@ -110,13 +110,13 @@ func Optimize(noOfExperiments int,
 		}
 	}
 
-	best, gbest, avg, std := -math.MaxFloat64, -math.MaxFloat64, 0.0, 0.0
+	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
-		if best < OptResults[expIndex].Optim {
+		if expIndex == 0 || best < OptResults[expIndex].Optim {
 			best = OptResults[expIndex].Optim
 		}
-		if gbest < OptResults[expIndex].GOptim {
+		if expIndex == 0 || gbest < OptResults[expIndex].GOptim {
 			gbest = OptResults[expIndex].GOptim
 		}
 	}
