@@ -46,7 +46,7 @@ func Optimize(noOfExperiments int,
 			generators.NewRandom(restrictions, probabilityToChange, adjustSingleValue, optimalSlicePercent, maxAttempts, tuningTrials, W, algorithm)
 
 		// channel used by workers to communicate their results
-		resultsChans := make(chan functions.Sample)
+		resultsChans := make(chan functions.Sample, W)
 
 		for w := 0; w < W; w++ {
 
