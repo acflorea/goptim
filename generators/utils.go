@@ -53,7 +53,7 @@ const (
 // Algorithm labels
 var algorithms = [...]string{
 	"ManagerWorker",
-	"FebrLeapfroguary",
+	"Leapfrog",
 	"SeqSplit",
 	"Parametrization",
 }

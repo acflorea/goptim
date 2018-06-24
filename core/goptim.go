@@ -110,7 +110,7 @@ func Optimize(noOfExperiments int,
 		}
 	}
 
-	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
+	best, gbest, avg, std := -math.MaxFloat64, -math.MaxFloat64, 0.0, 0.0
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
 		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
 		if best < OptResults[expIndex].Optim {
@@ -152,10 +152,11 @@ func Optimize(noOfExperiments int,
 	results["matchPercent"] = matchPercent
 	results["avg"] = avg
 	results["std"] = std
+	results["optimalSlicePercent"] = optimalSlicePercent
 
-	fmt.Println("[earlyStopPercent, matchStopPercent, matchPercent, avg, std]")
-	fmt.Println(fmt.Sprintf("[%f, %f, %f, %f, %f]",
-		earlyStopPercent, matchStopPercent, matchPercent, avg, std))
+	fmt.Println("[optimalSlicePercent, earlyStopPercent, matchStopPercent, matchPercent, avg, std]")
+	fmt.Println(fmt.Sprintf("[%f, %f, %f, %f, %f, %f]",
+		optimalSlicePercent, earlyStopPercent, matchStopPercent, matchPercent, avg, std))
 
 	return results
 }
