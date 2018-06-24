@@ -20,6 +20,8 @@ func main() {
 	probsPtr := flag.String("probs", "1 1 1 1 1 1", "Probabilities to change each value")
 	grievankPtr := flag.Int("grievank", 6, "Number of variables in Grievank function")
 
+	verbosePtr := flag.Bool("verbose", false, "Talkative ?")
+
 	flag.Parse()
 
 	noOfExperiments := *noOfExperimentsPtr
@@ -65,7 +67,7 @@ func main() {
 	silent := true
 
 	vargs := make(map[string]interface{})
-	vargs["verbose"] = false
+	vargs["verbose"] = *verbosePtr
 	vargs["grievank"] = grievank
 
 	for optimalSlicePercent := 0; optimalSlicePercent < 75; optimalSlicePercent++ {
