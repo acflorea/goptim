@@ -302,7 +302,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 	if len(state.GeneratedPoints) > 0 {
 		// we have state (either we have generated some numbers or this is the provided initial state)
 
-		previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
+		//previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
 
 		// check if previous point was an improvement
 		var wasAnImprovement = false
@@ -420,8 +420,8 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 
 			} else {
 				// preserve
-				values[labels[dimIdx]] = previousPoint.Values[labels[dimIdx]]
-				// values[labels[dimIdx]] = state.Centroid.Values[labels[dimIdx]]
+				//values[labels[dimIdx]] = previousPoint.Values[labels[dimIdx]]
+				values[labels[dimIdx]] = state.Centroid.Values[labels[dimIdx]]
 			}
 
 		}
