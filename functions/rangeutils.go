@@ -9,6 +9,8 @@ type TwoDPoint struct {
 type TwoDPointVector struct {
 	TwoDPoints []TwoDPoint
 	Sum        TwoDPoint
+	MinY       TwoDPoint
+	MaxY       TwoDPoint
 }
 
 func (v *TwoDPointVector) Append(point TwoDPoint) {
@@ -17,6 +19,8 @@ func (v *TwoDPointVector) Append(point TwoDPoint) {
 	v.TwoDPoints = insertionSort(append(v.TwoDPoints, point))
 	if len(v.TwoDPoints) == 1 {
 		v.Sum = point
+		v.MinY = point
+		v.MaxY = point
 	} else {
 		v.Sum.X += point.X
 		v.Sum.Y += point.Y
