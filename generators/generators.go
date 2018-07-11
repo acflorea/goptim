@@ -93,6 +93,8 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 type GeneratorState struct {
 	// points generated so far
 	GeneratedPoints []functions.MultidimensionalPoint
+	// statistics regarding the generated values
+	Statistics      []functions.TwoDPointVector
 	// values for those points
 	Output []float64
 	// centroid
@@ -211,7 +213,7 @@ func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32,
 	return generator
 }
 
-	// Check if improvement was made
+// Check if improvement was made
 func (g randomGenerator) Improvement(state GeneratorState) bool {
 	previousOutputLength := len(state.Output)
 
