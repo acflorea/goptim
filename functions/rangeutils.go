@@ -14,6 +14,7 @@ type TwoDPointVector struct {
 	MaxY       TwoDPoint
 }
 
+// Adds a point to the vector, recomputes Min, Max and Sum
 func (v *TwoDPointVector) Append(point TwoDPoint) {
 
 	// Keep the points sorted by Y
@@ -35,6 +36,7 @@ func (v *TwoDPointVector) Append(point TwoDPoint) {
 
 }
 
+// Inserts the point in it's appropriate position
 func insertionSort(twoDPoints []TwoDPoint) []TwoDPoint {
 
 	n := len(twoDPoints)

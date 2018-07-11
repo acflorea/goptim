@@ -100,7 +100,6 @@ type GeneratorState struct {
 }
 
 type Generator interface {
-	AllAvailable(w int) (points []functions.MultidimensionalPoint)
 	Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState)
 	HasNext(w int) bool
 	Improvement(state GeneratorState) bool
@@ -212,61 +211,7 @@ func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32,
 	return generator
 }
 
-// Generates g.PointsNo.
-// Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
-
-	points = make([]functions.MultidimensionalPoint, g.pointsNo)
-
-	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
-		values := make(map[string]interface{})
-		labels := make([]string, g.dimensionsNo)
-		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-
-			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
-			labels[dimIdx] = label
-
-			if g.algorithm == Leapfrog {
-				if g.index[w] == 0 {
-					// Set the counter in place
-					for i := 0; i < w; i++ {
-						g.rs[w].Float64()
-					}
-				} else {
-					// Jump "cores" positions
-					for i := 0; i < g.cores; i++ {
-						g.rs[w].Float64()
-					}
-				}
-			}
-
-			switch distribution {
-			case Uniform:
-				_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
-			case Exponential:
-				_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
-			case Discrete:
-				raw := g.rs[w].Float64()
-				sum := 0.0
-				for key, value := range samples {
-					sum += value
-					if raw <= sum {
-						values[labels[dimIdx]] = key
-						break
-					}
-				}
-			}
-		}
-		points[pIdx] = functions.MultidimensionalPoint{Values: values}
-
-	}
-
-	g.index[w] = g.pointsNo
-
-	return points
-}
-
-// Check if improvement was made
+	// Check if improvement was made
 func (g randomGenerator) Improvement(state GeneratorState) bool {
 	previousOutputLength := len(state.Output)
 
