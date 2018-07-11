@@ -7,6 +7,7 @@ type TwoDPoint struct {
 
 // A wrapper over a slice of points that also keeps the Sum and min/max values
 type TwoDPointVector struct {
+	// Ordered by x
 	TwoDPoints []TwoDPoint
 	Sum        TwoDPoint
 	MinY       TwoDPoint
@@ -24,38 +25,22 @@ func (v *TwoDPointVector) Append(point TwoDPoint) {
 	} else {
 		v.Sum.X += point.X
 		v.Sum.Y += point.Y
+		if v.MinY.Y <= point.Y {
+			v.MinY = point
+		}
+		if v.MaxY.Y >= point.Y {
+			v.MaxY = point
+		}
 	}
 
 }
-
-//func longestOKsequence(twoDPoints []TwoDPoint) []TwoDPoint {
-//
-//	maxLength := 0
-//	maxStart := 0
-//	start := 0
-//	length := 0
-//
-//	avg := 0
-//	for i, point := range twoDPoints {
-//
-//	}
-//
-//	for i, point := range twoDPoints {
-//		if testFunction(point) {
-//
-//		} else {
-//
-//		}
-//	}
-//
-//	return twoDPoints
-//}
 
 func insertionSort(twoDPoints []TwoDPoint) []TwoDPoint {
 
 	n := len(twoDPoints)
 
-	for i := 2; i < n; i++ {
+	for i := 1; i < n; i++ {
+		elem := twoDPoints[i]
 		key := twoDPoints[i].X
 		j := i - 1
 
@@ -66,7 +51,7 @@ func insertionSort(twoDPoints []TwoDPoint) []TwoDPoint {
 			twoDPoints[j+1] = twoDPoints[j]
 			j = j - 1
 		}
-		twoDPoints[j+1] = twoDPoints[i]
+		twoDPoints[j+1] = elem
 	}
 
 	return twoDPoints
