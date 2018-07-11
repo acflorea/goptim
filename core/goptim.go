@@ -113,9 +113,10 @@ func Optimize(noOfExperiments int,
 	fmt.Println()
 	fmt.Println("Optimisation done. Computing results")
 
-	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
+	best, gbest, avg, gavg, std, gstd := 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
+		avg += OptResults[expIndex].Optim / float64(noOfExperiments)
+		gavg += OptResults[expIndex].GOptim / float64(noOfExperiments)
 		if expIndex == 0 || best < OptResults[expIndex].Optim {
 			best = OptResults[expIndex].Optim
 		}
@@ -124,9 +125,11 @@ func Optimize(noOfExperiments int,
 		}
 	}
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		std += (OptResults[expIndex].GOptim - avg) * (OptResults[expIndex].GOptim - avg) / float64(noOfExperiments)
+		std += (OptResults[expIndex].Optim - avg) * (OptResults[expIndex].Optim - avg) / float64(noOfExperiments)
+		gstd += (OptResults[expIndex].Optim - gavg) * (OptResults[expIndex].Optim - gavg) / float64(noOfExperiments)
 	}
 	std = math.Sqrt(std)
+	gstd = math.Sqrt(gstd)
 
 	elapsed := time.Since(start)
 	earlyStopPercent := float64(early) / float64(noOfExperiments)
@@ -145,7 +148,9 @@ func Optimize(noOfExperiments int,
 
 	fmt.Println(fmt.Sprintf("Optimisation best and global best results are %f, %f", best, gbest))
 
-	fmt.Println(fmt.Sprintf("Optimisation average result and standard deviation are %f, %f", avg, std))
+	fmt.Println(fmt.Sprintf("(ES) Optimisation average result and standard deviation are %f, %f", avg, std))
+
+	fmt.Println(fmt.Sprintf("(GB) Optimisation average result and standard deviation are %f, %f", gavg, gstd))
 
 	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
 
@@ -251,7 +256,6 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				}
 			}
 		}
-
 
 		state = generators.GeneratorState{
 			newState.GeneratedPoints,
