@@ -6,6 +6,7 @@ import (
 	"math"
 	"time"
 	"sync"
+	"sort"
 )
 
 var mutex sync.Mutex
@@ -94,7 +95,7 @@ type GeneratorState struct {
 	// points generated so far
 	GeneratedPoints []functions.MultidimensionalPoint
 	// statistics regarding the generated values
-	Statistics      []functions.TwoDPointVector
+	Statistics []functions.TwoDPointVector
 	// values for those points
 	Output []float64
 	// centroid
@@ -116,9 +117,9 @@ type randomGenerator struct {
 	restrictions []GenerationStrategy
 	// probability to change for each dimension
 	// the probability to change for each dimension
-	probabilityToChange []float32
+	probabilityToChange []float64
 	// the probability to change for each dimension - reversed
-	reverse_probabilityToChange []float32
+	reverse_probabilityToChange []float64
 	// change a single value per step
 	adjustSingleValue bool
 	// optimalSlicePercent - the slice of results that are considered in the optimal range
@@ -137,26 +138,41 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, probabilityToChange []float32, adjustSingleValue bool, optimalSlicePercent float64, pointsNo int, minPointsNo int, cores int, algorithm Algorithm) Generator {
+func NewRandom(restrictions []GenerationStrategy,
+	probabilityToChange []float64,
+	adjustSingleValue bool,
+	optimalSlicePercent float64,
+	pointsNo int,
+	minPointsNo int,
+	cores int,
+	algorithm Algorithm) Generator {
 
-	// adjust the probabilityToChange values to sum up to 1.0
-	// normalize the values so the sum gives one
-	sum := float32(0.0)
-	for _, value := range probabilityToChange {
-		sum += value
-	}
-	if sum != 1.0 {
-		factor := 1.0 / sum
+	if adjustSingleValue {
+		// adjust the probabilityToChange values to sum up to 1.0
+		// normalize the values so the sum gives one
+		sum := float64(0.0)
+		for _, value := range probabilityToChange {
+			sum += value
+		}
+		if sum != 1.0 {
+			factor := 1.0 / sum
+			for key, value := range probabilityToChange {
+				probabilityToChange[key] = value * factor
+			}
+		}
+	} else {
+		// make sure at least one value changes each step
+		sort.Float64s(probabilityToChange)
+		factor := probabilityToChange[len(probabilityToChange)-1]
 		for key, value := range probabilityToChange {
-			probabilityToChange[key] = value * factor
+			probabilityToChange[key] = value / factor
 		}
 	}
 
 	// compute the reverse probabilityToChange
-	reverse_probabilityToChange := []float32{}
-	sum = float32(len(probabilityToChange) - 1)
+	reverse_probabilityToChange := []float64{}
 	for _, value := range probabilityToChange {
-		reverse_probabilityToChange = append(reverse_probabilityToChange, (1.0-value)/sum)
+		reverse_probabilityToChange = append(reverse_probabilityToChange, 1.0-value)
 	}
 
 	// Init generator
@@ -218,7 +234,7 @@ func (g randomGenerator) Improvement(state GeneratorState) bool {
 	previousOutputLength := len(state.Output)
 
 	// TODO - Store this in the state
-	min, max := math.MaxFloat32, -math.MaxFloat32
+	min, max := math.MaxFloat64, -math.MaxFloat64
 	for _, value := range state.Output {
 		if min > value {
 			min = value
@@ -264,13 +280,13 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		}
 
 		// Each value changes with this probability
-		globalProbabilityToChange := g.rs[w].Float32()
+		globalProbabilityToChange := g.rs[w].Float64()
 		indexToChange := -1
 
 		if g.adjustSingleValue {
 
 			// Identify which value should change
-			sum := float32(0.0)
+			sum := float64(0.0)
 			for key, value := range probabilities {
 				sum += value
 				if globalProbabilityToChange <= sum {
@@ -291,7 +307,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 				}
 				// if nothing changes regenerate the probability
 				if !change {
-					globalProbabilityToChange = g.rs[w].Float32()
+					globalProbabilityToChange = g.rs[w].Float64()
 				}
 			}
 
@@ -300,7 +316,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
 
 			// attempt to retrieve individual probability to change
-			var probabilityToChange float32 = 0.0
+			var probabilityToChange float64 = 0.0
 
 			// we are still in the tuning phase
 			if currentIndex < g.minPointsNo/g.cores {
@@ -429,7 +445,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 }
 
 func getRestrictionsPerDimension(g randomGenerator, dimIdx int) (float64, float64, float64, Distribution, map[interface{}]float64, string) {
-	lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
+	lowerBound, upperBound, lambda := -math.MaxFloat64, math.MaxFloat64, 1.0
 	distribution := Uniform
 	var samples map[interface{}]float64
 	label := ""

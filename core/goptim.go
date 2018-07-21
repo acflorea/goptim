@@ -19,7 +19,7 @@ type OptimizationOutput struct {
 
 func Optimize(noOfExperiments int,
 	restrictions []generators.GenerationStrategy,
-	probabilityToChange []float32,
+	probabilityToChange []float64,
 	adjustSingleValue bool,
 	optimalSlicePercent float64,
 	maxAttempts int,
@@ -241,8 +241,8 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 				gmin = min
 
 				if i > k {
-					//if accept(optimNo) {
-					if acceptAll() {
+					if accept(optimNo) {
+					//if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
@@ -278,7 +278,7 @@ func acceptAll() bool {
 
 func accept(optimNo int) bool {
 	s := rand.NewSource(time.Now().UnixNano())
-	return rand.New(s).Float64() < 0.5+(0.1*float64(optimNo))
+	return rand.New(s).Float64() < 0.1+(0.1*float64(optimNo))
 }
 
 // Dynamically Minimizes the negation of the target function
