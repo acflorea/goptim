@@ -18,7 +18,7 @@ func main() {
 
 	// Hyperopt specifics
 	probsPtr := flag.String("probs", "1 1 1 1 1 1", "Probabilities to change each value")
-	grievankPtr := flag.Int("grievank", 6, "Number of variables in Grievank function")
+	grievankPtr := flag.Int("grievank", 5, "Number of variables in Grievank function")
 
 	verbosePtr := flag.Bool("verbose", false, "Talkative ?")
 
@@ -34,12 +34,11 @@ func main() {
 	}
 
 	// We target a stop after targetstop attempts
-	var probabilityToChange = []float32{}
+	var probabilityToChange = []float64{}
 	allOnes := true
 	probsStr := *probsPtr
 	for _, prob := range strings.Split(probsStr, " ") {
-		if n, err := strconv.ParseFloat(prob, 32); err == nil {
-			prob := float32(n)
+		if prob, err := strconv.ParseFloat(prob, 32); err == nil {
 			if prob != 1.0 {
 				allOnes = false
 			}
@@ -57,7 +56,9 @@ func main() {
 		targetstop = maxAttempts
 	}
 
-	Ws := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	//Ws := []int{1, 2, 3, 4, 5, 6, 7, 8}
+
+	Ws := []int{4}
 
 	// loop through algorithms ?
 	algorithm := generators.Algorithms["Parametrization"]
@@ -70,7 +71,7 @@ func main() {
 	vargs["verbose"] = *verbosePtr
 	vargs["grievank"] = grievank
 
-	for optimalSlicePercent := 0; optimalSlicePercent < 75; optimalSlicePercent++ {
+	for optimalSlicePercent := 1; optimalSlicePercent < 75; optimalSlicePercent++ {
 
 		for _, W := range Ws {
 

@@ -54,10 +54,16 @@ func Test_DiscreteGenerate(t *testing.T) {
 		sum += value
 	}
 
-	var probabilityToChange = []float32{1.0}
+	var probabilityToChange = []float64{1.0}
 
-	generator :=
-		generators.NewRandom(restrictions, probabilityToChange, false, howManyPoints, 1, generators.ManagerWorker)
+	generator := generators.NewRandom(restrictions,
+		probabilityToChange,
+		false,
+		0.0,
+		howManyPoints,
+		1,
+		1,
+		generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
@@ -156,48 +162,21 @@ func Test_UniformRandomPointsGeneratorNext(t *testing.T) {
 		generators.NewUniform("y", -10, 10),
 	}
 
-	var probabilityToChange = []float32{1.0, 1.0}
+	var probabilityToChange = []float64{1.0, 1.0}
 
-	generator :=
-		generators.NewRandom(restrictions, probabilityToChange, false, howManyPoints, 1, generators.ManagerWorker)
+	generator := generators.NewRandom(restrictions,
+		probabilityToChange,
+		false,
+		0.0,
+		howManyPoints,
+		1,
+		1,
+		generators.ManagerWorker)
 
 	generatedPoints := make([]functions.MultidimensionalPoint, howManyPoints)
 	for pIdx := 0; generator.HasNext(0); pIdx++ {
 		generatedPoints[pIdx], _ = generator.Next(0, generators.GeneratorState{})
 	}
-
-	if len(generatedPoints) != howManyPoints {
-		msg := fmt.Sprintf("Error generating points. "+
-			"Expected (%i) but got (%i).", howManyPoints, len(generatedPoints))
-		t.Error(msg)
-	}
-
-	for pIdx := 0; pIdx < len(generatedPoints); pIdx++ {
-		x := generatedPoints[pIdx].Values["x"].(float64)
-		y := generatedPoints[pIdx].Values["y"].(float64)
-		if x < -10 || x >= 10 || y < -10 || y >= 10 {
-			msg := fmt.Sprintf("Error generating points. Coordinate out of bounds "+
-				"(x, y) = (%f, %f)", x, y)
-			t.Error(msg)
-		}
-	}
-}
-
-func Test_UniformRandomPointsGeneratorAll(t *testing.T) {
-
-	howManyPoints := 10
-
-	restrictions := []generators.GenerationStrategy{
-		generators.NewUniform("x", -10, 10),
-		generators.NewUniform("y", -10, 10),
-	}
-
-	var probabilityToChange = []float32{1.0, 1.0}
-
-	generator :=
-		generators.NewRandom(restrictions, probabilityToChange, false, howManyPoints, 1, generators.ManagerWorker)
-
-	generatedPoints := generator.AllAvailable(0)
 
 	if len(generatedPoints) != howManyPoints {
 		msg := fmt.Sprintf("Error generating points. "+
