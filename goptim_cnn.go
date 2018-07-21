@@ -18,7 +18,7 @@ func main() {
 
 	command := flag.String("command", "python", "Target command.")
 	fct := flag.String("fct", "Keras", "Target function")
-	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
+	alg := flag.String("alg", "Parametrization", "Parallel random generator strategy")
 
 	script := flag.String("script", "", "External script to run")
 
