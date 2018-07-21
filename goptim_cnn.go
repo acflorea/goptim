@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"flag"
 	"strconv"
+	"math"
 )
 
 func main() {
@@ -130,18 +131,18 @@ func Optimize_cnn(vargs map[string]interface{}) {
 	//1.75% due to main effect: X11
 
 	// fANOVA - list them here for brevity...
-	var x8 = 26.28 // neurons_1
-	var x1 = 11.85 // full_layers 1...4 !!!
-	var x0 = 7.40  // conv_layers  3...6 !!!
-	var x10 = 3.22 // neurons_3 5...2048
-	var x6 = 2.26  // maps_5 8...512
-	var x11 = 1.75 // neurons_4 5...2048
-	var x4 = 1.62  // maps_3 8...512
-	var x7 = 1.26  // maps_6 8...512
-	var x9 = 0.87  // neurons_2 5...2048
-	var x3 = 0.79  // maps_2 5...2048
-	var x5 = 0.73  // maps_4 5...2048
-	var x2 = 0.51  // maps_1 5...2048
+	var x8 = 26.28 * math.Log(2043.0) // neurons_1 5...2048
+	var x1 = 11.85 * math.Log(3.0)    // full_layers 1...4 !!!
+	var x0 = 7.40 * math.Log(3.0)     // conv_layers  3...6 !!!
+	var x10 = 3.22 * math.Log(2043.0) // neurons_3 5...2048
+	var x6 = 2.26 * math.Log(504)     // maps_5 8...512
+	var x11 = 1.75 * math.Log(2043.0) // neurons_4 5...2048
+	var x4 = 1.62 * math.Log(504)     // maps_3 8...512
+	var x7 = 1.26 * math.Log(504)     // maps_6 8...512
+	var x9 = 0.87 * math.Log(2043.0)  // neurons_2 5...2048
+	var x3 = 0.79 * math.Log(504)     // maps_2 5...2048
+	var x5 = 0.73 * math.Log(504)     // maps_4 5...2048
+	var x2 = 0.51 * math.Log(504)     // maps_1 5...2048
 
 	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
 	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
