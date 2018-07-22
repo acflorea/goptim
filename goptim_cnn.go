@@ -8,9 +8,13 @@ import (
 	"flag"
 	"strconv"
 	"math"
+	"github.com/bluele/slack"
 )
 
 func main() {
+
+	slackTokenPtr := flag.String("slackToken", "", "Token to connect to Slack")
+	slackChannelPtr := flag.String("slackChannel", "goptim-updates", "Token to connect to Slack")
 
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
@@ -33,6 +37,17 @@ func main() {
 	flag.Parse()
 
 	vargs := map[string]interface{}{}
+
+	// Deal with the Slack API
+	if *slackTokenPtr != "" {
+		api := slack.New(*slackTokenPtr)
+
+		api.JoinChannel(*slackChannelPtr)
+
+		vargs["slackAPI"] = api
+		vargs["slackChannel"] = *slackChannelPtr
+	}
+
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
 	vargs["silent"] = *silentPtr
 	vargs["maxAttempts"] = *maxAttemptsPtr

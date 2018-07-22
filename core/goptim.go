@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 	"math/rand"
+	"github.com/bluele/slack"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // The result of one trial
@@ -210,6 +212,25 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 	minReached := false
 
+	api, slackEnabled := vargs["slackAPI"].(*slack.Slack)
+	slackChannel, ok := vargs["slackChannel"].(string)
+	if !ok {
+		slackChannel = "goptim-updates"
+	}
+	if slackEnabled {
+		err := api.ChatPostMessage(slackChannel, "Optimization Start", nil)
+		if err != nil {
+			log.Warn("Problem connecting to Slack ", err)
+		}
+
+		defer func() {
+			err = api.ChatPostMessage(slackChannel, "Optimization Stop", nil)
+			if err != nil {
+				log.Warn("Problem connecting to Slack ", err)
+			}
+		}()
+	}
+
 	state := generators.GeneratorState{
 		[]functions.MultidimensionalPoint{},
 		[]functions.TwoDPointVector{},
@@ -221,6 +242,14 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		rndPoint, newState := generator.Next(w, state)
 		f_rnd, _ := f(rndPoint, vargs)
 		centroid := newState.Centroid
+
+		if slackEnabled {
+			err := api.ChatPostMessage(slackChannel, functions.FloatToString(f_rnd)+" :: "+rndPoint.PrettyPrint(), nil)
+			if err != nil {
+				log.Warn("Problem connecting to Slack ", err)
+			}
+		}
+
 		if i == 0 {
 			// in case the centroid was not initialized
 			centroid = rndPoint
@@ -242,7 +271,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 
 				if i > k {
 					if accept(optimNo) {
-					//if acceptAll() {
+						//if acceptAll() {
 						minReached = true
 						// Increase the number of optimum points found
 						optimNo += 1
