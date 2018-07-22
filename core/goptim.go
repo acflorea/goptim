@@ -8,7 +8,7 @@ import (
 	"time"
 	"math/rand"
 	"github.com/bluele/slack"
-	"github.com/ethereum/go-ethereum/log"
+	"log"
 )
 
 // The result of one trial
@@ -220,13 +220,13 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 	if slackEnabled {
 		err := api.ChatPostMessage(slackChannel, "Optimization Start", nil)
 		if err != nil {
-			log.Warn("Problem connecting to Slack ", err)
+			log.Println("Problem connecting to Slack ", err)
 		}
 
 		defer func() {
 			err = api.ChatPostMessage(slackChannel, "Optimization Stop", nil)
 			if err != nil {
-				log.Warn("Problem connecting to Slack ", err)
+				log.Println("Problem connecting to Slack ", err)
 			}
 		}()
 	}
@@ -246,7 +246,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		if slackEnabled {
 			err := api.ChatPostMessage(slackChannel, functions.FloatToString(f_rnd)+" :: "+rndPoint.PrettyPrint(), nil)
 			if err != nil {
-				log.Warn("Problem connecting to Slack ", err)
+				log.Println("Problem connecting to Slack ", err)
 			}
 		}
 
