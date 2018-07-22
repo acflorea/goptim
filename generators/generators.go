@@ -6,7 +6,6 @@ import (
 	"math"
 	"time"
 	"sync"
-	"sort"
 )
 
 var mutex sync.Mutex
@@ -162,8 +161,13 @@ func NewRandom(restrictions []GenerationStrategy,
 		}
 	} else {
 		// make sure at least one value changes each step
-		sort.Float64s(probabilityToChange)
-		factor := probabilityToChange[len(probabilityToChange)-1]
+		factor := 0.0
+		for _, p := range probabilityToChange{
+			if p >= factor {
+				factor = p
+			}
+		}
+
 		for key, value := range probabilityToChange {
 			probabilityToChange[key] = value / factor
 		}
