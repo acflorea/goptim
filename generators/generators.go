@@ -284,7 +284,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		}
 
 		// Each value changes with this probability
-		globalProbabilityToChange := g.rs[w].Float64()
+		globalProbabilityToChange := g.rs[w].Float64() - .2
 		indexToChange := -1
 
 		if g.adjustSingleValue {
@@ -311,7 +311,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 				}
 				// if nothing changes regenerate the probability
 				if !change {
-					globalProbabilityToChange = g.rs[w].Float64()
+					globalProbabilityToChange = g.rs[w].Float64() - .2
 				}
 			}
 
