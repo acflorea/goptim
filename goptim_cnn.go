@@ -104,9 +104,9 @@ func Optimize_cnn(vargs map[string]interface{}) {
 	}
 	conv_layers := generators.NewDiscrete("conv_layers", conv_layers_map)
 
-	// Number of maps in a convolutional layer from 8 to 512
+	// Number of maps in a convolutional layer from 100 to 1024
 	maps_map := make(map[interface{}]float64)
-	for i := 8; i <= 512; i++ {
+	for i := 100; i <= 1024; i++ {
 		maps_map[i] = 1.0
 	}
 
@@ -117,9 +117,9 @@ func Optimize_cnn(vargs map[string]interface{}) {
 	}
 	full_layers := generators.NewDiscrete("full_layers", full_layers_map)
 
-	// Number of neurons in fully connected layer from 5 to 2048
+	// Number of neurons in fully connected layer from 1024 to 2048
 	neurons_map := make(map[interface{}]float64)
-	for i := 5; i <= 2048; i++ {
+	for i := 1024; i <= 2048; i++ {
 		neurons_map[i] = 1.0
 	}
 
