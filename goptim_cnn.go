@@ -33,6 +33,8 @@ func main() {
 	targetstop := flag.Int("targetstop", 300, "Target stop")
 
 	adjustSingleValue := flag.Bool("adjustSingleValue", true, "Adjust Single Value")
+	optimalSlicePercent := flag.Float64("optimalSlicePercent", 0.0,
+		"Optimal slice percent (reverse probabilities for results in this range)")
 
 	flag.Parse()
 
@@ -59,6 +61,7 @@ func main() {
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop
 	vargs["adjustSingleValue"] = *adjustSingleValue
+	vargs["optimalSlicePercent"] = *optimalSlicePercent
 
 	Optimize_cnn(vargs)
 
@@ -94,6 +97,8 @@ func Optimize_cnn(vargs map[string]interface{}) {
 	// if this is true a single value changes for each step
 	// otherwise the values are changing according to their probabilities
 	adjustSingleValue := vargs["adjustSingleValue"].(bool)
+
+	optimalSlicePercent := vargs["optimalSlicePercent"].(float64)
 
 	// Generators
 
@@ -167,7 +172,7 @@ func Optimize_cnn(vargs map[string]interface{}) {
 		restrictions,
 		probabilityToChange,
 		adjustSingleValue,
-		0.0,
+		optimalSlicePercent,
 		maxAttempts,
 		targetstop,
 		W,
