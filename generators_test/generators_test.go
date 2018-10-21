@@ -2,9 +2,9 @@ package generators_test
 
 import (
 	"testing"
-	"github.com/acflorea/goptim/generators"
+	"bitbucket.org/acflorea/goptim/generators"
 	"fmt"
-	"github.com/acflorea/goptim/functions"
+	"bitbucket.org/acflorea/goptim/functions"
 	"math"
 	"time"
 	"math/rand"

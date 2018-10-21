@@ -2,7 +2,7 @@ package generators
 
 import (
 	"math/rand"
-	"github.com/acflorea/goptim/functions"
+	"bitbucket.org/acflorea/goptim/functions"
 	"math"
 	"time"
 	"sync"

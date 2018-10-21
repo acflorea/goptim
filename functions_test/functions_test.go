@@ -2,7 +2,7 @@ package functions_test
 
 import (
 	"testing"
-	"github.com/acflorea/goptim/functions"
+	"bitbucket.org/acflorea/goptim/functions"
 	"fmt"
 )
 

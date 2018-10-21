@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/acflorea/goptim/core"
-	"github.com/acflorea/goptim/generators"
-	"github.com/acflorea/goptim/functions"
+	"bitbucket.org/acflorea/goptim/core"
+	"bitbucket.org/acflorea/goptim/generators"
+	"bitbucket.org/acflorea/goptim/functions"
 	"fmt"
 	"flag"
 	"strconv"

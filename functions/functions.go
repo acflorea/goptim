@@ -172,6 +172,7 @@ func F_Griewank(p MultidimensionalPoint, vargs map[string]interface{}) (float64,
 	for i := 0; i < n; i++ {
 		// float64(i) - this is a variation from the standard Griewank function
 		sum = sum + x[i]*x[i]*float64(i)/4000
+
 		prod = prod * math.Cos(x[i]/math.Sqrt(float64(i+1)))
 	}
 

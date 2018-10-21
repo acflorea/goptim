@@ -1,9 +1,9 @@
 package core
 
 import (
-	"github.com/acflorea/goptim/generators"
+	"bitbucket.org/acflorea/goptim/generators"
 	"math"
-	"github.com/acflorea/goptim/functions"
+	"bitbucket.org/acflorea/goptim/functions"
 	"fmt"
 	"time"
 	"math/rand"
@@ -117,6 +117,7 @@ func Optimize(noOfExperiments int,
 
 	best, gbest, avg, gavg, std, gstd := 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
 	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
+		// fmt.Print(OptResults[expIndex].GOptim, ",")
 		avg += OptResults[expIndex].Optim / float64(noOfExperiments)
 		gavg += OptResults[expIndex].GOptim / float64(noOfExperiments)
 		if expIndex == 0 || best < OptResults[expIndex].Optim {

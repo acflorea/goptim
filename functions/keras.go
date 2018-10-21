@@ -45,7 +45,7 @@ func Keras(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	}
 	neurons_str := strings.Trim(strings.Join(strings.Fields(fmt.Sprint(neurons)), ","), "[]")
 
-	params := []string{targetScript, "-c" + conv_layers, "-f" + full_layers, "-t" + test, "-n" + maps_str + "&" + neurons_str}
+		params := []string{targetScript, "-c" + conv_layers, "-f" + full_layers, "-t" + test, "-n" + maps_str + "&" + neurons_str}
 
 	cmd := exec.Command(command, params...)
 
