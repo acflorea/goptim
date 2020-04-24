@@ -5,10 +5,9 @@ import (
 	"math"
 	"github.com/acflorea/goptim/functions"
 	"fmt"
-	"time"
-	"math/rand"
 	"flag"
-	"github.com/acflorea/libsvm-go"
+	"strconv"
+	"github.com/acflorea/goptim/core"
 )
 
 // The result of one trial
@@ -33,10 +32,6 @@ func main() {
 
 	flag.Parse()
 
-	//functions.CrossV(1, 0.1)
-	//functions.Train(1.0, 1.0/10.0)
-	//functions.Test()
-
 	vargs := map[string]interface{}{}
 	vargs["fileName"] = *fileNamePtr
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
@@ -48,16 +43,17 @@ func main() {
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop
 
-	Optimize(vargs)
+	vargs["adjustSingleValue"] = false
+	vargs["optimalSlicePercent"] = 1.0
+
+	optimize_k7m(vargs)
 
 }
 
-func Optimize(vargs map[string]interface{}) {
+func optimize_k7m(vargs map[string]interface{}) {
 
 	fmt.Println("Optimization start!")
 	fmt.Println(vargs)
-
-	start := time.Now()
 
 	noOfExperiments := vargs["noOfExperiments"].(int)
 	silent := vargs["silent"].(bool)
@@ -81,239 +77,91 @@ func Optimize(vargs map[string]interface{}) {
 		targetstop = maxAttempts
 	}
 
-	//2^-3 to 2^10
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewUniform("C", math.Pow(2, -2), math.Pow(2, 15)),
-	//	generators.NewUniform("gamma", math.Pow(2, -15), math.Pow(2, 3)),
-	//}
+	// if this is true a single value changes for each step
+	// otherwise the values are changing according to their probabilities
+	adjustSingleValue := vargs["adjustSingleValue"].(bool)
 
-	//{"linear", "polynomial", "rbf", "sigmoid"}
-	restrictions := []generators.GenerationStrategy{
-		generators.NewDiscrete("kernel", map[interface{}]float64{
-			libSvm.LINEAR: 1.0, // 0
-			libSvm.POLY:   1.0, // 1
-			libSvm.RBF:    1.0, // 2
-		}),
-		generators.NewExponential("C", 10.0),
-		generators.NewExponential("gamma", 10.0),
-		generators.NewDiscrete("degree", map[interface{}]float64{
-			2: 1.0,
-			3: 1.0,
-			4: 1.0,
-			5: 1.0,
-		}),
-		generators.NewUniform("coef0", 0.0, 1.0),
+	optimalSlicePercent := vargs["optimalSlicePercent"].(float64)
+
+	// Generators
+
+	// Number of convolutional layers from 3 to 6
+	conv_layers_map := make(map[interface{}]float64)
+	for i := 3; i <= 6; i++ {
+		conv_layers_map[i] = 1.0
+	}
+	conv_layers := generators.NewDiscrete("conv_layers", conv_layers_map)
+
+	// Number of maps in a convolutional layer from 100 to 1024
+	maps_map := make(map[interface{}]float64)
+	for i := 100; i <= 1024; i++ {
+		maps_map[i] = 1.0
 	}
 
-	//onetoonehundred := map[interface{}]float64{}
-	//for i := 1; i <= 1000; i++ {
-	//	onetoonehundred[float64(i)] = 1.0
-	//}
-	//
-	//restrictions := []generators.GenerationStrategy{
-	//	generators.NewDiscrete("x", onetoonehundred),
-	//}
+	// Number of fully connected layers from 1 to 4
+	full_layers_map := make(map[interface{}]float64)
+	for i := 1; i <= 4; i++ {
+		full_layers_map[i] = 1.0
+	}
+	full_layers := generators.NewDiscrete("full_layers", full_layers_map)
 
-	match := 0
-	var globalTries = 0
-
-	OptResults := make([]OptimizationOutput, noOfExperiments)
-
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-
-		generator :=
-			generators.NewRandom(restrictions, maxAttempts, W, algorithm)
-
-		// channel used by workers to communicate their results
-		resultsChans := make(chan functions.Sample, W)
-
-		for w := 0; w < W; w++ {
-
-			localvargs := map[string]interface{}{}
-			for k, v := range vargs {
-				localvargs[k] = v
-			}
-
-			go func(w int) {
-				i, p, v, gv, o := DMaximize(targetFunction, localvargs, generator, targetstop/W, maxAttempts/W, w, true)
-				if !silent {
-					fmt.Println("Worker ", w, " MAX --> ", i, p, v, gv, o)
-				}
-
-				resultsChans <- functions.Sample{i, p, v, gv, o == 0}
-			}(w)
-		}
-
-		// Collect results
-		results := make([]functions.Sample, W)
-		totalTries := 0
-		optim, goptim := -math.MaxFloat64, -math.MaxFloat64
-		var point functions.MultidimensionalPoint
-		for i := 0; i < W; i++ {
-			results[i] = <-resultsChans
-			if results[i].FullSearch {
-				totalTries += maxAttempts / W
-			} else {
-				totalTries += results[i].Index
-			}
-			if optim < results[i].Value {
-				optim = results[i].Value
-				point = results[i].Point
-			}
-			if goptim < results[i].GValue {
-				goptim = results[i].GValue
-			}
-		}
-
-		OptResults[expIndex] = OptimizationOutput{optim, goptim, point, totalTries}
-
-		if optim == goptim {
-			match++
-			globalTries += totalTries
-			fmt.Println("+", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
-		} else {
-			globalTries += totalTries
-			fmt.Println("-", expIndex, match, totalTries, point.PrettyPrint(), optim, goptim)
-		}
+	// Number of neurons in fully connected layer from 1024 to 2048
+	neurons_map := make(map[interface{}]float64)
+	for i := 1024; i <= 2048; i++ {
+		neurons_map[i] = 1.0
 	}
 
-	best, gbest, avg, std := 0.0, 0.0, 0.0, 0.0
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		avg += OptResults[expIndex].GOptim / float64(noOfExperiments)
-		if best < OptResults[expIndex].Optim {
-			best = OptResults[expIndex].Optim
-		}
-		if gbest < OptResults[expIndex].GOptim {
-			gbest = OptResults[expIndex].GOptim
-		}
+	restrictions := []generators.GenerationStrategy{conv_layers, full_layers}
+
+	for i := 1; i <= 6; i++ {
+		restrictions = append(restrictions, generators.NewDiscrete("maps_"+strconv.Itoa(i), maps_map))
 	}
-	for expIndex := 0; expIndex < noOfExperiments; expIndex++ {
-		std += (OptResults[expIndex].GOptim - avg) * (OptResults[expIndex].GOptim - avg) / float64(noOfExperiments)
-	}
-	std = math.Sqrt(std)
-
-	elapsed := time.Since(start)
-	fmt.Println(fmt.Sprintf("Results matched on %d (%f) cases", match, float64(match)/float64(noOfExperiments)))
-	avgTrials := float64(globalTries) / float64(noOfExperiments)
-	fmt.Println(fmt.Sprintf("Average number of attempts %f (%f percent faster) ", avgTrials,
-		(float64(maxAttempts)-avgTrials)/float64(maxAttempts)*100))
-	fmt.Println(fmt.Sprintf("Optimisation best and global best results are %f, %f", best, gbest))
-	fmt.Println(fmt.Sprintf("Optimisation average result and standard deviation are %f, %f", avg, std))
-	fmt.Println(fmt.Sprintf("Optimization took %s", elapsed))
-
-}
-
-// Attempts to dynamically minimize the function f
-// k := n / (2 * math.E)
-// 1st it evaluated the function in k random points and computes the minimum
-// it then continues to evaluate the function (up to a total maximum of n attempts)
-// The algorithm stops either if a value found at the second step is lower than the minimum
-// of if n attempts have been made (in which case the 1st step minimum is reported)
-// w is thw worker index
-func DMinimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, N, w int, goAllTheWay bool) (
-	index int,
-	p functions.MultidimensionalPoint,
-	min float64,
-	gmin float64,
-	optimNo int) {
-
-	k := int(math.Max(1, float64(n)/(2*math.E)))
-	return Minimize(f, vargs, generator, k, n, N, w, goAllTheWay)
-}
-
-// Attempts to minimize the function f
-// vargs are passed to the function
-// 1st it evaluated the function in k random points and computes the minimum
-// it then continues to evaluate the function (up to a total maximum of n attempts)
-// The algorithm stops either if a value found at the second step is lower than the minimum
-// of if n attempts have been made (in which case the 1st step minimum is reported)
-// gmin is the global minimum (if goAllTheWay then the algorithm continues and computes it
-// for comparison purposes)
-// w is the worker index
-func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, N, w int, goAllTheWay bool) (
-	index int,
-	p functions.MultidimensionalPoint,
-	min float64,
-	gmin float64,
-	optimNo int) {
-
-	index = -1
-	min = math.MaxFloat64
-	gmin = math.MaxFloat64
-	optimNo = 0
-
-	minReached := false
-
-	for i := 0; i < n; i++ {
-		rndPoint := generator.Next(w)
-		f_rnd, _ := f(rndPoint, vargs)
-
-		if minReached {
-			if f_rnd < gmin {
-				gmin = f_rnd
-			}
-		} else {
-			if f_rnd < min {
-				index = i
-				p = rndPoint
-				min = f_rnd
-				gmin = min
-
-				if i > k {
-					//if accept(optimNo) {
-					if acceptAll() {
-						minReached = true
-						// Increase the number of optimum points found
-						optimNo += 1
-						if !goAllTheWay {
-							break
-						}
-					} else {
-						// Increase the number of optimum points found
-						optimNo += 1
-					}
-				}
-			}
-		}
+	for i := 1; i <= 4; i++ {
+		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
 	}
 
-	if !minReached {
-		// The stop condition was not met
-		optimNo = 0
-	}
+	//7.40% due to main effect: X0
+	//11.85% due to main effect: X1
+	//0.51% due to main effect: X2
+	//0.79% due to main effect: X3
+	//1.62% due to main effect: X4
+	//0.73% due to main effect: X5
+	//2.26% due to main effect: X6
+	//1.26% due to main effect: X7
+	//26.28% due to main effect: X8
+	//0.87% due to main effect: X9
+	//3.22% due to main effect: X10
+	//1.75% due to main effect: X11
 
-	return
-}
+	// fANOVA - list them here for brevity...
+	var x8 = 26.28 * math.Log(2043.0) // neurons_1 5...2048
+	var x1 = 11.85 * math.Log(3.0)    // full_layers 1...4 !!!
+	var x0 = 7.40 * math.Log(3.0)     // conv_layers  3...6 !!!
+	var x10 = 3.22 * math.Log(2043.0) // neurons_3 5...2048
+	var x6 = 2.26 * math.Log(504)     // maps_5 8...512
+	var x11 = 1.75 * math.Log(2043.0) // neurons_4 5...2048
+	var x4 = 1.62 * math.Log(504)     // maps_3 8...512
+	var x7 = 1.26 * math.Log(504)     // maps_6 8...512
+	var x9 = 0.87 * math.Log(2043.0)  // neurons_2 5...2048
+	var x3 = 0.79 * math.Log(504)     // maps_2 5...2048
+	var x5 = 0.73 * math.Log(504)     // maps_4 5...2048
+	var x2 = 0.51 * math.Log(504)     // maps_1 5...2048
 
-func acceptAll() bool {
-	return true
-}
+	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
+	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
 
-func accept(optimNo int) bool {
-	s := rand.NewSource(time.Now().UnixNano())
-	return rand.New(s).Float64() < 0.5+(0.1*float64(optimNo))
-}
+	core.Optimize(
+		noOfExperiments,
+		restrictions,
+		probabilityToChange,
+		adjustSingleValue,
+		optimalSlicePercent,
+		maxAttempts,
+		targetstop,
+		W,
+		algorithm,
+		targetFunction,
+		silent,
+		vargs)
 
-// Dynamically Minimizes the negation of the target function
-func DMaximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, n, N, w int, goAllTheWay bool) (
-	index int,
-	p functions.MultidimensionalPoint,
-	max float64,
-	gmax float64,
-	optimNo int) {
-
-	index, p, max, gmax, optimNo = DMinimize(functions.Negate(f), vargs, generator, n, N, w, goAllTheWay)
-	return index, p, -max, -gmax, optimNo
-}
-
-// Minimizes the negation of the target function
-func Maximize(f functions.NumericalFunction, vargs map[string]interface{}, generator generators.Generator, k, n, N, w int, goAllTheWay bool) (
-	index int,
-	p functions.MultidimensionalPoint,
-	max float64,
-	gmax float64,
-	optimNo int) {
-
-	index, p, max, gmax, optimNo = Minimize(functions.Negate(f), vargs, generator, k, n, N, w, goAllTheWay)
-	return index, p, -max, -gmax, optimNo
 }

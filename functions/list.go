@@ -9,4 +9,5 @@ var Functions = map[string]NumericalFunction{
 	"LIBSVM_optim": LIBSVM_optim,
 	"Script":       Script,
 	"SparkIt":      SparkIt,
+	"K7M":          K7M,
 }

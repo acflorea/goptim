@@ -90,10 +90,21 @@ func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrate
 
 }
 
+type GeneratorState struct {
+	// points generated so far
+	GeneratedPoints []functions.MultidimensionalPoint
+	// statistics regarding the generated values
+	Statistics []functions.TwoDPointVector
+	// values for those points
+	Output []float64
+	// centroid
+	Centroid functions.MultidimensionalPoint
+}
+
 type Generator interface {
-	AllAvailable(w int) (points []functions.MultidimensionalPoint)
-	Next(w int) (point functions.MultidimensionalPoint)
+	Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState)
 	HasNext(w int) bool
+	Improvement(state GeneratorState) bool
 }
 
 // A multipoint generator structure
@@ -103,8 +114,19 @@ type randomGenerator struct {
 	// The generation strategy on each dimension
 	// GenerationStrategies are considered in the order they are defined (1st strategy applies to 1st dimension etc)
 	restrictions []GenerationStrategy
-	// How many points to generate
+	// probability to change for each dimension
+	// the probability to change for each dimension
+	probabilityToChange []float64
+	// the probability to change for each dimension - reversed
+	reverse_probabilityToChange []float64
+	// change a single value per step
+	adjustSingleValue bool
+	// optimalSlicePercent - the slice of results that are considered in the optimal range
+	optimalSlicePercent float64
+	// How many points to generate in total
 	pointsNo int
+	// Minimum number of point to generate
+	minPointsNo int
 	// The level of parallelism
 	cores int
 	// The random generation algorithm
@@ -115,14 +137,46 @@ type randomGenerator struct {
 	rs []*rand.Rand
 }
 
-func NewRandom(restrictions []GenerationStrategy, pointsNo int, cores int, algorithm Algorithm) Generator {
-	generator := randomGenerator{
-		dimensionsNo: len(restrictions),
-		restrictions: restrictions,
-		pointsNo:     pointsNo,
-		cores:        cores,
-		algorithm:    algorithm,
-		index:        make([]int, cores),
+func NewRandom(restrictions []GenerationStrategy,
+	probabilityToChange []float64,
+	adjustSingleValue bool,
+	optimalSlicePercent float64,
+	pointsNo int,
+	minPointsNo int,
+	cores int,
+	algorithm Algorithm) Generator {
+
+	if adjustSingleValue {
+		// adjust the probabilityToChange values to sum up to 1.0
+		// normalize the values so the sum gives one
+		sum := float64(0.0)
+		for _, value := range probabilityToChange {
+			sum += value
+		}
+		if sum != 1.0 {
+			factor := 1.0 / sum
+			for key, value := range probabilityToChange {
+				probabilityToChange[key] = value * factor
+			}
+		}
+	} else {
+		// make sure at least one value changes each step
+		factor := 0.0
+		for _, p := range probabilityToChange{
+			if p >= factor {
+				factor = p
+			}
+		}
+
+		for key, value := range probabilityToChange {
+			probabilityToChange[key] = value / factor
+		}
+	}
+
+	// compute the reverse probabilityToChange
+	reverse_probabilityToChange := []float64{}
+	for _, value := range probabilityToChange {
+		reverse_probabilityToChange = append(reverse_probabilityToChange, 1.0-value)
 	}
 
 	// Init generator
@@ -160,32 +214,195 @@ func NewRandom(restrictions []GenerationStrategy, pointsNo int, cores int, algor
 		}
 	}
 
+	generator := randomGenerator{
+		dimensionsNo:                len(restrictions),
+		restrictions:                restrictions,
+		probabilityToChange:         probabilityToChange,
+		reverse_probabilityToChange: reverse_probabilityToChange,
+		adjustSingleValue:           adjustSingleValue,
+		optimalSlicePercent:         optimalSlicePercent,
+		pointsNo:                    pointsNo,
+		cores:                       cores,
+		algorithm:                   algorithm,
+		minPointsNo:                 minPointsNo,
+		index:                       make([]int, cores),
+	}
+
 	generator.rs = rs
 
 	return generator
 }
 
-// Generates g.PointsNo.
+// Check if improvement was made
+func (g randomGenerator) Improvement(state GeneratorState) bool {
+	previousOutputLength := len(state.Output)
+
+	// TODO - Store this in the state
+	min, max := math.MaxFloat64, -math.MaxFloat64
+	for _, value := range state.Output {
+		if min > value {
+			min = value
+		}
+		if max < value {
+			max = value
+		}
+	}
+
+	boundary := min + (max-min)/100.0*g.optimalSlicePercent
+
+	if state.Output[previousOutputLength-1] < boundary {
+		return true
+	}
+
+	return false
+}
+
+// Generates a new point
 // Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomGenerator) AllAvailable(w int) (points []functions.MultidimensionalPoint) {
+func (g randomGenerator) Next(w int, initialState GeneratorState) (point functions.MultidimensionalPoint, state GeneratorState) {
 
-	points = make([]functions.MultidimensionalPoint, g.pointsNo)
+	values := make(map[string]interface{})
+	labels := make([]string, g.dimensionsNo)
+	currentIndex := g.index[w]
 
-	for pIdx := 0; pIdx < g.pointsNo; pIdx++ {
-		values := make(map[string]interface{})
-		labels := make([]string, g.dimensionsNo)
-		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-			lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
-			distribution := Uniform
-			var samples map[interface{}]float64
-			if len(g.restrictions) > dimIdx {
-				lowerBound = g.restrictions[dimIdx].LowerBound
-				upperBound = g.restrictions[dimIdx].UpperBound
-				lambda = g.restrictions[dimIdx].Lambda
-				distribution = g.restrictions[dimIdx].Distribution
-				samples = g.restrictions[dimIdx].Values
-				labels[dimIdx] = g.restrictions[dimIdx].Label
+	state = initialState
+	if len(state.GeneratedPoints) > 0 {
+		// we have state (either we have generated some numbers or this is the provided initial state)
+
+		//previousPoint := state.GeneratedPoints[len(state.GeneratedPoints)-1]
+
+		// check if previous point was an improvement
+		var wasAnImprovement = false
+		if currentIndex >= g.minPointsNo/g.cores {
+			wasAnImprovement = g.Improvement(state)
+		}
+
+		var probabilities = g.probabilityToChange
+		if wasAnImprovement {
+			// we reverse probabilities if the value was an improvement
+			probabilities = g.reverse_probabilityToChange
+		}
+
+		// Each value changes with this probability
+		globalProbabilityToChange := g.rs[w].Float64() - .2
+		indexToChange := -1
+
+		if g.adjustSingleValue {
+
+			// Identify which value should change
+			sum := float64(0.0)
+			for key, value := range probabilities {
+				sum += value
+				if globalProbabilityToChange <= sum {
+					indexToChange = key
+					break
+				}
 			}
+
+		} else {
+			change := false
+			for !change {
+				// check if at least one dimension changes
+				for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+					if g.probabilityToChange[dimIdx] >= globalProbabilityToChange {
+						change = true
+						break
+					}
+				}
+				// if nothing changes regenerate the probability
+				if !change {
+					globalProbabilityToChange = g.rs[w].Float64() - .2
+				}
+			}
+
+		}
+
+		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+
+			// attempt to retrieve individual probability to change
+			var probabilityToChange float64 = 0.0
+
+			// we are still in the tuning phase
+			if currentIndex < g.minPointsNo/g.cores {
+				// so we change all the values
+				probabilityToChange = 1.0
+			} else {
+
+				if g.adjustSingleValue {
+					// we are in the case where a single value changes
+					if dimIdx == indexToChange {
+						// and this is the one
+						probabilityToChange = 1.0
+					} else {
+						// and this is not the one
+						probabilityToChange = 0.0
+					}
+				} else {
+					// we are in the case where multiple values change...
+					// thy to get the probability to change for each one
+					if len(g.probabilityToChange) > dimIdx {
+						probabilityToChange = probabilities[dimIdx]
+					} else {
+						// if the probability is not explicit, consider it 1.0
+						probabilityToChange = 1.0
+					}
+				}
+			}
+
+			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
+			labels[dimIdx] = label
+
+			if probabilityToChange >= globalProbabilityToChange {
+				// change
+				if g.algorithm == Leapfrog {
+					if g.index[w] == 0 {
+						// Set the counter in place
+						for i := 0; i < w; i++ {
+							g.rs[w].Float64()
+						}
+					} else {
+						// Jump "cores" positions
+						for i := 0; i < g.cores; i++ {
+							g.rs[w].Float64()
+						}
+					}
+				}
+
+				switch distribution {
+				case Uniform:
+					_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
+				case Exponential:
+					_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
+				case Discrete:
+					raw := g.rs[w].Float64()
+					sum := 0.0
+					for key, value := range samples {
+						sum += value
+						if raw <= sum {
+							values[labels[dimIdx]] = key
+							break
+						}
+					}
+				}
+
+			} else {
+				// preserve
+				//values[labels[dimIdx]] = previousPoint.Values[labels[dimIdx]]
+				values[labels[dimIdx]] = state.Centroid.Values[labels[dimIdx]]
+			}
+
+		}
+
+		point = functions.MultidimensionalPoint{Values: values}
+
+	} else {
+
+		// 1st attempt, no state given
+
+		for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
+
+			lowerBound, upperBound, lambda, distribution, samples, label := getRestrictionsPerDimension(g, dimIdx)
+			labels[dimIdx] = label
 
 			if g.algorithm == Leapfrog {
 				if g.index[w] == 0 {
@@ -217,72 +434,34 @@ func (g randomGenerator) AllAvailable(w int) (points []functions.Multidimensiona
 					}
 				}
 			}
-		}
-		points[pIdx] = functions.MultidimensionalPoint{Values: values}
-	}
 
-	g.index[w] = g.pointsNo
-
-	return points
-}
-
-// Generates a new point
-// Each point is a collection of g.DimensionsNo uniform random values bounded to g.Restrictions
-func (g randomGenerator) Next(w int) (point functions.MultidimensionalPoint) {
-
-	values := make(map[string]interface{})
-	labels := make([]string, g.dimensionsNo)
-	for dimIdx := 0; dimIdx < g.dimensionsNo; dimIdx++ {
-		lowerBound, upperBound, lambda := -math.MaxFloat32, math.MaxFloat32, 1.0
-		distribution := Uniform
-		var samples map[interface{}]float64
-		if len(g.restrictions) > dimIdx {
-			lowerBound = g.restrictions[dimIdx].LowerBound
-			upperBound = g.restrictions[dimIdx].UpperBound
-			lambda = g.restrictions[dimIdx].Lambda
-			distribution = g.restrictions[dimIdx].Distribution
-			samples = g.restrictions[dimIdx].Values
-			labels[dimIdx] = g.restrictions[dimIdx].Label
 		}
 
-		if g.algorithm == Leapfrog {
-			if g.index[w] == 0 {
-				// Set the counter in place
-				for i := 0; i < w; i++ {
-					g.rs[w].Float64()
-				}
-			} else {
-				// Jump "cores" positions
-				for i := 0; i < g.cores; i++ {
-					g.rs[w].Float64()
-				}
-			}
-		}
-
-		switch distribution {
-		case Uniform:
-			_, values[labels[dimIdx]] = Float64(lowerBound, upperBound, g.rs[w])
-		case Exponential:
-			_, values[labels[dimIdx]] = ExpFloat64(lambda, g.rs[w])
-		case Discrete:
-			raw := g.rs[w].Float64()
-			sum := 0.0
-			for key, value := range samples {
-				sum += value
-				if raw <= sum {
-					values[labels[dimIdx]] = key
-					break
-				}
-			}
-		}
+		point = functions.MultidimensionalPoint{Values: values}
 
 	}
 
-	point = functions.MultidimensionalPoint{Values: values}
+	state.GeneratedPoints = append(state.GeneratedPoints, point)
 
 	g.index[w]++
 
 	return
+}
+
+func getRestrictionsPerDimension(g randomGenerator, dimIdx int) (float64, float64, float64, Distribution, map[interface{}]float64, string) {
+	lowerBound, upperBound, lambda := -math.MaxFloat64, math.MaxFloat64, 1.0
+	distribution := Uniform
+	var samples map[interface{}]float64
+	label := ""
+	if len(g.restrictions) > dimIdx {
+		lowerBound = g.restrictions[dimIdx].LowerBound
+		upperBound = g.restrictions[dimIdx].UpperBound
+		lambda = g.restrictions[dimIdx].Lambda
+		distribution = g.restrictions[dimIdx].Distribution
+		samples = g.restrictions[dimIdx].Values
+		label = g.restrictions[dimIdx].Label
+	}
+	return lowerBound, upperBound, lambda, distribution, samples, label
 }
 
 func (g randomGenerator) HasNext(w int) bool {
