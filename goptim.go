@@ -1,13 +1,12 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"github.com/acflorea/goptim/core"
+	"github.com/acflorea/goptim/functions"
 	"github.com/acflorea/goptim/generators"
 	"math"
-	"github.com/acflorea/goptim/functions"
-	"fmt"
-	"flag"
-	"strconv"
-	"github.com/acflorea/goptim/core"
 )
 
 // The result of one trial
@@ -21,12 +20,13 @@ type OptimizationOutput struct {
 func main() {
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
-	noOfExperimentsPtr := flag.Int("noOfExperiments", 100, "Number of experiments.")
+	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
 	fct := flag.String("fct", "F_identity", "Target function")
 	alg := flag.String("alg", "SeqSplit", "Parallel random generator strategy")
 	script := flag.String("script", "", "External script to run")
+	command := flag.String("command", "", "External program to execute")
 	workers := flag.Int("w", 8, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
@@ -40,6 +40,7 @@ func main() {
 	vargs["fct"] = *fct
 	vargs["alg"] = *alg
 	vargs["script"] = *script
+	vargs["command"] = *command
 	vargs["workers"] = *workers
 	vargs["targetstop"] = *targetstop
 
@@ -85,40 +86,43 @@ func optimize_k7m(vargs map[string]interface{}) {
 
 	// Generators
 
-	// Number of convolutional layers from 3 to 6
-	conv_layers_map := make(map[interface{}]float64)
-	for i := 3; i <= 6; i++ {
-		conv_layers_map[i] = 1.0
+	//# 1 to 55 increment of 1
+	//max_breadth = int(getValue(argumentsDict, '-w', '--max_breadth', 1))
+	max_breadth_map := make(map[interface{}]float64)
+	for i := 1; i <= 55; i++ {
+		max_breadth_map[i] = 1.0
 	}
-	conv_layers := generators.NewDiscrete("conv_layers", conv_layers_map)
+	max_breadth := generators.NewDiscrete("max_breadth", max_breadth_map)
 
-	// Number of maps in a convolutional layer from 100 to 1024
-	maps_map := make(map[interface{}]float64)
-	for i := 100; i <= 1024; i++ {
-		maps_map[i] = 1.0
+	//# 2 to 55 increment of 1
+	//max_depth = int(getValue(argumentsDict, '-d', '--max_depth', 2))
+	max_depth_map := make(map[interface{}]float64)
+	for i := 2; i <= 55; i++ {
+		max_depth_map[i] = 1.0
 	}
+	max_depth := generators.NewDiscrete("max_depth", max_depth_map)
 
-	// Number of fully connected layers from 1 to 4
-	full_layers_map := make(map[interface{}]float64)
-	for i := 1; i <= 4; i++ {
-		full_layers_map[i] = 1.0
-	}
-	full_layers := generators.NewDiscrete("full_layers", full_layers_map)
+	//# -50 to 50 increment of 0.1
+	//attr_b = float(getValue(argumentsDict, '-b', '--attr_b', -50))
+	attr_b := generators.NewUniform("attr_b", -50, 50)
 
-	// Number of neurons in fully connected layer from 1024 to 2048
-	neurons_map := make(map[interface{}]float64)
-	for i := 1024; i <= 2048; i++ {
-		neurons_map[i] = 1.0
-	}
+	//# -1 to 1 increment of 0.1
+	//attr_c = float(getValue(argumentsDict, '-c', '--attr_c', -1))
+	attr_c := generators.NewUniform("attr_c", -1, 1)
 
-	restrictions := []generators.GenerationStrategy{conv_layers, full_layers}
+	//# 0.1 to 1 increment of 0.1
+	//edge_cost = float(getValue(argumentsDict, '-e', '--edge_cost', 0.1))
+	edge_cost := generators.NewUniform("edge_cost", 0.1, 1)
 
-	for i := 1; i <= 6; i++ {
-		restrictions = append(restrictions, generators.NewDiscrete("maps_"+strconv.Itoa(i), maps_map))
+	//# 1 to 55 increment of 1
+	//movement_factor = int(getValue(argumentsDict, '-m', '--movement_factor', 1))
+	movement_factor_map := make(map[interface{}]float64)
+	for i := 1; i <= 55; i++ {
+		movement_factor_map[i] = 1.0
 	}
-	for i := 1; i <= 4; i++ {
-		restrictions = append(restrictions, generators.NewDiscrete("neurons_"+strconv.Itoa(i), neurons_map))
-	}
+	movement_factor := generators.NewDiscrete("movement_factor", movement_factor_map)
+
+	restrictions := []generators.GenerationStrategy{max_breadth, max_depth, attr_b, attr_c, edge_cost, movement_factor}
 
 	//7.40% due to main effect: X0
 	//11.85% due to main effect: X1
