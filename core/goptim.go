@@ -1,14 +1,14 @@
 package core
 
 import (
-	"github.com/acflorea/goptim/generators"
-	"math/rand"
-	"time"
-	"math"
 	"fmt"
+	"github.com/acflorea/goptim/functions"
+	"github.com/acflorea/goptim/generators"
 	"github.com/bluele/slack"
 	"log"
-	"github.com/acflorea/goptim/functions"
+	"math"
+	"math/rand"
+	"time"
 )
 
 // The result of one trial
@@ -96,7 +96,7 @@ func Optimize(noOfExperiments int,
 
 		globalTries += totalTries
 
-		if (totalTries < maxAttempts) {
+		if totalTries < maxAttempts {
 			early++
 			if optim == goptim {
 				match++
@@ -219,13 +219,13 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		slackChannel = "goptim-updates"
 	}
 	if slackEnabled {
-		err := api.ChatPostMessage(slackChannel, "Optimization Start", nil)
+		err := api.ChatPostMessage(slackChannel, fmt.Sprintf("[w=%d] Optimization Start", w), nil)
 		if err != nil {
 			log.Println("Problem connecting to Slack ", err)
 		}
 
 		defer func() {
-			err = api.ChatPostMessage(slackChannel, "Optimization Stop", nil)
+			err = api.ChatPostMessage(slackChannel, fmt.Sprintf("[w=%d] Optimization Stop", w), nil)
 			if err != nil {
 				log.Println("Problem connecting to Slack ", err)
 			}
@@ -245,7 +245,7 @@ func Minimize(f functions.NumericalFunction, vargs map[string]interface{}, gener
 		centroid := newState.Centroid
 
 		if slackEnabled {
-			err := api.ChatPostMessage(slackChannel, functions.FloatToString(f_rnd)+" :: "+rndPoint.PrettyPrint(), nil)
+			err := api.ChatPostMessage(slackChannel, fmt.Sprintf("[w=%d] %s", w, functions.FloatToString(f_rnd)+" :: "+rndPoint.PrettyPrint()), nil)
 			if err != nil {
 				log.Println("Problem connecting to Slack ", err)
 			}

@@ -6,6 +6,7 @@ import (
 	"github.com/acflorea/goptim/core"
 	"github.com/acflorea/goptim/functions"
 	"github.com/acflorea/goptim/generators"
+	"github.com/bluele/slack"
 	"math"
 )
 
@@ -18,6 +19,9 @@ type OptimizationOutput struct {
 }
 
 func main() {
+
+	slackTokenPtr := flag.String("slackToken", "", "Token to connect to Slack")
+	slackChannelPtr := flag.String("slackChannel", "k7m-updates", "Token to connect to Slack")
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
@@ -46,6 +50,16 @@ func main() {
 
 	vargs["adjustSingleValue"] = false
 	vargs["optimalSlicePercent"] = 1.0
+
+	// Deal with the Slack API
+	if *slackTokenPtr != "" {
+		api := slack.New(*slackTokenPtr)
+
+		api.JoinChannel(*slackChannelPtr)
+
+		vargs["slackAPI"] = api
+		vargs["slackChannel"] = *slackChannelPtr
+	}
 
 	optimize_k7m(vargs)
 
