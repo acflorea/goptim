@@ -1,9 +1,9 @@
 package functions
 
 import (
+	"fmt"
 	"os/exec"
 	"strconv"
-	"fmt"
 )
 
 // This is a wrapper over the K7M optimizer
@@ -18,6 +18,12 @@ func K7M(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 	if !ok {
 		panic("Missing input data! Please specify a command to execute!")
 	}
+
+	targetFolder, ok := vargs["targetFolder"].(string)
+	if !ok {
+		panic("Missing input data! Please specify a target folder!")
+	}
+
 
 	// Add Values to vargs
 	for key, value := range p.Values {
@@ -34,7 +40,7 @@ func K7M(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 	edge_cost := fmt.Sprintf("%f", vargs["edge_cost"].(float64))
 	movement_factor := strconv.Itoa(vargs["movement_factor"].(int))
 
-	params := []string{targetScript, "-w" + max_breadth, "-d" + max_depth, "-b" + attr_b, "-c" + attr_c, "-e", edge_cost, "-m", movement_factor}
+	params := []string{targetFolder, targetScript, "-w" + max_breadth, "-d" + max_depth, "-b" + attr_b, "-c" + attr_c, "-e", edge_cost, "-m", movement_factor}
 
 	cmd := exec.Command(command, params...)
 

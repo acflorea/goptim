@@ -24,6 +24,7 @@ func main() {
 	slackChannelPtr := flag.String("slackChannel", "k7m-updates", "Token to connect to Slack")
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
+	targetFolderPtr := flag.String("targetFolder", "", "The folder in which to run.")
 	noOfExperimentsPtr := flag.Int("noOfExperiments", 1, "Number of experiments.")
 	silentPtr := flag.Bool("silent", true, "Silent Mode.")
 	maxAttemptsPtr := flag.Int("maxAttempts", 300, "Maximum number of trials in an experiment")
@@ -34,10 +35,13 @@ func main() {
 	workers := flag.Int("w", 8, "Number of goroutines")
 	targetstop := flag.Int("targetstop", 0, "Target stop")
 
+	useRandomSamplePtr := flag.Bool("useRandomSample", true, "Use a single random sample instead of whole target space")
+
 	flag.Parse()
 
 	vargs := map[string]interface{}{}
 	vargs["fileName"] = *fileNamePtr
+	vargs["targetFolder"] = *targetFolderPtr
 	vargs["noOfExperiments"] = *noOfExperimentsPtr
 	vargs["silent"] = *silentPtr
 	vargs["maxAttempts"] = *maxAttemptsPtr
@@ -50,6 +54,8 @@ func main() {
 
 	vargs["adjustSingleValue"] = false
 	vargs["optimalSlicePercent"] = 1.0
+
+	vargs["useRandomSample"] = *useRandomSamplePtr
 
 	// Deal with the Slack API
 	if *slackTokenPtr != "" {
@@ -137,6 +143,13 @@ func optimize_k7m(vargs map[string]interface{}) {
 	movement_factor := generators.NewDiscrete("movement_factor", movement_factor_map)
 
 	restrictions := []generators.GenerationStrategy{max_breadth, max_depth, attr_b, attr_c, edge_cost, movement_factor}
+
+	useRandomSample := vargs["useRandomSample"].(bool)
+	if useRandomSample {
+		seed := 123456
+		vargs["seed"] = seed
+		restrictions = append(restrictions, generators.NewUniform("seed", 0, 10000000))
+	}
 
 	//7.40% due to main effect: X0
 	//11.85% due to main effect: X1
