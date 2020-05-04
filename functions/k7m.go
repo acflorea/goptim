@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 // This is a wrapper over the K7M optimizer
@@ -23,7 +24,6 @@ func K7M(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 	if !ok {
 		panic("Missing input data! Please specify a target folder!")
 	}
-
 
 	// Add Values to vargs
 	for key, value := range p.Values {
@@ -51,9 +51,10 @@ func K7M(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 	}
 
 	// target
-	target, _ := strconv.ParseFloat(string(result), 64)
+	rs := strings.Split(string(result), "\n")
+	target, _ := strconv.ParseFloat(string(rs[len(rs)-1]), 64)
 
 	fmt.Println(target)
 
-	return target, nil
+	return -target, nil
 }
