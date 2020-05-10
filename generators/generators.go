@@ -1,11 +1,11 @@
 package generators
 
 import (
-	"math/rand"
 	"github.com/acflorea/goptim/functions"
 	"math"
-	"time"
+	"math/rand"
 	"sync"
+	"time"
 )
 
 var mutex sync.Mutex
@@ -52,21 +52,21 @@ type GenerationStrategy struct {
 }
 
 // Generates values uniform distributed between a and b
-func NewUniform(label string, a, b float64) (GenerationStrategy) {
+func NewUniform(label string, a, b float64) GenerationStrategy {
 	return GenerationStrategy{
 		label, Uniform, 0.0, a, b, nil,
 	}
 }
 
 // Generates values exponentially distributed with parameter lambda
-func NewExponential(label string, lambda float64) (GenerationStrategy) {
+func NewExponential(label string, lambda float64) GenerationStrategy {
 	return GenerationStrategy{
 		label, Exponential, lambda, 0.0, 0.0, nil,
 	}
 }
 
 // Generates values exponentially distributed with parameter lambda
-func NewDiscrete(label string, values map[interface{}]float64) (GenerationStrategy) {
+func NewDiscrete(label string, values map[interface{}]float64) GenerationStrategy {
 
 	// normalize the values so the sum gives one
 	sum := 0.0
@@ -162,7 +162,7 @@ func NewRandom(restrictions []GenerationStrategy,
 	} else {
 		// make sure at least one value changes each step
 		factor := 0.0
-		for _, p := range probabilityToChange{
+		for _, p := range probabilityToChange {
 			if p >= factor {
 				factor = p
 			}
@@ -280,11 +280,11 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 		var probabilities = g.probabilityToChange
 		if wasAnImprovement {
 			// we reverse probabilities if the value was an improvement
-			probabilities = g.reverse_probabilityToChange
+			// probabilities = g.reverse_probabilityToChange
 		}
 
 		// Each value changes with this probability
-		globalProbabilityToChange := g.rs[w].Float64() - .2
+		globalProbabilityToChange := g.rs[w].Float64()
 		indexToChange := -1
 
 		if g.adjustSingleValue {
@@ -311,7 +311,7 @@ func (g randomGenerator) Next(w int, initialState GeneratorState) (point functio
 				}
 				// if nothing changes regenerate the probability
 				if !change {
-					globalProbabilityToChange = g.rs[w].Float64() - .2
+					globalProbabilityToChange = g.rs[w].Float64()
 				}
 			}
 

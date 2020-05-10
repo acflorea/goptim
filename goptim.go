@@ -7,7 +7,6 @@ import (
 	"github.com/acflorea/goptim/functions"
 	"github.com/acflorea/goptim/generators"
 	"github.com/bluele/slack"
-	"math"
 )
 
 // The result of one trial
@@ -53,7 +52,7 @@ func main() {
 	vargs["targetstop"] = *targetstop
 
 	vargs["adjustSingleValue"] = false
-	vargs["optimalSlicePercent"] = 1.0
+	vargs["optimalSlicePercent"] = 100.0
 
 	vargs["useRandomSample"] = *useRandomSamplePtr
 
@@ -151,35 +150,48 @@ func optimize_k7m(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewUniform("seed", 0, 10000000))
 	}
 
-	//7.40% due to main effect: X0
-	//11.85% due to main effect: X1
-	//0.51% due to main effect: X2
-	//0.79% due to main effect: X3
-	//1.62% due to main effect: X4
-	//0.73% due to main effect: X5
-	//2.26% due to main effect: X6
-	//1.26% due to main effect: X7
-	//26.28% due to main effect: X8
-	//0.87% due to main effect: X9
-	//3.22% due to main effect: X10
-	//1.75% due to main effect: X11
+	//Sum of fractions for main effects 54.29%
+	//	Sum of fractions for pairwise interaction effects 32.79%
+	//0.49% due to interaction: X4 x X3
+	//0.97% due to interaction: X5 x X4
+	//1.19% due to interaction: X5 x X1
+	//1.32% due to interaction: X4 x X0
+	//1.48% due to interaction: X5 x X3
+	//1.70% due to interaction: X5 x X0
+	//1.91% due to interaction: X5 x X2
+	//1.94% due to interaction: X3 x X0
+	//2.26% due to interaction: X3 x X1
+	//2.27% due to interaction: X2 x X0
+	//2.86% due to interaction: X3 x X2
+	//3.29% due to interaction: X4 x X1
+	//3.30% due to interaction: X1 x X0
+	//3.50% due to interaction: X4 x X2
+	//3.52% due to main effect: X5
+	//4.33% due to interaction: X2 x X1
+	//7.76% due to main effect: X0
+	//8.00% due to main effect: X3
+	//9.35% due to main effect: X4
+	//10.59% due to main effect: X2
+	//15.06% due to main effect: X1
 
 	// fANOVA - list them here for brevity...
-	var x8 = 26.28 * math.Log(2043.0) // neurons_1 5...2048
-	var x1 = 11.85 * math.Log(3.0)    // full_layers 1...4 !!!
-	var x0 = 7.40 * math.Log(3.0)     // conv_layers  3...6 !!!
-	var x10 = 3.22 * math.Log(2043.0) // neurons_3 5...2048
-	var x6 = 2.26 * math.Log(504)     // maps_5 8...512
-	var x11 = 1.75 * math.Log(2043.0) // neurons_4 5...2048
-	var x4 = 1.62 * math.Log(504)     // maps_3 8...512
-	var x7 = 1.26 * math.Log(504)     // maps_6 8...512
-	var x9 = 0.87 * math.Log(2043.0)  // neurons_2 5...2048
-	var x3 = 0.79 * math.Log(504)     // maps_2 5...2048
-	var x5 = 0.73 * math.Log(504)     // maps_4 5...2048
-	var x2 = 0.51 * math.Log(504)     // maps_1 5...2048
+	// attr_c
+	var x1 = 15.06
+	// edge_cost
+	var x2 = 10.59
+	// max_depth
+	var x4 = 9.35
+	// max_breadth
+	var x3 = 8.0
+	// attr_b
+	var x0 = 7.76
+	// movement_factor
+	var x5 = 3.52
 
-	// conv_layers, full_layers, maps_1, maps_2, maps_3, maps_4, maps_5, maps_6, [neurons_1], neurons_2, neurons_3, neurons_4
-	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
+	// x0, x1, x2, x3, x4, x5 = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+
+	// ...
+	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5}
 
 	core.Optimize(
 		noOfExperiments,
