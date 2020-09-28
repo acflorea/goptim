@@ -54,7 +54,7 @@ func K7M(p MultidimensionalPoint, vargs map[string]interface{}) (float64, error)
 	rs := strings.Split(string(result), "\n")
 	target, _ := strconv.ParseFloat(string(rs[len(rs)-1]), 64)
 
-	fmt.Println(target)
+	fmt.Println(fmt.Sprintf("%f for %v", target, params))
 
 	return -target, nil
 }

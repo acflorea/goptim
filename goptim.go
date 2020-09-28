@@ -106,37 +106,57 @@ func optimize_k7m(vargs map[string]interface{}) {
 	// Generators
 
 	//# 1 to 55 increment of 1
+	//# 1 to 9 increment of 1
 	//max_breadth = int(getValue(argumentsDict, '-w', '--max_breadth', 1))
 	max_breadth_map := make(map[interface{}]float64)
-	for i := 1; i <= 55; i++ {
+	for i := 1; i <= 9; i++ {
 		max_breadth_map[i] = 1.0
 	}
 	max_breadth := generators.NewDiscrete("max_breadth", max_breadth_map)
 
-	//# 2 to 55 increment of 1
+	//# 1 to 55 increment of 1
+	//# 1 to 9 increment of 1
 	//max_depth = int(getValue(argumentsDict, '-d', '--max_depth', 2))
 	max_depth_map := make(map[interface{}]float64)
-	for i := 2; i <= 55; i++ {
+	for i := 1; i <= 9; i++ {
 		max_depth_map[i] = 1.0
 	}
 	max_depth := generators.NewDiscrete("max_depth", max_depth_map)
 
-	//# -50 to 50 increment of 0.1
-	//attr_b = float(getValue(argumentsDict, '-b', '--attr_b', -50))
-	attr_b := generators.NewUniform("attr_b", -50, 50)
+	//# 0 to 500 increment of 0.1
+	//# 0 to 20 increment of 0.1
+	// attr_b := generators.NewUniform("attr_b", 0, 500)
+	attr_b_map := make(map[interface{}]float64)
+	for i := 0.0; i <= 20.0; {
+		attr_b_map[i] = 1.0
+		i = i + 0.1
+	}
+	attr_b := generators.NewDiscrete("attr_b", attr_b_map)
 
-	//# -1 to 1 increment of 0.1
-	//attr_c = float(getValue(argumentsDict, '-c', '--attr_c', -1))
-	attr_c := generators.NewUniform("attr_c", -1, 1)
+	//# 0 to 1 increment of 0.01
+	//# 0 to 1 increment of 0.01
+	// attr_c := generators.NewUniform("attr_c", -1, 1)
+	attr_c_map := make(map[interface{}]float64)
+	for i := 0.0; i <= 1.0; {
+		attr_c_map[i] = 1.0
+		i = i + 0.01
+	}
+	attr_c := generators.NewDiscrete("attr_c", attr_c_map)
 
 	//# 0.1 to 1 increment of 0.1
-	//edge_cost = float(getValue(argumentsDict, '-e', '--edge_cost', 0.1))
-	edge_cost := generators.NewUniform("edge_cost", 0.1, 1)
+	//# 0.2 to 1 increment of 0.1
+	// edge_cost := generators.NewUniform("edge_cost", 0.1, 1)
+	edge_cost_map := make(map[interface{}]float64)
+	for i := 0.2; i <= 1.0; {
+		edge_cost_map[i] = 1.0
+		i = i + 0.1
+	}
+	edge_cost := generators.NewDiscrete("edge_cost", edge_cost_map)
 
 	//# 1 to 55 increment of 1
-	//movement_factor = int(getValue(argumentsDict, '-m', '--movement_factor', 1))
+	//# 2 to 10 increment of 1
 	movement_factor_map := make(map[interface{}]float64)
-	for i := 1; i <= 55; i++ {
+	for i := 2; i <= 10; i++ {
 		movement_factor_map[i] = 1.0
 	}
 	movement_factor := generators.NewDiscrete("movement_factor", movement_factor_map)
