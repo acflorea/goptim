@@ -20,7 +20,7 @@ type OptimizationOutput struct {
 func main() {
 
 	slackTokenPtr := flag.String("slackToken", "", "Token to connect to Slack")
-	slackChannelPtr := flag.String("slackChannel", "k7m-updates", "Token to connect to Slack")
+	slackChannelPtr := flag.String("slackChannel", "hpc39-updates", "Token to connect to Slack")
 
 	fileNamePtr := flag.String("fileName", "", "Name of the input file.")
 	targetFolderPtr := flag.String("targetFolder", "", "The folder in which to run.")
@@ -162,48 +162,66 @@ func optimize_hpc39(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewUniform("seed", 0, 10000000))
 	}
 
-	//Sum of fractions for main effects 54.29%
-	//	Sum of fractions for pairwise interaction effects 32.79%
-	//0.49% due to interaction: X4 x X3
-	//0.97% due to interaction: X5 x X4
-	//1.19% due to interaction: X5 x X1
-	//1.32% due to interaction: X4 x X0
-	//1.48% due to interaction: X5 x X3
-	//1.70% due to interaction: X5 x X0
-	//1.91% due to interaction: X5 x X2
-	//1.94% due to interaction: X3 x X0
-	//2.26% due to interaction: X3 x X1
-	//2.27% due to interaction: X2 x X0
-	//2.86% due to interaction: X3 x X2
-	//3.29% due to interaction: X4 x X1
-	//3.30% due to interaction: X1 x X0
-	//3.50% due to interaction: X4 x X2
-	//3.52% due to main effect: X5
-	//4.33% due to interaction: X2 x X1
-	//7.76% due to main effect: X0
-	//8.00% due to main effect: X3
-	//9.35% due to main effect: X4
-	//10.59% due to main effect: X2
-	//15.06% due to main effect: X1
+	//Sum of fractions for main effects 53.39%
+	//	Sum of fractions for pairwise interaction effects 34.69%
+	//-1.96% due to interaction: X2 x X0
+	//-0.77% due to interaction: X4 x X2
+	//-0.37% due to interaction: X6 x X2
+	//-0.05% due to interaction: X5 x X2
+	//0.02% due to interaction: X2 x X1
+	//0.04% due to interaction: X3 x X2
+	//0.53% due to interaction: X3 x X1
+	//0.75% due to interaction: X6 x X4
+	//0.80% due to main effect: X2
+	//0.84% due to interaction: X6 x X3
+	//1.03% due to interaction: X6 x X1
+	//1.11% due to interaction: X3 x X0
+	//1.12% due to interaction: X6 x X0
+	//1.13% due to interaction: X5 x X1
+	//1.36% due to interaction: X6 x X5
+	//1.56% due to main effect: X6
+	//2.22% due to interaction: X4 x X1
+	//2.76% due to interaction: X5 x X3
+	//3.70% due to interaction: X5 x X4
+	//4.33% due to main effect: X1
+	//4.50% due to interaction: X4 x X3
+	//4.52% due to interaction: X1 x X0
+	//5.01% due to main effect: X3
+	//5.42% due to interaction: X4 x X0
+	//6.77% due to interaction: X5 x X0
+	//11.54% due to main effect: X4
+	//12.54% due to main effect: X5
+	//17.63% due to main effect: X0
+
+	//learning_rate_exp, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2
+	//17.63% due to main effect: X0 - learning_rate_exp
+	//12.54% due to main effect: X5 - dropout1
+	//11.54% due to main effect: X4 - fc_neurons
+	//5.01% due to main effect: X3 - cnn_neurons
+	//4.33% due to main effect: X1 - batch_size
+	//1.56% due to main effect: X6 - dropout2
+	//0.80% due to main effect: X2 - x_layers
 
 	// fANOVA - list them here for brevity...
-	// attr_c
-	var x1 = 15.06
-	// edge_cost
-	var x2 = 10.59
-	// max_depth
-	var x4 = 9.35
-	// max_breadth
-	var x3 = 8.0
-	// attr_b
-	var x0 = 7.76
-	// movement_factor
-	var x5 = 3.52
+	// learning_rate_exp
+	var x0 = 17.63
+	// dropout1
+	var x5 = 12.54
+	// fc_neurons
+	var x4 = 11.54
+	// cnn_neurons
+	var x3 = 5.01
+	// batch_size
+	var x1 = 4.33
+	// dropout2
+	var x6 = 1.56
+	// x_layers
+	var x2 = 0.8
 
 	// x0, x1, x2, x3, x4, x5 = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 
 	// ...
-	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5}
+	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6}
 
 	core.Optimize(
 		noOfExperiments,
