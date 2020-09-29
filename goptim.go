@@ -66,11 +66,11 @@ func main() {
 		vargs["slackChannel"] = *slackChannelPtr
 	}
 
-	optimize_k7m(vargs)
+	optimize_hpc39(vargs)
 
 }
 
-func optimize_k7m(vargs map[string]interface{}) {
+func optimize_hpc39(vargs map[string]interface{}) {
 
 	fmt.Println("Optimization start!")
 	fmt.Println(vargs)
@@ -105,63 +105,55 @@ func optimize_k7m(vargs map[string]interface{}) {
 
 	// Generators
 
-	//# 1 to 55 increment of 1
-	//# 1 to 9 increment of 1
-	//max_breadth = int(getValue(argumentsDict, '-w', '--max_breadth', 1))
-	max_breadth_map := make(map[interface{}]float64)
-	for i := 1; i <= 9; i++ {
-		max_breadth_map[i] = 1.0
-	}
-	max_breadth := generators.NewDiscrete("max_breadth", max_breadth_map)
+	//learning_rate [float] : 10^-2.2218 to 10^-2.045 python code: 10**np.random.uniform(-2.2218,-2.045)
+	learning_rate_exp := generators.NewUniform("learning_rate_exp", -2.2218, -2.045)
 
-	//# 1 to 55 increment of 1
-	//# 1 to 9 increment of 1
-	//max_depth = int(getValue(argumentsDict, '-d', '--max_depth', 2))
-	max_depth_map := make(map[interface{}]float64)
-	for i := 1; i <= 9; i++ {
-		max_depth_map[i] = 1.0
-	}
-	max_depth := generators.NewDiscrete("max_depth", max_depth_map)
+	//batchsize [int]: [32, 64, 128]
+	batch_size_map := make(map[interface{}]float64)
+	batch_size_map[32] = 1.0
+	batch_size_map[64] = 1.0
+	batch_size_map[128] = 1.0
+	batch_size := generators.NewDiscrete("batch_size", batch_size_map)
 
-	//# 0 to 500 increment of 0.1
-	//# 0 to 20 increment of 0.1
-	// attr_b := generators.NewUniform("attr_b", 0, 500)
-	attr_b_map := make(map[interface{}]float64)
-	for i := 0.0; i <= 20.0; {
-		attr_b_map[i] = 1.0
+	//x3layers [int] : [0, 1]
+	x_layers_map := make(map[interface{}]float64)
+	x_layers_map[0] = 1.0
+	x_layers_map[1] = 1.0
+	x_layers := generators.NewDiscrete("x_layers", x_layers_map)
+
+	//cnneurons [int]: 16 to 32 step = 4
+	cnn_neurons_map := make(map[interface{}]float64)
+	for i := 16; i <= 32; {
+		cnn_neurons_map[i] = 1.0
+		i = i + 4
+	}
+	cnn_neurons := generators.NewDiscrete("cnn_neurons", cnn_neurons_map)
+
+	//fcneurons [int]: 256 to 2048 step = 24
+	fc_neurons_map := make(map[interface{}]float64)
+	for i := 256; i <= 2048; {
+		fc_neurons_map[i] = 1.0
+		i = i + 24
+	}
+	fc_neurons := generators.NewDiscrete("fc_neurons", fc_neurons_map)
+
+	//dropout1 [float]: 0 to 0.5 step = 0.1
+	dropout1_map := make(map[interface{}]float64)
+	for i := 0.0; i <= 0.5; {
+		dropout1_map[i] = 1.0
 		i = i + 0.1
 	}
-	attr_b := generators.NewDiscrete("attr_b", attr_b_map)
+	dropout1 := generators.NewDiscrete("dropout1", dropout1_map)
 
-	//# 0 to 1 increment of 0.01
-	//# 0 to 1 increment of 0.01
-	// attr_c := generators.NewUniform("attr_c", -1, 1)
-	attr_c_map := make(map[interface{}]float64)
-	for i := 0.0; i <= 1.0; {
-		attr_c_map[i] = 1.0
-		i = i + 0.01
-	}
-	attr_c := generators.NewDiscrete("attr_c", attr_c_map)
-
-	//# 0.1 to 1 increment of 0.1
-	//# 0.2 to 1 increment of 0.1
-	// edge_cost := generators.NewUniform("edge_cost", 0.1, 1)
-	edge_cost_map := make(map[interface{}]float64)
-	for i := 0.2; i <= 1.0; {
-		edge_cost_map[i] = 1.0
+	//dropout1 [float]: 0 to 0.5 step = 0.1
+	dropout2_map := make(map[interface{}]float64)
+	for i := 0.0; i <= 0.5; {
+		dropout2_map[i] = 1.0
 		i = i + 0.1
 	}
-	edge_cost := generators.NewDiscrete("edge_cost", edge_cost_map)
+	dropout2 := generators.NewDiscrete("dropout2", dropout2_map)
 
-	//# 1 to 55 increment of 1
-	//# 2 to 10 increment of 1
-	movement_factor_map := make(map[interface{}]float64)
-	for i := 2; i <= 10; i++ {
-		movement_factor_map[i] = 1.0
-	}
-	movement_factor := generators.NewDiscrete("movement_factor", movement_factor_map)
-
-	restrictions := []generators.GenerationStrategy{max_breadth, max_depth, attr_b, attr_c, edge_cost, movement_factor}
+	restrictions := []generators.GenerationStrategy{learning_rate_exp, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
 
 	useRandomSample := vargs["useRandomSample"].(bool)
 	if useRandomSample {

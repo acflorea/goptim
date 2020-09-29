@@ -10,4 +10,5 @@ var Functions = map[string]NumericalFunction{
 	"Script":       Script,
 	"SparkIt":      SparkIt,
 	"K7M":          K7M,
+	"HPC39":        HPC39,
 }
