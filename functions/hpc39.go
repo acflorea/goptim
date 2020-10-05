@@ -49,6 +49,7 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	result, err := cmd.Output()
 
 	if err != nil {
+		fmt.Print("ERR :: ")
 		fmt.Println(err)
 	}
 
