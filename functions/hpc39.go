@@ -21,10 +21,10 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 		panic("Missing input data! Please specify a command to execute!")
 	}
 
-	targetFolder, ok := vargs["targetFolder"].(string)
-	if !ok {
-		panic("Missing input data! Please specify a target folder!")
-	}
+	//targetFolder, ok := vargs["targetFolder"].(string)
+	//if !ok {
+	//	panic("Missing input data! Please specify a target folder!")
+	//}
 
 	// Add Values to vargs
 	for key, value := range p.Values {
@@ -42,7 +42,7 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	dropout1 := fmt.Sprintf("%f", vargs["dropout1"].(float64))
 	dropout2 := fmt.Sprintf("%f", vargs["dropout2"].(float64))
 
-	params := []string{targetFolder, targetScript, learning_rate, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
+	params := []string{targetScript, learning_rate, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
 
 	cmd := exec.Command(command, params...)
 
