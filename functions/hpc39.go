@@ -61,5 +61,5 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 
 	fmt.Println(fmt.Sprintf("%f for %v", target, params))
 
-	return -target, nil
+	return target, nil
 }
