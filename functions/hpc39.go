@@ -2,6 +2,7 @@ package functions
 
 import (
 	"fmt"
+	"math"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -32,7 +33,8 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 
 	//learning_rate_exp, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2
 
-	learning_rate_exp := fmt.Sprintf("%f", vargs["learning_rate_exp"].(float64))
+	learning_rate_exp := vargs["learning_rate_exp"].(float64)
+	learning_rate := fmt.Sprintf("%f", math.Pow(10, learning_rate_exp))
 	batch_size := strconv.Itoa(vargs["batch_size"].(int))
 	x_layers := strconv.Itoa(vargs["x_layers"].(int))
 	cnn_neurons := strconv.Itoa(vargs["cnn_neurons"].(int))
@@ -40,7 +42,7 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	dropout1 := fmt.Sprintf("%f", vargs["dropout1"].(float64))
 	dropout2 := fmt.Sprintf("%f", vargs["dropout2"].(float64))
 
-	params := []string{targetFolder, targetScript, learning_rate_exp, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
+	params := []string{targetFolder, targetScript, learning_rate, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
 
 	cmd := exec.Command(command, params...)
 
