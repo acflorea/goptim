@@ -106,13 +106,16 @@ func optimize_hpc39(vargs map[string]interface{}) {
 	// Generators
 
 	//learning_rate [float] : 10^-2.2218 to 10^-2.045 python code: 10**np.random.uniform(-2.2218,-2.045)
-	learning_rate_exp := generators.NewUniform("learning_rate_exp", -2.2218, -2.045)
+	//learning_rate [float] : 10^-4 to 10^-1.886 python code: 10**np.random.uniform(-4,-1.886)
+	learning_rate_exp := generators.NewUniform("learning_rate_exp", -4, -1.886)
 
 	//batchsize [int]: [32, 64, 128]
+	//batchsize [int]: [32, 64, 128], 256
 	batch_size_map := make(map[interface{}]float64)
 	batch_size_map[32] = 1.0
 	batch_size_map[64] = 1.0
 	batch_size_map[128] = 1.0
+	batch_size_map[256] = 1.0
 	batch_size := generators.NewDiscrete("batch_size", batch_size_map)
 
 	//x3layers [int] : [0, 1]
@@ -122,8 +125,9 @@ func optimize_hpc39(vargs map[string]interface{}) {
 	x_layers := generators.NewDiscrete("x_layers", x_layers_map)
 
 	//cnneurons [int]: 16 to 32 step = 4
+	//cnneurons [int]: 16 to 64 step = 4
 	cnn_neurons_map := make(map[interface{}]float64)
-	for i := 16; i <= 32; {
+	for i := 16; i <= 64; {
 		cnn_neurons_map[i] = 1.0
 		i = i + 4
 	}
@@ -138,18 +142,20 @@ func optimize_hpc39(vargs map[string]interface{}) {
 	fc_neurons := generators.NewDiscrete("fc_neurons", fc_neurons_map)
 
 	//dropout1 [float]: 0 to 0.5 step = 0.1
+	//dropout1 [float]: 0 to 0.5 step = 0.05
 	dropout1_map := make(map[interface{}]float64)
 	for i := 0.0; i <= 0.5; {
 		dropout1_map[i] = 1.0
-		i = i + 0.1
+		i = i + 0.05
 	}
 	dropout1 := generators.NewDiscrete("dropout1", dropout1_map)
 
-	//dropout1 [float]: 0 to 0.5 step = 0.1
+	//dropout2 [float]: 0 to 0.5 step = 0.1
+	//dropout2 [float]: 0 to 0.5 step = 0.05
 	dropout2_map := make(map[interface{}]float64)
 	for i := 0.0; i <= 0.5; {
 		dropout2_map[i] = 1.0
-		i = i + 0.1
+		i = i + 0.05
 	}
 	dropout2 := generators.NewDiscrete("dropout2", dropout2_map)
 
