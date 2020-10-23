@@ -37,12 +37,17 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 	learning_rate := fmt.Sprintf("%f", math.Pow(10, learning_rate_exp))
 	batch_size := strconv.Itoa(vargs["batch_size"].(int))
 	x_layers := strconv.Itoa(vargs["x_layers"].(int))
-	cnn_neurons := strconv.Itoa(vargs["cnn_neurons"].(int))
+	cnn_neurons1 := strconv.Itoa(vargs["cnn_neurons1"].(int))
+	cnn_neurons2 := strconv.Itoa(vargs["cnn_neurons2"].(int))
+	cnn_neurons3 := strconv.Itoa(vargs["cnn_neurons3"].(int))
 	fc_neurons := strconv.Itoa(vargs["fc_neurons"].(int))
 	dropout1 := fmt.Sprintf("%f", vargs["dropout1"].(float64))
 	dropout2 := fmt.Sprintf("%f", vargs["dropout2"].(float64))
+	dropout3 := fmt.Sprintf("%f", vargs["dropout3"].(float64))
+	dropout4 := fmt.Sprintf("%f", vargs["dropout4"].(float64))
 
-	params := []string{targetScript, learning_rate, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2}
+	params := []string{targetScript, learning_rate, batch_size, x_layers, cnn_neurons1, cnn_neurons2, cnn_neurons3,
+		fc_neurons, dropout1, dropout2, dropout3, dropout4}
 
 	cmd := exec.Command(command, params...)
 
