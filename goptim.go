@@ -201,68 +201,119 @@ func optimize_hpc39(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewUniform("seed", 0, 10000000))
 	}
 
-	//Sum of fractions for main effects 53.39%
-	//	Sum of fractions for pairwise interaction effects 34.69%
-	//-1.96% due to interaction: X2 x X0
-	//-0.77% due to interaction: X4 x X2
-	//-0.37% due to interaction: X6 x X2
-	//-0.05% due to interaction: X5 x X2
-	//0.02% due to interaction: X2 x X1
-	//0.04% due to interaction: X3 x X2
-	//0.53% due to interaction: X3 x X1
-	//0.75% due to interaction: X6 x X4
-	//0.80% due to main effect: X2
-	//0.84% due to interaction: X6 x X3
-	//1.03% due to interaction: X6 x X1
-	//1.11% due to interaction: X3 x X0
-	//1.12% due to interaction: X6 x X0
-	//1.13% due to interaction: X5 x X1
-	//1.36% due to interaction: X6 x X5
-	//1.56% due to main effect: X6
-	//2.22% due to interaction: X4 x X1
-	//2.76% due to interaction: X5 x X3
-	//3.70% due to interaction: X5 x X4
-	//4.33% due to main effect: X1
-	//4.50% due to interaction: X4 x X3
-	//4.52% due to interaction: X1 x X0
-	//5.01% due to main effect: X3
-	//5.42% due to interaction: X4 x X0
-	//6.77% due to interaction: X5 x X0
-	//11.54% due to main effect: X4
-	//12.54% due to main effect: X5
-	//17.63% due to main effect: X0
+	//Sum of fractions for main effects 64.05%
+	//Sum of fractions for pairwise interaction effects -6.52%
+	//-5.59% due to interaction: X9 x X0
+	//-5.00% due to interaction: X9 x X10
+	//-2.27% due to interaction: X2 x X10
+	//-1.75% due to interaction: X5 x X10
+	//-1.55% due to interaction: X9 x X2
+	//-1.48% due to interaction: X4 x X10
+	//-1.45% due to interaction: X3 x X10
+	//-1.43% due to interaction: X8 x X0
+	//-1.30% due to interaction: X5 x X1
+	//-1.15% due to interaction: X5 x X0
+	//-1.04% due to interaction: X9 x X7
+	//-0.89% due to interaction: X4 x X1
+	//-0.79% due to interaction: X3 x X1
+	//-0.43% due to interaction: X7 x X10
+	//-0.34% due to interaction: X5 x X4
+	//-0.29% due to interaction: X8 x X2
+	//-0.28% due to interaction: X7 x X2
+	//-0.18% due to interaction: X8 x X10
+	//-0.08% due to interaction: X8 x X4
+	//-0.07% due to interaction: X2 x X0
+	//-0.05% due to interaction: X10 x X0
+	//-0.03% due to interaction: X1 x X0
+	//-0.02% due to interaction: X8 x X7
+	//-0.02% due to interaction: X10 x X1
+	//-0.01% due to interaction: X6 x X10
+	//-0.01% due to interaction: X7 x X0
+	//0.02% due to interaction: X8 x X6
+	//0.02% due to interaction: X3 x X2
+	//0.02% due to interaction: X4 x X0
+	//0.03% due to interaction: X3 x X0
+	//0.03% due to interaction: X8 x X1
+	//0.03% due to interaction: X2 x X1
+	//0.04% due to interaction: X7 x X1
+	//0.05% due to interaction: X6 x X3
+	//0.08% due to interaction: X8 x X3
+	//0.08% due to interaction: X5 x X3
+	//0.10% due to interaction: X8 x X5
+	//0.11% due to interaction: X7 x X3
+	//0.11% due to main effect: X10
+	//0.17% due to interaction: X6 x X0
+	//0.18% due to interaction: X7 x X4
+	//0.20% due to interaction: X6 x X2
+	//0.24% due to interaction: X5 x X2
+	//0.31% due to interaction: X6 x X1
+	//0.34% due to interaction: X7 x X5
+	//0.38% due to interaction: X7 x X6
+	//0.40% due to main effect: X0
+	//0.62% due to interaction: X6 x X4
+	//0.74% due to main effect: X1
+	//0.82% due to interaction: X9 x X1
+	//0.84% due to interaction: X6 x X5
+	//1.03% due to main effect: X6
+	//1.08% due to main effect: X7
+	//1.16% due to interaction: X4 x X2
+	//2.08% due to interaction: X9 x X6
+	//2.11% due to interaction: X9 x X3
+	//2.39% due to interaction: X9 x X8
+	//2.55% due to interaction: X4 x X3
+	//2.69% due to main effect: X8
+	//2.76% due to interaction: X9 x X4
+	//3.11% due to main effect: X4
+	//3.21% due to interaction: X9 x X5
+	//4.08% due to main effect: X2
+	//6.80% due to main effect: X3
+	//6.83% due to main effect: X5
+	//37.19% due to main effect: X9
 
-	//learning_rate_exp, batch_size, x_layers, cnn_neurons, fc_neurons, dropout1, dropout2
-	//17.63% due to main effect: X0 - learning_rate_exp
-	//12.54% due to main effect: X5 - dropout1
-	//11.54% due to main effect: X4 - fc_neurons
-	//5.01% due to main effect: X3 - cnn_neurons
-	//4.33% due to main effect: X1 - batch_size
-	//1.56% due to main effect: X6 - dropout2
-	//0.80% due to main effect: X2 - x_layers
+	//X0-batch_size,X1-cnn_neurons1,X2-cnn_neurons2,X3-cnn_neurons3,
+	//X4-dropout1,X5-dropout2,X6-dropout3,X7-dropout4,
+	//X8-fc_neurons,X9-learning_rate_exp,X10-x_layers
+
+	//37.19% due to main effect: X9 learning_rate_exp
+	//6.83% due to main effect: X5 dropout2
+	//6.80% due to main effect: X3 cnn_neurons3
+	//4.08% due to main effect: X2 cnn_neurons2
+	//3.11% due to main effect: X4 dropout1
+	//2.69% due to main effect: X8 fc_neurons
+	//1.08% due to main effect: X7 dropout4
+	//1.03% due to main effect: X6 dropout3
+	//0.74% due to main effect: X1 cnn_neurons1
+	//0.40% due to main effect: X0 batch_size
+	//0.11% due to main effect: X10 x_layers
 
 	// fANOVA - list them here for brevity...
-	// learning_rate_exp
-	var x0 = 17.63
-	// dropout1
-	var x5 = 12.54
-	// fc_neurons
-	var x4 = 11.54
-	// cnn_neurons
-	var x3 = 5.01
-	// batch_size
-	var x1 = 4.33
-	// dropout2
-	var x6 = 1.56
-	// x_layers
-	var x2 = 0.8
+	//37.19% due to main effect: X9 learning_rate_exp
+	x9 := 37.19
+	//6.83% due to main effect: X5 dropout2
+	x5 := 6.83
+	//6.80% due to main effect: X3 cnn_neurons3
+	x3 := 6.80
+	//4.08% due to main effect: X2 cnn_neurons2
+	x2 := 4.08
+	//3.11% due to main effect: X4 dropout1
+	x4 := 3.11
+	//2.69% due to main effect: X8 fc_neurons
+	x8 := 2.69
+	//1.08% due to main effect: X7 dropout4
+	x7 := 1.08
+	//1.03% due to main effect: X6 dropout3
+	x6 := 1.03
+	//0.74% due to main effect: X1 cnn_neurons1
+	x1 := 0.74
+	//0.40% due to main effect: X0 batch_size
+	x0 := 0.40
+	//0.11% due to main effect: X10 x_layers
+	x10 := 0.11
 
-	var x7, x8, x9, x10, x11 float64
-
-	x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11 = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
+	//x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 
 	// ...
-	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11}
+	var probabilityToChange = []float64{x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10}
 
 	core.Optimize(
 		noOfExperiments,
