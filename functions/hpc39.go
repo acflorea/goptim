@@ -62,7 +62,7 @@ func HPC39(p MultidimensionalPoint, vargs map[string]interface{}) (float64, erro
 
 	// target
 	rs := strings.Split(string(result), "\n")
-	target, _ := strconv.ParseFloat(string(rs[len(rs)-2])[25:], 64)
+	target, _ := strconv.ParseFloat(string(rs[len(rs)-2])[10:], 64)
 
 	fmt.Println(fmt.Sprintf("%f for %v", target, params))
 

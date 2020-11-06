@@ -201,114 +201,126 @@ func optimize_hpc39(vargs map[string]interface{}) {
 		restrictions = append(restrictions, generators.NewUniform("seed", 0, 10000000))
 	}
 
-	//Sum of fractions for main effects 64.05%
-	//Sum of fractions for pairwise interaction effects -6.52%
-	//-5.59% due to interaction: X9 x X0
-	//-5.00% due to interaction: X9 x X10
-	//-2.27% due to interaction: X2 x X10
-	//-1.75% due to interaction: X5 x X10
-	//-1.55% due to interaction: X9 x X2
-	//-1.48% due to interaction: X4 x X10
-	//-1.45% due to interaction: X3 x X10
-	//-1.43% due to interaction: X8 x X0
-	//-1.30% due to interaction: X5 x X1
-	//-1.15% due to interaction: X5 x X0
-	//-1.04% due to interaction: X9 x X7
-	//-0.89% due to interaction: X4 x X1
-	//-0.79% due to interaction: X3 x X1
-	//-0.43% due to interaction: X7 x X10
-	//-0.34% due to interaction: X5 x X4
-	//-0.29% due to interaction: X8 x X2
-	//-0.28% due to interaction: X7 x X2
-	//-0.18% due to interaction: X8 x X10
-	//-0.08% due to interaction: X8 x X4
-	//-0.07% due to interaction: X2 x X0
-	//-0.05% due to interaction: X10 x X0
-	//-0.03% due to interaction: X1 x X0
-	//-0.02% due to interaction: X8 x X7
-	//-0.02% due to interaction: X10 x X1
-	//-0.01% due to interaction: X6 x X10
-	//-0.01% due to interaction: X7 x X0
-	//0.02% due to interaction: X8 x X6
-	//0.02% due to interaction: X3 x X2
-	//0.02% due to interaction: X4 x X0
-	//0.03% due to interaction: X3 x X0
-	//0.03% due to interaction: X8 x X1
-	//0.03% due to interaction: X2 x X1
-	//0.04% due to interaction: X7 x X1
-	//0.05% due to interaction: X6 x X3
-	//0.08% due to interaction: X8 x X3
-	//0.08% due to interaction: X5 x X3
-	//0.10% due to interaction: X8 x X5
-	//0.11% due to interaction: X7 x X3
-	//0.11% due to main effect: X10
-	//0.17% due to interaction: X6 x X0
-	//0.18% due to interaction: X7 x X4
-	//0.20% due to interaction: X6 x X2
-	//0.24% due to interaction: X5 x X2
-	//0.31% due to interaction: X6 x X1
-	//0.34% due to interaction: X7 x X5
-	//0.38% due to interaction: X7 x X6
-	//0.40% due to main effect: X0
-	//0.62% due to interaction: X6 x X4
-	//0.74% due to main effect: X1
-	//0.82% due to interaction: X9 x X1
-	//0.84% due to interaction: X6 x X5
-	//1.03% due to main effect: X6
-	//1.08% due to main effect: X7
-	//1.16% due to interaction: X4 x X2
-	//2.08% due to interaction: X9 x X6
-	//2.11% due to interaction: X9 x X3
-	//2.39% due to interaction: X9 x X8
-	//2.55% due to interaction: X4 x X3
-	//2.69% due to main effect: X8
-	//2.76% due to interaction: X9 x X4
-	//3.11% due to main effect: X4
-	//3.21% due to interaction: X9 x X5
-	//4.08% due to main effect: X2
-	//6.80% due to main effect: X3
-	//6.83% due to main effect: X5
-	//37.19% due to main effect: X9
+	//Sum of fractions for main effects 51.13%
+	//Sum of fractions for pairwise interaction effects 17.78%
+	//-4.46% due to interaction: X5 x X10
+	//-3.40% due to interaction: X9 x X10
+	//-2.85% due to interaction: X4 x X10
+	//-2.42% due to interaction: X5 x X0
+	//-2.22% due to interaction: X8 x X10
+	//-0.83% due to interaction: X4 x X0
+	//-0.59% due to interaction: X10 x X1
+	//-0.57% due to interaction: X2 x X10
+	//-0.48% due to interaction: X7 x X10
+	//-0.48% due to interaction: X3 x X10
+	//-0.47% due to interaction: X6 x X10
+	//-0.40% due to interaction: X10 x X0
+	//-0.13% due to interaction: X3 x X0
+	//-0.11% due to interaction: X2 x X0
+	//-0.10% due to interaction: X8 x X0
+	//-0.03% due to interaction: X6 x X0
+	//0.04% due to main effect: X10
+	//0.04% due to interaction: X1 x X0
+	//0.08% due to interaction: X7 x X0
+	//0.09% due to interaction: X6 x X2
+	//0.12% due to interaction: X7 x X6
+	//0.17% due to interaction: X2 x X1
+	//0.19% due to interaction: X4 x X2
+	//0.20% due to interaction: X7 x X4
+	//0.23% due to interaction: X6 x X1
+	//0.25% due to interaction: X8 x X6
+	//0.29% due to interaction: X9 x X1
+	//0.33% due to interaction: X9 x X0
+	//0.36% due to interaction: X7 x X3
+	//0.39% due to interaction: X9 x X2
+	//0.49% due to interaction: X7 x X1
+	//0.52% due to interaction: X8 x X4
+	//0.53% due to interaction: X6 x X4
+	//0.55% due to interaction: X4 x X3
+	//0.56% due to interaction: X3 x X2
+	//0.62% due to interaction: X9 x X7
+	//0.65% due to interaction: X7 x X5
+	//0.69% due to main effect: X0
+	//0.75% due to interaction: X3 x X1
+	//0.83% due to interaction: X7 x X2
+	//0.86% due to interaction: X4 x X1
+	//0.92% due to interaction: X6 x X3
+	//0.98% due to interaction: X8 x X3
+	//0.99% due to interaction: X9 x X6
+	//1.00% due to interaction: X8 x X5
+	//1.03% due to interaction: X9 x X4
+	//1.08% due to interaction: X8 x X1
+	//1.28% due to interaction: X6 x X5
+	//1.31% due to interaction: X5 x X2
+	//1.53% due to interaction: X5 x X1
+	//1.55% due to interaction: X5 x X4
+	//1.67% due to interaction: X9 x X3
+	//2.30% due to main effect: X3
+	//2.44% due to interaction: X8 x X2
+	//2.59% due to main effect: X2
+	//2.72% due to interaction: X9 x X8
+	//2.72% due to main effect: X6
+	//2.89% due to interaction: X5 x X3
+	//3.37% due to interaction: X8 x X7
+	//3.45% due to interaction: X9 x X5
+	//3.77% due to main effect: X7
+	//4.13% due to main effect: X1
+	//6.12% due to main effect: X8
+	//6.59% due to main effect: X9
+	//8.32% due to main effect: X4
+	//13.85% due to main effect: X5
+
+	//0.04% due to main effect: X10
+	//0.69% due to main effect: X0
+	//2.30% due to main effect: X3
+	//2.59% due to main effect: X2
+	//2.72% due to main effect: X6
+	//3.77% due to main effect: X7
+	//4.13% due to main effect: X1
+	//6.12% due to main effect: X8
+	//6.59% due to main effect: X9
+	//8.32% due to main effect: X4
+	//13.85% due to main effect: X5
 
 	//X0-batch_size,X1-cnn_neurons1,X2-cnn_neurons2,X3-cnn_neurons3,
 	//X4-dropout1,X5-dropout2,X6-dropout3,X7-dropout4,
 	//X8-fc_neurons,X9-learning_rate_exp,X10-x_layers
 
-	//37.19% due to main effect: X9 learning_rate_exp
-	//6.83% due to main effect: X5 dropout2
-	//6.80% due to main effect: X3 cnn_neurons3
-	//4.08% due to main effect: X2 cnn_neurons2
-	//3.11% due to main effect: X4 dropout1
-	//2.69% due to main effect: X8 fc_neurons
-	//1.08% due to main effect: X7 dropout4
-	//1.03% due to main effect: X6 dropout3
-	//0.74% due to main effect: X1 cnn_neurons1
-	//0.40% due to main effect: X0 batch_size
-	//0.11% due to main effect: X10 x_layers
+	//13.85% due to main effect: X5 dropout2
+	//8.32% due to main effect: X4 dropout1
+	//6.59% due to main effect: X9 learning_rate_exp
+	//6.12% due to main effect: X8 fc_neurons
+	//4.13% due to main effect: X1 cnn_neurons1
+	//3.77% due to main effect: X7 dropout4
+	//2.72% due to main effect: X6 dropout3
+	//2.59% due to main effect: X2 cnn_neurons2
+	//2.30% due to main effect: X3 cnn_neurons3
+	//0.69% due to main effect: X0 batch_size
+	//0.04% due to main effect: X10 x_layers
 
 	// fANOVA - list them here for brevity...
-	//37.19% due to main effect: X9 learning_rate_exp
-	x9 := 37.19
-	//6.83% due to main effect: X5 dropout2
-	x5 := 6.83
-	//6.80% due to main effect: X3 cnn_neurons3
-	x3 := 6.80
-	//4.08% due to main effect: X2 cnn_neurons2
-	x2 := 4.08
-	//3.11% due to main effect: X4 dropout1
-	x4 := 3.11
-	//2.69% due to main effect: X8 fc_neurons
-	x8 := 2.69
-	//1.08% due to main effect: X7 dropout4
-	x7 := 1.08
-	//1.03% due to main effect: X6 dropout3
-	x6 := 1.03
-	//0.74% due to main effect: X1 cnn_neurons1
-	x1 := 0.74
-	//0.40% due to main effect: X0 batch_size
-	x0 := 0.40
-	//0.11% due to main effect: X10 x_layers
-	x10 := 0.11
+	//13.85% due to main effect: X5 dropout2
+	x5 := 13.85
+	//8.32% due to main effect: X4 dropout1
+	x4 := 8.32
+	//6.59% due to main effect: X9 learning_rate_exp
+	x9 := 6.59
+	//6.12% due to main effect: X8 fc_neurons
+	x8 := 6.12
+	//4.13% due to main effect: X1 cnn_neurons1
+	x1 := 4.13
+	//3.77% due to main effect: X7 dropout4
+	x7 := 3.77
+	//2.72% due to main effect: X6 dropout3
+	x6 := 2.72
+	//2.59% due to main effect: X2 cnn_neurons2
+	x2 := 2.59
+	//2.30% due to main effect: X3 cnn_neurons3
+	x3 := 2.30
+	//0.69% due to main effect: X0 batch_size
+	x0 := 0.69
+	//0.04% due to main effect: X10 x_layers
+	x10 := 0.04
 
 	//x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10 = 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0
 
